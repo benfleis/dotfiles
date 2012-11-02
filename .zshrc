@@ -2,59 +2,32 @@
 
 PATH=$HOME/bin:/usr/local/bin:/usr/local/sbin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/X11R6/bin
 
-present() {
-    PRESENT=`which $1 2> /dev/null`
+prefer() {
+    PREFER=`which $1 2> /dev/null`
     [ $? -eq 0 ] && return 0
-    [ $# -eq 2 ] && PRESENT=`which $2`
+    [ $# -eq 2 ] && PREFER=`which $2`
     return 1
 }
 
 export PATH HOME TERM
 export CVS_RSH=`which ssh`
 export RSYNC_RSH=`which ssh`
-export MAIL=~/mail/inbox
 export HISTSIZE=256
 export LESS='-iFMX'
 export EXTENDED_GLOB
-export CTAGS='--langmap=php:.inc.php'
-#export PYTHONSTARTUP="$HOME/.pystartup.py"
-present vim vi; export EDITOR=$PRESENT
+
+prefer less more; export PAGER=$PREFER
+prefer vim vi; export EDITOR=$PREFER
 export VISUAL=$EDITOR
-present less more; export PAGER=$PRESENT
 
 export USERXSESSIONRC=$HOME/.xsession
 
-##
-# some bits stolen from: http://www.aperiodic.net/phil/prompt/prompt.txt
-#
-autoload colors zsh/terminfo
-setopt promptpercent
-setopt promptsubst
-if [[ "$terminfo[colors]" -ge 8 ]]; then
-    colors
-fi
-for color in RED GREEN YELLOW BLUE MAGENTA CYAN WHITE; do
-    eval PR_$color='%{$terminfo[bold]$fg[${(L)color}]%}'
-    eval PR_LIGHT_$color='%{$fg[${(L)color}]%}'
-    (( count = $count + 1 ))
-done
-PR_NO_COLOUR="%{$terminfo[sgr0]%}"
-
-# export PS1='[%U%m%u] %B%~%b $ '
-## preferred prompts; first is for white bg, second is for black bg (iterm)
-export PROMPT='[%(?.$PR_LIGHT_GREEN%m.$PR_RED%m)$PR_NO_COLOUR] $PR_LIGHT_GREEN%~$PR_NO_COLOUR $ '
-#export PROMPT='[%(?.$PR_LIGHT_GREEN%m.$PR_RED%m)$PR_NO_COLOUR] $PR_LIGHT_BLUE%~$PR_NO_COLOUR $ '
-#export PROMPT='[%(?.$PR_GREEN%m.$PR_RED%m)$PR_WHITE] $PR_BLUE%~$PR_NO_COLOUR $ '
-
 # aliases
-present vim && alias vi="vim"
-present vim && alias view="vim -R"
-present mpg123 && alias mpg123="mpg123 -b 1024"
-present todo.sh && alias t="$(which todo.sh)"
+prefer vim && alias vi="vim"
+prefer vim && alias view="vim -R"
 
-alias icb="icb -h cvs.openbsd.org -g hackers -n ben.f"
 alias webster="ssh monkey.org webster"
-alias m=more
+alias m=$PAGER
 alias psg="ps ax | grep "
 alias ip="ipython"
 
@@ -122,6 +95,28 @@ ulimit -c unlimited
 ulimit -d unlimited
 ulimit -s unlimited
 
+##
+# some bits stolen from: http://www.aperiodic.net/phil/prompt/prompt.txt
+#
+autoload colors zsh/terminfo
+setopt promptpercent
+setopt promptsubst
+if [[ "$terminfo[colors]" -ge 8 ]]; then
+    colors
+fi
+for color in RED GREEN YELLOW BLUE MAGENTA CYAN WHITE; do
+    eval PR_$color='%{$terminfo[bold]$fg[${(L)color}]%}'
+    eval PR_LIGHT_$color='%{$fg[${(L)color}]%}'
+    (( count = $count + 1 ))
+done
+PR_NO_COLOUR="%{$terminfo[sgr0]%}"
+
+# export PS1='[%U%m%u] %B%~%b $ '
+## preferred prompts; first is for white bg, second is for black bg (iterm)
+export PROMPT='[%(?.$PR_LIGHT_GREEN%m.$PR_RED%m)$PR_NO_COLOUR] $PR_LIGHT_GREEN%~$PR_NO_COLOUR $ '
+#export PROMPT='[%(?.$PR_LIGHT_GREEN%m.$PR_RED%m)$PR_NO_COLOUR] $PR_LIGHT_BLUE%~$PR_NO_COLOUR $ '
+#export PROMPT='[%(?.$PR_GREEN%m.$PR_RED%m)$PR_WHITE] $PR_BLUE%~$PR_NO_COLOUR $ '
+
 # backup dir for vim
 mkdir -p /tmp/.backup
 
@@ -131,6 +126,6 @@ mkdir -p /tmp/.backup
 # load anything local to this machine
 [ -r $HOME/.zshrc-local ] && . $HOME/.zshrc-local
 
-# load anything local to this machine
+# load anything local to this machine, by name
 machine=$(uname -n | cut -d. -f1)
 [ -r $HOME/.zshrc-$machine ] && . $HOME/.zshrc-$machine || true

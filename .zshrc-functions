@@ -1,81 +1,52 @@
 # useful vars
 diff=.s.diff
 
-##
-# recursive grep, but skip CVS and .svn dirs
-#
-function sgrep
-{
-    grep -Ir "$@" . | grep -v '/.svn/'
-}
-
-##
-# output the list of files controlled by SC
-#
+# output the list of files controlled by VCS
 function scfiles
 {
-    svn st -v "$@" | grep -v '^?' | cut -b42- | grep -v '^\.$'
+    git ls-files $@ 2>/dev/null || \
+        svn st -v $@ | grep -v '^?' | cut -b42- | grep -v '^\.$'
 }
 
-##
-# output the list of MODIFIED/ADDED/DELETED files controlled by SC
-#
+# output the list of MODIFIED/ADDED/DELETED files controlled by VCS
 function smfiles
 {
-    svn st -v "$@" | grep -v '^?' | grep '^[ADM]' | cut -b42- | grep -v '^\.$'
+    git ls-files -m $@ 2>/dev/null || \
+        svn st -v $@ | grep -v '^?' | grep '^[ADM]' | cut -b42- | grep -v '^\.$'
 }
 
-##
-# output the list of ? (unknown, un-ignored) files controlled by SC
-#
+# output the list of ? (unknown, un-ignored) files
 function sufiles
 {
-    svn st -v "$@" | grep '^?' | cut -b42- | grep -v '^\.$'
+    git ls-files -o $@ 2>/dev/null || \
+        svn st -v $@ | grep '^?' | cut -b42- | grep -v '^\.$'
 }
 
-##
-# output the list of files controlled by SC
-#
-function hcfiles
+# recursive grep skips VCS metadata
+function sgrep
 {
-    svn st -v "$@" | grep -v '^?' | cut -b42- | grep -v '^\.$'
+    find . -print0 \! \( -name .git -or -name .svn -or -name CVS \) -or -prune | xargs -0 -n 1000 grep -I $@ .
 }
 
-##
-# recursive grep of *only* cvs/svn controlled files
-#
+# recursive grep of *only* VCS controlled files
 function scgrep
 {
-    scfiles | tr '\n' '\000' | xargs -0 -n 1000 grep "$@"
+    scfiles | tr '\n' '\000' | xargs -0 -n 1000 grep $@
 }
 
-##
-# recursive grep of *only* cvs/svn controlled files
-#
-function hcgrep
-{
-    hcfiles | tr '\n' '\000' | xargs -0 -n 1000 grep "$@"
-}
-
-##
-# sync all source controlled files to another location
-#
+# create gzip'd tar of all controller files, send to stdout
 function sctgz
 {
-    scfiles "$@" | tar -c --no-recursion -T- -zf-
+    scfiles $@ | tar -c --no-recursion -T- -zf-
 }
 
-##
-# sync all source controlled files to another location
-#
+# create gzip'd tar of all modified source files, send to stdout
 function smtgz
 {
-    smfiles "$@" | tar -c --no-recursion -T- -zf-
+    smfiles $@ | tar -c --no-recursion -T- -zf-
 }
 
-##
 # invoke a tar creation of all sc files
-#
 function scsync
 {
     tmp="/tmp/.scsync.$$"
@@ -83,16 +54,14 @@ function scsync
 
     # user args are appended, so you can do things like -n (no execute) or
     # -b (make backups)
-    rsync -i --files-from="$tmp" . "$@"
+    rsync -i --files-from="$tmp" . $@
+    rm -f "$tmp"
 }
 
-##
-# recurse and grep all SCons* files.
-#
+# recursive find and grep all SCons* files.
 function sconsgrep
 {
-    find . \( -name .svn -type d -prune \) -o \( -name SCons\* -print0 \) \
-        | xargs -0 -n 1000 grep "$@"
+    scfiles | grep '^SCons' | tr '\n' '\000' | xargs -0 -n 1000 grep $@
 }
 
 ##
@@ -101,16 +70,8 @@ function sconsgrep
 #
 function sdiff
 {
-    svn diff --diff-cmd diff -x "-U40 -N" "$@"
-}
-
-##
-# hdiff - generate a diff (of optionally specified dirs/files), filter out
-# the ? lines, and store it in $diff, then call your $EDITOR on it.
-#
-function hdiff
-{
-    hg diff "$@"
+    git diff $@ 2>/dev/null || \
+        svn diff --diff-cmd diff -x "-U40 -N" $@
 }
 
 ##
@@ -119,47 +80,31 @@ function hdiff
 #
 function sdv
 {
-    sdiff $@ > $diff
-    $EDITOR $diff
+    sdiff $@ > $diff && $EDITOR $diff
 }
 
-##
-# hdv - generate a diff (of optionally specified dirs/files), filter out
-# the ? lines, and store it in $diff, then call your $EDITOR on it.
-#
-function hdv
-{
-    hdiff $@ > $diff
-    $EDITOR $diff
-}
-
-##
-# sdvd - (SVN only) - use vimdiff to display diffs
-#
+# sdvd - (SVN only) - use vimdiff to display diffs, in sequence
 function sdvd
 {
-    svn diff --diff-cmd _svdiff_wrapper.sh "$@" > $diff
+    echo "UNIMPLEMENTED" >&2; return 1
+    #for i in `smfiles $@` | sed 's/\(.*\)/"\1"/g'; do
+    #    svn diff --diff-cmd $HOME/.sdvd_diff_wrapper.sh $1 > $diff
+    #done
 }
 
-##
 # se - invoke $EDITOR on all files in smfiles
-#
 function se
 {
     $EDITOR `smfiles`
 }
 
-##
 # get the list of files found in a specified diff.
-#
 function dfiles
 {
     grep '^Index:' "$@" | cut -d' ' -f2
 }
 
-##
-# dfiles for svn/cvs
-#
+# dfiles for VCS
 function sdfiles
 {
     echo "UNIMPLEMENTED" >&2; return 1
@@ -169,56 +114,42 @@ function sdfiles
 # regenerate a diff, specifying only files currently found in that diff,
 # storing it in $diff.
 #
-function srediff { sdiff $(dfiles "$@") }
+function srediff { sdiff $(dfiles $@) }
 
-##
 # st -- list the file status for all locally modified files
-#
 function st
 {
-    svn st "$@" 2>&1 | sed '/^?/d'
+    echo "UNIMPLEMENTED" >&2; return 1
+    #svn st "$@" 2>&1 | sed '/^?/d'
 }
 
-##
 # sconflicts -- get list of files in conflict state
-#
 function sconflicts
 {
-    st | grep '^C' | cut -b3- | sed -e 's/^\s*//g' -e 's/\s*$//g'
+    echo "UNIMPLEMENTED" >&2; return 1
+    #st | grep '^C' | cut -b3- | sed -e 's/^\s*//g' -e 's/\s*$//g'
 }
 
-##
 # perform an update on the repository
-#
 function up
 {
-    svn up "$@" 2>&1 | sed '/At revision /d'
+    echo "UNIMPLEMENTED" >&2; return 1
+    #svn up "$@" 2>&1 | sed '/At revision /d'
 }
 
-##
 # checkin related funcs
-#
 function sdci
 {
-    svn ci $(dfiles "$@")
+    echo "UNIMPLEMENTED" >&2; return 1
+    #svn ci $(dfiles "$@")
 }
 
-##
-# cvi -- given a file name, cd to its directory then vi the file
-#
-function cdi
-{
-    # FIXME currently ignore everything past 1st arg
-    cd $(dirname $1)
-    vi $(basename $1)
-}
+# -----------------------------------------------------------------------------
 
-##
 # wipeout all known ssh-agent instances, and attempt to start over
-#
 function new-ssh-agent
 {
-    pkill ssh-agent
+    pkill ssh-agent || killall ssh-agent
     eval `ssh-agent`
 
     SOCK="/tmp/ssh-$USER/agent"
@@ -234,7 +165,7 @@ function new-ssh-agent
 #
 function wait_for_all
 {
-    while pgrep "$@" >/dev/null; do
+    while pgrep $@ >/dev/null; do
         sleep 1
     done
 }
