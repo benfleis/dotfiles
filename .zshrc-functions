@@ -1,0 +1,259 @@
+# useful vars
+diff=.s.diff
+
+##
+# recursive grep, but skip CVS and .svn dirs
+#
+function sgrep
+{
+    grep -Ir "$@" . | grep -v '/.svn/'
+}
+
+##
+# output the list of files controlled by SC
+#
+function scfiles
+{
+    svn st -v "$@" | grep -v '^?' | cut -b42- | grep -v '^\.$'
+}
+
+##
+# output the list of MODIFIED/ADDED/DELETED files controlled by SC
+#
+function smfiles
+{
+    svn st -v "$@" | grep -v '^?' | grep '^[ADM]' | cut -b42- | grep -v '^\.$'
+}
+
+##
+# output the list of ? (unknown, un-ignored) files controlled by SC
+#
+function sufiles
+{
+    svn st -v "$@" | grep '^?' | cut -b42- | grep -v '^\.$'
+}
+
+##
+# output the list of files controlled by SC
+#
+function hcfiles
+{
+    svn st -v "$@" | grep -v '^?' | cut -b42- | grep -v '^\.$'
+}
+
+##
+# recursive grep of *only* cvs/svn controlled files
+#
+function scgrep
+{
+    scfiles | tr '\n' '\000' | xargs -0 -n 1000 grep "$@"
+}
+
+##
+# recursive grep of *only* cvs/svn controlled files
+#
+function hcgrep
+{
+    hcfiles | tr '\n' '\000' | xargs -0 -n 1000 grep "$@"
+}
+
+##
+# sync all source controlled files to another location
+#
+function sctgz
+{
+    scfiles "$@" | tar -c --no-recursion -T- -zf-
+}
+
+##
+# sync all source controlled files to another location
+#
+function smtgz
+{
+    smfiles "$@" | tar -c --no-recursion -T- -zf-
+}
+
+##
+# invoke a tar creation of all sc files
+#
+function scsync
+{
+    tmp="/tmp/.scsync.$$"
+    scfiles > "$tmp"
+
+    # user args are appended, so you can do things like -n (no execute) or
+    # -b (make backups)
+    rsync -i --files-from="$tmp" . "$@"
+}
+
+##
+# recurse and grep all SCons* files.
+#
+function sconsgrep
+{
+    find . \( -name .svn -type d -prune \) -o \( -name SCons\* -print0 \) \
+        | xargs -0 -n 1000 grep "$@"
+}
+
+##
+# sdiff - generate a diff (of optionally specified dirs/files), filter out
+# the ? lines, and store it in $diff, then call your $EDITOR on it.
+#
+function sdiff
+{
+    svn diff --diff-cmd diff -x "-U40 -N" "$@"
+}
+
+##
+# hdiff - generate a diff (of optionally specified dirs/files), filter out
+# the ? lines, and store it in $diff, then call your $EDITOR on it.
+#
+function hdiff
+{
+    hg diff "$@"
+}
+
+##
+# sdv - generate a diff (of optionally specified dirs/files), filter out
+# the ? lines, and store it in $diff, then call your $EDITOR on it.
+#
+function sdv
+{
+    sdiff $@ > $diff
+    $EDITOR $diff
+}
+
+##
+# hdv - generate a diff (of optionally specified dirs/files), filter out
+# the ? lines, and store it in $diff, then call your $EDITOR on it.
+#
+function hdv
+{
+    hdiff $@ > $diff
+    $EDITOR $diff
+}
+
+##
+# sdvd - (SVN only) - use vimdiff to display diffs
+#
+function sdvd
+{
+    svn diff --diff-cmd _svdiff_wrapper.sh "$@" > $diff
+}
+
+##
+# se - invoke $EDITOR on all files in smfiles
+#
+function se
+{
+    $EDITOR `smfiles`
+}
+
+##
+# get the list of files found in a specified diff.
+#
+function dfiles
+{
+    grep '^Index:' "$@" | cut -d' ' -f2
+}
+
+##
+# dfiles for svn/cvs
+#
+function sdfiles
+{
+    echo "UNIMPLEMENTED" >&2; return 1
+}
+
+##
+# regenerate a diff, specifying only files currently found in that diff,
+# storing it in $diff.
+#
+function srediff { sdiff $(dfiles "$@") }
+
+##
+# st -- list the file status for all locally modified files
+#
+function st
+{
+    svn st "$@" 2>&1 | sed '/^?/d'
+}
+
+##
+# sconflicts -- get list of files in conflict state
+#
+function sconflicts
+{
+    st | grep '^C' | cut -b3- | sed -e 's/^\s*//g' -e 's/\s*$//g'
+}
+
+##
+# perform an update on the repository
+#
+function up
+{
+    svn up "$@" 2>&1 | sed '/At revision /d'
+}
+
+##
+# checkin related funcs
+#
+function sdci
+{
+    svn ci $(dfiles "$@")
+}
+
+##
+# cvi -- given a file name, cd to its directory then vi the file
+#
+function cdi
+{
+    # FIXME currently ignore everything past 1st arg
+    cd $(dirname $1)
+    vi $(basename $1)
+}
+
+##
+# wipeout all known ssh-agent instances, and attempt to start over
+#
+function new-ssh-agent
+{
+    pkill ssh-agent
+    eval `ssh-agent`
+
+    SOCK="/tmp/ssh-$USER/agent"
+    ORIG="$SSH_AUTH_SOCK"
+    mkdir -pm 0700 "$(dirname $SOCK)"
+    ln -sf "$ORIG" "$SOCK"
+    export SSH_AUTH_SOCK="$SOCK"
+}
+
+##
+# like wait, but not required to be own child.  accepts (and passes through)
+# args to pgrep
+#
+function wait_for_all
+{
+    while pgrep "$@" >/dev/null; do
+        sleep 1
+    done
+}
+
+##
+# given paths C and N, convert N to path relative to C
+#
+# from: http://www.zsh.org/mla/users/2002/msg00263.html
+# 
+function relpath {
+    emulate -L zsh
+    local up=.. down
+    # ! -d $up/$down accounts for symlinks in $PWD
+    while [[ ${PWD#$1} == $PWD || ! -d $up/$down ]]; do
+        up=../$up
+        if [[ -n $1:t ]]; then
+            down=$1:t${down:+/$down}
+            1=$1:h
+        fi
+    done
+    print $up/$down
+}
