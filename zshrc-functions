@@ -70,7 +70,7 @@ function sconsgrep
 #
 function sdiff
 {
-    git diff $@ 2>/dev/null || \
+    git diff --relative $@ 2>/dev/null || \
         svn diff --diff-cmd diff -x "-U40 -N" $@
 }
 
