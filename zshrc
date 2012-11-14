@@ -121,11 +121,11 @@ export PROMPT='[%(?.$PR_LIGHT_GREEN%m.$PR_RED%m)$PR_NO_COLOUR] $PR_LIGHT_GREEN%~
 mkdir -p /tmp/.backup
 
 # load up all ze functions
-[ -r $HOME/.zshrc-functions ] && . $HOME/.zshrc-functions
+[ -r $HOME/.zsh/functions ] && . $HOME/.zsh/functions
 
 # load anything local to this machine
-[ -r $HOME/.zshrc-local ] && . $HOME/.zshrc-local
+[ -r $HOME/.zsh/local ] && . $HOME/.zsh/local
 
 # load anything local to this machine, by name
 machine=$(uname -n | cut -d. -f1)
-[ -r $HOME/.zshrc-$machine ] && . $HOME/.zshrc-$machine || true
+[ -r $HOME/.zsh/$machine ] && . $HOME/.zsh/$machine || true
