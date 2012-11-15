@@ -1,0 +1,15 @@
+[user]
+    email = bfleis@linkedin.com
+    name = ben fleis
+[merge]
+    renameLimit = 999999
+    tool = vimdiff
+[alias]
+    st = status
+    ci = commit
+    co = checkout
+[core]
+    editor = vim
+[color]
+#   ui = true
+#   interactive = true
