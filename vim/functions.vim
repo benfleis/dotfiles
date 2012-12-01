@@ -1,11 +1,11 @@
 " simplified Mark() function from http://www.vim.org/scripts/script.php?script_id=72
-fun! Mark(...)
+function! Mark(...)
     let mark = line(".") . "G" . virtcol(".") . "|"
     normal! H
     let mark = "normal!" . line(".") . "Gzt" . mark
     execute mark
     return mark
-endfun
+endfunction
 
 " remove all trailing whitespace
 function! StripTrailingWS()
@@ -15,7 +15,7 @@ function! StripTrailingWS()
 endfunction
 
 " from Zathrus on #vim
-function! <SID>CloseIfOnlyWindow(force)
+function! CloseIfOnlyWindow(force)
    " Performing :bd in a tab page will close the tab page, similar to
    " performing :bd in a split window
    if winnr('$') == 1 && (!exists('*tabpagenr') || tabpagenr('$') == 1)

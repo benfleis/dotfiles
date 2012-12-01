@@ -37,7 +37,8 @@ set visualbell
 set noshowmatch
 set notitle
 
-colorscheme peachpuff
+set t_Co=256
+colorscheme grb4
 set bg=dark
 hi SpecialKey ctermfg=red ctermbg=yellow
 
@@ -75,9 +76,12 @@ runtime macros/matchit.vim
 
 "------------------------------------------------------------------------------
 
-source $HOME/.vim/autocommand.vim
+" load order not accidental here -- functions first, maps last
+source $HOME/.vim/vundle.vim
 source $HOME/.vim/functions.vim
+source $HOME/.vim/autocommand.vim
 source $HOME/.vim/map.vim
+
 
 " load .vimrc-local if it can be found
 if filereadable($HOME . "/.vim/local")
