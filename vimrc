@@ -57,7 +57,7 @@ set backupdir=/tmp/.backup,~/.backup,./.backup,.
 set writebackup
 
 " set grep/make progs.  this could be smarter, but sufficient for now
-set grepprg=scgrep.zsh\ -n
+set grepprg=scgrep\ -n
 
 set clipboard=unnamed
 set hidden
