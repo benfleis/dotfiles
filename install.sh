@@ -1,41 +1,24 @@
 #!/bin/sh
 
-cutstring="DO NOT EDIT BELOW THIS LINE"
+function install {
+    target="$1"
+    source="$2"
+    if [[ -e "$target" && ! -L "$target" ]]; then
+        echo "Real file \"$target\" already exists.  Please remove."
+    else
+        echo "$target -> $PWD/$source"
+        ln -sf "$PWD/$source" "$target"
+    fi
+}
 
+# link all dotfiles/foo -> $HOME/.foo; skip bin dir and install.sh
 nothing_to_do=true
 for name in *; do
-  target="$HOME/.$name"
-  if [ -e $target ]; then
-    if [ ! -L $target ]; then
-      nothing_to_do=false
-
-      cutline=`grep -n -m1 "$cutstring" "$target" | sed "s/:.*//"`
-      if [[ -n $cutline ]]; then
-        let "cutline = $cutline - 1"
-        echo "Updating $target"
-        head -n $cutline "$target" > update_tmp
-        startline=`tail -r "$name" | grep -n -m1 "$cutstring" | sed "s/:.*//"`
-        if [[ -n $startline ]]; then
-          tail -n $startline "$name" >> update_tmp
-        else
-          cat "$name" >> update_tmp
-        fi
-        mv -v update_tmp "$target"
-      else
-        echo "WARNING: $target exists but is not a symlink."
-      fi
-    fi
-  else
-    if [[ $name != 'install.sh' ]]; then
-      nothing_to_do=false
-      echo "Creating $target"
-      if [[ -n `grep "$cutstring" "$name"` ]]; then
-        cp "$PWD/$name" "$target"
-      else
-        ln -s "$PWD/$name" "$target"
-      fi
-    fi
-  fi
+    [[ "$name" = "README.md" || "$name" = "install.sh" || "$name" = "bin" ]] && continue
+    install "$HOME/.$name" "$name" 
 done
 
-[[ $nothing_to_do == true ]] && echo "Nothing to do."
+# link dotfiles/bin/* -> $HOME/bin/*
+for script in bin/*; do
+    install "$HOME/$script" "$script"
+done
