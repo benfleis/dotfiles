@@ -63,9 +63,11 @@ set clipboard=unnamed
 set hidden
 
 " Persistent undo
-set undofile " Create FILE.un~ files for persistent undo
-silent !mkdir ~/.vim/undodir > /dev/null 2>&1
-set undodir=~/.vim/undodir
+if version >= 730
+    set undofile " Create FILE.un~ files for persistent undo
+    silent !mkdir ~/.vim/undodir > /dev/null 2>&1
+    set undodir=~/.vim/undodir
+endif
 
 set splitbelow splitright
 set tags=tags;/
