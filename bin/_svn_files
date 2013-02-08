@@ -1,17 +1,41 @@
 #!/usr/bin/env python
 
+import argparse
 import sys
 import xml.sax
 
 # read in the xml spec from svn st --xml, and spit out all svn-owned items
 # (doing this with grep/sed would require state or other trickiness)
 class SvnPathEmitter(xml.sax.ContentHandler):
-    def __init__(self): xml.sax.ContentHandler.__init__(self)
+    def __init__(self, keeps=()):
+        xml.sax.ContentHandler.__init__(self)
+        self.keeps = keeps
 
     def startElement(self, name, attrs):
         if name == 'entry':
             self.path = attrs.get('path')
-        if name == 'wc-status' and attrs.get('item', '') != 'unversioned':
+        if name == 'wc-status' and attrs.get('item', '') in self.keeps:
             print self.path
 
-xml.sax.parse(sys.stdin, SvnPathEmitter())
+def main(args):
+    p = argparse.ArgumentParser()
+    p.add_argument('-n', dest='n', action='store_true', help='list normal files')
+    p.add_argument('-e', dest='e', action='store_true', help='list external files')
+    p.add_argument('-m', dest='m', action='store_true', help='list modified files')
+    p.add_argument('-a', dest='a', action='store_true', help='list added files')
+    p.add_argument('-d', dest='d', action='store_true', help='list deleted files')
+    p.add_argument('-u', dest='u', action='store_true', help='list unversioned files')
+    args = p.parse_args(args)
+    if not args.n and not args.e and not args.m and not args.a and not args.d and not args.u:
+        args.n = args.m = args.a = args.d = True
+    keeps = set()
+    if (args.n): keeps.add('normal')
+    if (args.e): keeps.add('external')
+    if (args.m): keeps.add('modified')
+    if (args.a): keeps.add('added')
+    if (args.d): keeps.add('deleted')
+    if (args.u): keeps.add('unversioned')
+    xml.sax.parse(sys.stdin, SvnPathEmitter(keeps))
+
+if __name__ == '__main__':
+    main(sys.argv[1:])
