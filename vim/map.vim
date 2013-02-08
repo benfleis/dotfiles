@@ -16,7 +16,7 @@ map = :bn
 map _ :silent :call CloseIfOnlyWindow(0)<CR>
 
 " Insert b:debugger_line
-nmap <Leader>D O<C-R>=b:debugger_line<C-[>
+nmap <Leader>D O<C-R>=b:debugger_line<C-[><C-[>
 
 " toggle search highlighting via <Leader>h/H
 nmap <Leader>h :silent :set hlsearch!<CR>

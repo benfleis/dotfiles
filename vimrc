@@ -1,3 +1,6 @@
+" -lalways use utf8
+set encoding=utf-8
+
 " better searching
 set ignorecase
 set smartcase
@@ -84,6 +87,12 @@ source $HOME/.vim/functions.vim
 source $HOME/.vim/autocommand.vim
 source $HOME/.vim/map.vim
 
+" load bundle opts here.  always wrap them in conditionals.
+if exists('g:Powerline_loaded') && g:Powerline_loaded
+    let g:Powerline_symbols = 'unicode'
+    let g:Powerline_colorscheme = 'solarized256'
+    let g:Powerline_theme = 'solarized256'
+endif
 
 " load .vimrc-local if it can be found
 if filereadable($HOME . "/.vim/local")

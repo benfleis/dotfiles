@@ -9,13 +9,20 @@ call vundle#rc()
 " let Vundle manage Vundle
 Bundle 'gmarik/vundle'
 
+" language specific vundles
+Bundle 'vim-scripts/vim-json-bundle'
 Bundle 'repos-scala/scala-vundle'
-Bundle 'tpope/vim-fugitive'
-Bundle 'tsaleh/vim-matchit'
-Bundle 'jgdavey/tslime.vim'
 
 " Colorschemes
 Bundle 'nanotech/jellybeans.vim'
+
+" status line awesomeness
+Bundle 'Lokaltog/vim-powerline'
+"Bundle 'Lokaltog/powerline'  - future version, beta?
+
+Bundle 'tpope/vim-fugitive'
+Bundle 'tsaleh/vim-matchit'
+Bundle 'jgdavey/tslime.vim'
 
 "Bundle 'ack.vim'
 "Bundle 'tsaleh/vim-matchit'
