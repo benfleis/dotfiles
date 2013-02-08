@@ -4,22 +4,13 @@ diff=.s.diff
 # output the list of files controlled by VCS
 function scfiles
 {
-    git ls-files $@ 2>/dev/null || \
-        svn st -v $@ | grep -v '^?' | cut -b42- | grep -v '^\.$'
+    git ls-files $@ 2>/dev/null || svn st -v --xml $@ | _svn_files
 }
 
 # output the list of MODIFIED/ADDED/DELETED files controlled by VCS
 function smfiles
 {
-    git ls-files -m $@ 2>/dev/null || \
-        svn st -v $@ | grep -v '^?' | grep '^[ADM]' | cut -b42- | grep -v '^\.$'
-}
-
-# output the list of ? (unknown, un-ignored) files
-function sufiles
-{
-    git ls-files -o $@ 2>/dev/null || \
-        svn st -v $@ | grep '^?' | cut -b42- | grep -v '^\.$'
+    git ls-files -m $@ 2>/dev/null || svn st --xml $@ | _svn_files
 }
 
 # recursive grep skips VCS metadata
