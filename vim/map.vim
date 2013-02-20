@@ -26,3 +26,7 @@ nmap <Leader>w :silent :call StripTrailingWS()<CR>
 vmap <Leader>y <Plug>SendSelectionToTmux
 nmap <Leader>y <Plug>NormalModeSendToTmux
 nmap <Leader>R <Plug>SetTmuxVars
+
+" useful "go" commands
+map gd :call RunSdiff()
+map gs :Gstatus

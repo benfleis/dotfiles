@@ -21,6 +21,8 @@ Bundle 'Lokaltog/vim-powerline'
 "Bundle 'Lokaltog/powerline'  - future version, beta?
 
 Bundle 'tpope/vim-fugitive'
+" rather not have it AND fugitive, but I want sth for svn
+Bundle 'vim-scripts/vcscommand.vim'
 Bundle 'tsaleh/vim-matchit'
 Bundle 'jgdavey/tslime.vim'
 
@@ -31,8 +33,6 @@ Bundle 'jgdavey/tslime.vim'
 "Bundle 'ervandew/supertab'
 "Bundle 'tpope/vim-cucumber'
 "Bundle 'tpope/vim-haml'
-"Bundle 'tpope/vim-rails'
-"Bundle 'vim-ruby/vim-ruby'
 "Bundle 'godlygeek/tabular'
 "Bundle 'jgdavey/tslime.vim'
 "Bundle 'endwise.vim'

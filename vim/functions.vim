@@ -63,3 +63,58 @@ endfunction
 "  let &tags = "tags," . src . "/" . sub . "/tags"
 "endif
 
+
+""
+" function that, tries to translate current position w/in a context diff
+" into a location/search expr in the referenced file.
+"
+" only called by 'gz' key in ftplugins/diff.vim
+"
+function! DiffToSource()
+    " get current position, then search backward to relevant location
+    " marker ("^@@ -orig_off,orig_len +new_off,new_len @@")
+    let s:sec_line = search('^@@ -\d\+,\d\+ +\d\+,\d\+ @@', 'bnW')
+    let s:sec_text = getline(s:sec_line)
+    let s:parts = split(s:sec_text, "[ ,+-]")
+    let s:open_line = str2nr(s:parts[5])   " new file starting offset
+
+    " get file to open
+    let s:index_text = getline(search('^Index: ', 'bnW'))
+    let s:open_file = s:index_text[7:-1]
+
+    " now count the # of lines to skip forward
+    " starting at s:line + 1, get each line
+    let s:cur_line = line(".")
+    let s:open_offset = 0
+    for i in range(s:sec_line + 1, s:cur_line - 1)
+        let s:l = getline(i)[0]
+        if s:l == " " || s:l == "+"
+            let s:open_offset += 1
+        endif
+    endfor
+
+    " and snag expression to match
+    "let s:open_pat = getline(".")[0:-1]
+    " could search for "\V" . s:open_pat
+
+    " do it!  split windows and open up
+    if winwidth(winnr()) > 150
+        vsplit
+    else
+        split
+    endif
+
+    exec "find " . s:open_file
+    exec string(s:open_line + s:open_offset)
+endfunction
+
+" run the external command 'sdiff'
+function! RunSdiff()
+    !sdiff
+    e .s.diff
+endfunction
+
+" run sdiff
+command Sdv call RunSdiff()
+command Sdiff call RunSdiff()
+
