@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import argparse
+import optparse     # ugh, prefer argparse, but 2.6 on some machines
 import sys
 import xml.sax
 
@@ -18,23 +18,23 @@ class SvnPathEmitter(xml.sax.ContentHandler):
             print self.path
 
 def main(args):
-    p = argparse.ArgumentParser()
-    p.add_argument('-n', dest='n', action='store_true', help='list normal files')
-    p.add_argument('-e', dest='e', action='store_true', help='list external files')
-    p.add_argument('-m', dest='m', action='store_true', help='list modified files')
-    p.add_argument('-a', dest='a', action='store_true', help='list added files')
-    p.add_argument('-d', dest='d', action='store_true', help='list deleted files')
-    p.add_argument('-u', dest='u', action='store_true', help='list unversioned files')
-    args = p.parse_args(args)
-    if not args.n and not args.e and not args.m and not args.a and not args.d and not args.u:
-        args.n = args.m = args.a = args.d = True
+    p = optparse.OptionParser()
+    p.add_option('-n', dest='n', action='store_true', help='list normal files')
+    p.add_option('-e', dest='e', action='store_true', help='list external files')
+    p.add_option('-m', dest='m', action='store_true', help='list modified files')
+    p.add_option('-a', dest='a', action='store_true', help='list added files')
+    p.add_option('-d', dest='d', action='store_true', help='list deleted files')
+    p.add_option('-u', dest='u', action='store_true', help='list unversioned files')
+    opts, _ = p.parse_args(args)
+    if not opts.n and not opts.e and not opts.m and not opts.a and not opts.d and not opts.u:
+        opts.n = opts.m = opts.a = opts.d = True
     keeps = set()
-    if (args.n): keeps.add('normal')
-    if (args.e): keeps.add('external')
-    if (args.m): keeps.add('modified')
-    if (args.a): keeps.add('added')
-    if (args.d): keeps.add('deleted')
-    if (args.u): keeps.add('unversioned')
+    if (opts.n): keeps.add('normal')
+    if (opts.e): keeps.add('external')
+    if (opts.m): keeps.add('modified')
+    if (opts.a): keeps.add('added')
+    if (opts.d): keeps.add('deleted')
+    if (opts.u): keeps.add('unversioned')
     xml.sax.parse(sys.stdin, SvnPathEmitter(keeps))
 
 if __name__ == '__main__':
