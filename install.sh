@@ -7,7 +7,7 @@ function install {
         echo "Real file \"$target\" already exists.  Please remove."
     else
         echo "$target -> $PWD/$source"
-        ln -sf "$PWD/$source" "$target"
+        ln -sfT "$PWD/$source" "$target"
     fi
 }
 
@@ -15,7 +15,7 @@ function install {
 nothing_to_do=true
 for name in *; do
     [[ "$name" = "README.md" || "$name" = "install.sh" || "$name" = "bin" ]] && continue
-    install "$HOME/.$name" "$name" 
+    install "$HOME/.$name" "$name"
 done
 
 # link dotfiles/bin/* -> $HOME/bin/*
