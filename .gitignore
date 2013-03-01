@@ -1,3 +1,10 @@
 .netrwhist
-vim/undodir
+.s.diff
 *.swp
+
+# Vundle submodule + d/l'd vundles
+vim/bundle
+
+# local files
+vim/undodir
+zsh/local
