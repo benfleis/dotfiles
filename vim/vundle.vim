@@ -25,6 +25,7 @@ Bundle 'tpope/vim-fugitive'
 Bundle 'vim-scripts/vcscommand.vim'
 Bundle 'tsaleh/vim-matchit'
 Bundle 'jgdavey/tslime.vim'
+Bundle 'davidoc/taskpaper.vim'
 
 "Bundle 'ack.vim'
 "Bundle 'tsaleh/vim-matchit'
