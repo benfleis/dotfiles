@@ -30,3 +30,9 @@ nmap <Leader>R <Plug>SetTmuxVars
 " useful "go" commands
 map gd :call RunSdiff()
 map gs :Gstatus
+
+" tab settings
+map <Leader>t2 :silent :setlocal ts=2 sts=2 sw=2<CR>
+map <Leader>t3 :silent :setlocal ts=3 sts=3 sw=3<CR>
+map <Leader>t4 :silent :setlocal ts=4 sts=4 sw=4<CR>
+map <Leader>t8 :silent :setlocal ts=8 sts=8 sw=8<CR>
