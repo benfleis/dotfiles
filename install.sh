@@ -7,7 +7,8 @@ function install {
         echo "Real file \"$target\" already exists.  Please remove."
     else
         echo "$target -> $PWD/$source"
-        ln -sfT "$PWD/$source" "$target"
+        # if linux, use T
+        ln -sf "$PWD/$source" "$target"
     fi
 }
 

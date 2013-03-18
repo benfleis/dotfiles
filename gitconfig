@@ -1,5 +1,5 @@
 [user]
-    email = bfleis@linkedin.com
+    email = ben@monkey.org
     name = ben fleis
 [merge]
     renameLimit = 999999
@@ -10,6 +10,7 @@
     co = checkout
 [core]
     editor = vim
+    excludesfile = /Users/ben/.gitignore_global
 [color]
-#   ui = true
-#   interactive = true
+    ui = true
+    interactive = true
