@@ -12,6 +12,7 @@ Bundle 'gmarik/vundle'
 " language specific vundles
 Bundle 'vim-scripts/vim-json-bundle'
 Bundle 'repos-scala/scala-vundle'
+Bundle 'davidoc/taskpaper.vim'
 
 " Colorschemes
 Bundle 'nanotech/jellybeans.vim'
@@ -21,11 +22,12 @@ Bundle 'Lokaltog/vim-powerline'
 "Bundle 'Lokaltog/powerline'  - future version, beta?
 
 Bundle 'tpope/vim-fugitive'
-" rather not have it AND fugitive, but I want sth for svn
+" rather not have vcscommand AND fugitive, but I want sth for svn
 Bundle 'vim-scripts/vcscommand.vim'
 Bundle 'tsaleh/vim-matchit'
 Bundle 'jgdavey/tslime.vim'
-Bundle 'davidoc/taskpaper.vim'
+Bundle 'tpope/vim-surround'
+Bundle 'tpope/vim-dispatch'
 
 "Bundle 'ack.vim'
 "Bundle 'tsaleh/vim-matchit'
