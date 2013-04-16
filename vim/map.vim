@@ -26,9 +26,14 @@ let mapleader = ","
 " toggle paste mode
 nmap <Leader>p :silent :set paste!<CR>
 
+" toggle wrap mode
+nmap <Leader>w :silent :setlocal wrap!<CR>
+
 " toggle search highlighting via <Leader>h/H
 nmap <Leader>h :silent :set hlsearch!<CR>
-nmap <Leader>w :silent :call StripTrailingWS()<CR>
+
+" strip whitespace
+nmap <Leader>s :silent :call StripTrailingWS()<CR>
 
 " Insert b:debugger_line
 nmap <Leader>D O<C-R>=b:debugger_line<C-[><C-[>
