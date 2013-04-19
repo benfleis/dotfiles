@@ -1,0 +1,23 @@
+#!/usr/bin/env python
+
+import optparse     # ugh, prefer argparse, but 2.6 on some machines
+import os
+import stat
+import sys
+
+def main(args):
+    p = optparse.OptionParser()
+    p.add_option('-f', dest='f', action='store_true', help='keep files')
+    p.add_option('-d', dest='d', action='store_true', help='keep directories')
+    p.add_option('-l', dest='l', action='store_true', help='keep soft links')
+    opts, _ = p.parse_args(args)
+
+    for path in sys.stdin:
+        mode = os.lstat(path[:-1]).st_mode
+        if ((opts.f and stat.S_ISREG(mode))
+          or (opts.d and stat.S_ISDIR(mode))
+          or (opts.l and stat.S_ISLNK(mode))):
+            sys.stdout.write(path)
+
+if __name__ == '__main__':
+    main(sys.argv[1:])
