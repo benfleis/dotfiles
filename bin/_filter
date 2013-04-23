@@ -13,11 +13,16 @@ def main(args):
     opts, _ = p.parse_args(args)
 
     for path in sys.stdin:
-        mode = os.lstat(path[:-1]).st_mode
-        if ((opts.f and stat.S_ISREG(mode))
-          or (opts.d and stat.S_ISDIR(mode))
-          or (opts.l and stat.S_ISLNK(mode))):
-            sys.stdout.write(path)
+        try:
+            mode = os.lstat(path[:-1]).st_mode
+            if ((opts.f and stat.S_ISREG(mode))
+            or (opts.d and stat.S_ISDIR(mode))
+            or (opts.l and stat.S_ISLNK(mode))):
+                sys.stdout.write(path)
+        except Exception as e:
+            # normal errors are like this; emit to stderr, and continue
+            # [Errno 2] No such file or directory: 'test/TestTrackingRestTopic.json'
+            sys.stderr.write(str(e) + '\n')
 
 if __name__ == '__main__':
     main(sys.argv[1:])
