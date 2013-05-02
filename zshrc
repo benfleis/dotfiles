@@ -13,7 +13,7 @@ export PATH HOME TERM
 export CVS_RSH=`which ssh`
 export RSYNC_RSH=`which ssh`
 export HISTSIZE=256
-export LESS='-iFMX'
+export LESS='-iFMRX'
 export EXTENDED_GLOB
 
 prefer less more; export PAGER=$PREFER
