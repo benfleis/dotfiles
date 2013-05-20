@@ -4,13 +4,13 @@ diff=.s.diff
 # output the list of files controlled by VCS
 function scfiles
 {
-    git ls-files $@ 2>/dev/null || svn st -v --xml $@ | _svn_files
+    git ls-files $@ 2>/dev/null || svn st -v --xml $@ | _svn_entries
 }
 
 # output the list of MODIFIED/ADDED/DELETED files controlled by VCS
 function smfiles
 {
-    git ls-files -m $@ 2>/dev/null || svn st --xml $@ | _svn_files
+    git ls-files -m $@ 2>/dev/null || svn st --xml $@ | _svn_entries
 }
 
 # recursive grep skips VCS metadata
@@ -22,7 +22,7 @@ function sgrep
 # recursive grep of *only* VCS controlled files
 function scgrep
 {
-    scfiles | tr '\n' '\000' | xargs -0 -n 1000 grep $@
+    scfiles | _filter -f | tr '\n' '\000' | xargs -0 -n 1000 grep $@
 }
 
 # create gzip'd tar of all controller files, send to stdout

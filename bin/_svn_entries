@@ -19,12 +19,12 @@ class SvnPathEmitter(xml.sax.ContentHandler):
 
 def main(args):
     p = optparse.OptionParser()
-    p.add_option('-n', dest='n', action='store_true', help='list normal files')
-    p.add_option('-e', dest='e', action='store_true', help='list external files')
-    p.add_option('-m', dest='m', action='store_true', help='list modified files')
-    p.add_option('-a', dest='a', action='store_true', help='list added files')
-    p.add_option('-d', dest='d', action='store_true', help='list deleted files')
-    p.add_option('-u', dest='u', action='store_true', help='list unversioned files')
+    p.add_option('-n', dest='n', action='store_true', help='list normal entries')
+    p.add_option('-e', dest='e', action='store_true', help='list external entries')
+    p.add_option('-m', dest='m', action='store_true', help='list modified entries')
+    p.add_option('-a', dest='a', action='store_true', help='list added entries')
+    p.add_option('-d', dest='d', action='store_true', help='list deleted entries')
+    p.add_option('-u', dest='u', action='store_true', help='list unversioned entries')
     opts, _ = p.parse_args(args)
     if not opts.n and not opts.e and not opts.m and not opts.a and not opts.d and not opts.u:
         opts.n = opts.m = opts.a = opts.d = True
