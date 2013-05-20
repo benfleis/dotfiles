@@ -26,6 +26,9 @@ let mapleader = ","
 " toggle paste mode
 nmap <Leader>p :silent :set paste!<CR>
 
+" toggle list display
+nmap <Leader>l :silent :setlocal list!<CR>
+
 " toggle wrap mode
 nmap <Leader>w :silent :setlocal wrap!<CR>
 
