@@ -25,6 +25,7 @@ inoremap # X#
 
 " visual/window
 set cursorline                          " experimental
+set fillchars+=stlnc:-,stl:\>
 set highlight=su,Su
 set laststatus=2
 set list listchars=tab:»·,trail:·

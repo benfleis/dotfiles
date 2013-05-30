@@ -1,8 +1,6 @@
 " CTRL-a does paragraph reformat
 map  gqap
 
-map <F1> :set list!
-
 map <F7> :!ctags -R *
 map <F8> :make
 map <F9> :cn
@@ -21,7 +19,7 @@ map gs :Gstatus
 "
 
 " define leader char
-let mapleader = ","
+let mapleader = ";"
 
 " toggle paste mode
 nmap <Leader>p :silent :set paste!<CR>
