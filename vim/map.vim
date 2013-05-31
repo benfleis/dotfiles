@@ -39,6 +39,12 @@ nmap <Leader>s :silent :call StripTrailingWS()<CR>
 " Insert b:debugger_line
 nmap <Leader>D O<C-R>=b:debugger_line<C-[><C-[>
 
+" special searches:
+" under_scores:
+nmap <Leader>fu :silent /\v<_*\l[a-z0-9_]*_[a-z0-9_]*><CR>
+" CamelCase:
+nmap <Leader>fc :silent /\v<_*\u\k*\l\k*\u\k*><CR>
+
 " tab settings
 map <Leader>t2 :silent :setlocal ts=2 sts=2 sw=2<CR>
 map <Leader>t3 :silent :setlocal ts=3 sts=3 sw=3<CR>
@@ -49,3 +55,4 @@ map <Leader>t8 :silent :setlocal ts=8 sts=8 sw=8<CR>
 vmap <Leader>y <Plug>SendSelectionToTmux
 nmap <Leader>y <Plug>NormalModeSendToTmux
 nmap <Leader>R <Plug>SetTmuxVars
+
