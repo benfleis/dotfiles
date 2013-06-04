@@ -37,6 +37,7 @@ set shortmess=aoOtTI
 set showcmd
 set showmode
 set visualbell
+set nowrap
 
 set noshowmatch
 set notitle
