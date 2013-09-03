@@ -16,8 +16,6 @@ set smartindent
 set smarttab
 set softtabstop=4
 set tabstop=8
-set textwidth=79
-set nowrap
 
 set formatoptions=croqln
 " according to smartindent help, this makes comments align as i wish
@@ -37,6 +35,7 @@ set shortmess=aoOtTI
 set showcmd
 set showmode
 set visualbell
+set textwidth=79
 set nowrap
 
 set noshowmatch
