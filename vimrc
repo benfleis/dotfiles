@@ -9,6 +9,7 @@ set smartcase
 set autoindent
 set backspace=2
 set expandtab
+set hlsearch
 set shiftwidth=4
 set shiftround
 set smartindent
@@ -16,8 +17,7 @@ set smarttab
 set softtabstop=4
 set tabstop=8
 set textwidth=79
-
-set nohlsearch
+set nowrap
 
 set formatoptions=croqln
 " according to smartindent help, this makes comments align as i wish

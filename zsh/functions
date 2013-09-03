@@ -164,7 +164,7 @@ function wait_for_all
 # given paths C and N, convert N to path relative to C
 #
 # from: http://www.zsh.org/mla/users/2002/msg00263.html
-# 
+#
 function relpath {
     emulate -L zsh
     local up=.. down
