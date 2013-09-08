@@ -17,17 +17,16 @@ function relpath {
 }
 
 function install {
-    target="$1"
-    source="$2"
-    source_dir=$(dirname $source)
-    source_base=$(basename $source)
-    source=$(relpath "$HOME" "$source")
-    if [[ -e "$target" && ! -L "$target" ]]; then
-        echo "Real file \"$target\" already exists.  Please remove."
+    tgt="$1"
+    tgt_dir=$(dirname $tgt)
+    src="$2"
+    src=$(relpath "$tgt_dir" "$src")
+    if [[ -e "$tgt" && ! -L "$tgt" ]]; then
+        echo "Real file \"$tgt\" already exists.  Please remove."
     else
-        echo "LINKING $target -> $source"
+        echo "LINK $tgt -> $src"
         # if linux, use T
-        ln -sf "$source" "$target"
+        ln -sf "$src" "$tgt"
     fi
 }
 
