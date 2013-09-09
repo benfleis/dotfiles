@@ -16,6 +16,7 @@ Bundle 'davidoc/taskpaper.vim'
 
 " Colorschemes
 Bundle 'nanotech/jellybeans.vim'
+Bundle 'altercation/vim-colors-solarized.git'
 
 " status line awesomeness
 Bundle 'Lokaltog/vim-powerline'

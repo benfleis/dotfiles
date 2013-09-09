@@ -37,7 +37,7 @@ nmap <Leader>h :silent :set hlsearch!<CR>
 nmap <Leader>s :silent :call StripTrailingWS()<CR>
 
 " Insert b:debugger_line
-nmap <Leader>D O<C-R>=b:debugger_line<C-[><C-[>
+nmap <Leader>d O<C-R>=b:debugger_line<C-[><C-[>
 
 " special searches:
 " under_scores:

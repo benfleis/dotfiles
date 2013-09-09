@@ -31,7 +31,6 @@ function install {
 }
 
 # link all dotfiles/foo -> $HOME/.foo; skip bin dir and install.sh
-nothing_to_do=true
 for name in *; do
     [[ "$name" = "README.md" || "$name" = "install.sh" || "$name" = "bin" ]] && continue
     install "$HOME/.$name" "$PWD/$name"

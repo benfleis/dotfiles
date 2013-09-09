@@ -42,8 +42,8 @@ set noshowmatch
 set notitle
 
 set t_Co=256
-colorscheme grb4
-set bg=dark
+set background=dark
+colorscheme solarized
 hi SpecialKey ctermfg=red ctermbg=yellow
 
 
