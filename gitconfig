@@ -10,7 +10,7 @@
     co = checkout
 [core]
     editor = vim
-    excludesfile = /Users/ben/.gitignore_global
+    excludesfile = ~/.gitignore_global
 [color]
     ui = true
     interactive = true
