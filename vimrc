@@ -63,7 +63,7 @@ set writebackup
 " set grep/make progs.  this could be smarter, but sufficient for now
 set grepprg=scgrep\ -n
 
-set clipboard=unnamed
+"set clipboard=unnamed
 set hidden
 
 " Persistent undo

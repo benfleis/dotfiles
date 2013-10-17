@@ -4,11 +4,29 @@ syntax on
 " on opening the file, clear search-highlighting
 autocmd BufReadCmd set nohlsearch
 
+" block navigations (favorites { and }) don't open folded space!
+autocmd BufWinEnter * set foldopen-=block
+
+" auto load last view (folds, ??)
+set viewoptions=folds,cursor
+augroup vimrc
+    autocmd BufWritePost *
+    \   if expand('%') != '' && &buftype !~ 'nofile'
+    \|      mkview
+    \|  endif
+    autocmd BufRead *
+    \   if expand('%') != '' && &buftype !~ 'nofile'
+    \|      silent loadview
+    \|  endif
+augroup END
+"autocmd BufWinLeave * mkview
+"autocmd BufWinEnter * silent loadview
+
 augroup myfiletypes
     autocmd!
     autocmd BufNewFile,BufRead *.kml                    setf xml
     autocmd BufNewFile,BufRead *.*sql*,*.dump           setf sql
-    autocmd BufNewFile,BufRead SCons*                   setf python
+    autocmd BufNewFile,BufRead SCons*,.gyp,.gypi        setf python
     autocmd BufNewFile,BufRead *.pyx,*.pxd              setf pyrex
     autocmd BufNewFile,BufRead *.stk,*.ys               setf scheme
     autocmd BufNewFile,BufRead mozex.textarea*          setf twiki

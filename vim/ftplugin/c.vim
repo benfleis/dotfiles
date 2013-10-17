@@ -1,5 +1,7 @@
-set ai
-set si
-set sw=4
-set sts=4
-set ts=8
+set autoindent
+set smartindent
+
+set expandtab
+set shiftwidth=4
+set softtabstop=4
+set tabstop=8
