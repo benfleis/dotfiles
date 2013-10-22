@@ -30,6 +30,7 @@ alias webster="ssh monkey.org webster"
 alias m=$PAGER
 alias psg="ps ax | grep "
 alias ip="ipython"
+alias tman='tmux_attach_or_new'
 
 # Each matching set is tried in order, which means: first try direct match,
 # then try case insensitive + . -> small subset, then casei + . -> anything
