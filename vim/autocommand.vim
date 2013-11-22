@@ -36,7 +36,8 @@ augroup myfiletypes
     autocmd BufNewFile,BufRead *.as                     setf actionscript
     autocmd BufNewFile,BufRead *.m                      setf objc
     autocmd BufNewFile,BufRead *.scala                  setf scala
-
+    autocmd BufNewFile,BufRead *.samsa                  setf jproperties
+    autocmd BufNewFile,BufRead *.md,*.markdown          setf markdown
     autocmd BufNewFile,BufRead .tmux*.conf*,tmux.conf*  setf tmux
 augroup END
 
