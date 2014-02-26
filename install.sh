@@ -9,7 +9,7 @@ function relpath {
     common_part=$base
     back=
     while [ "${path#$common_part}" = "${path}" ]; do
-        common_part=$(dirname $common_part)
+        common_part=$(dirname "$common_part")
         back="../${back}"
     done
 
@@ -17,8 +17,9 @@ function relpath {
 }
 
 function install {
+    set -xv
     tgt="$1"
-    tgt_dir=$(dirname $tgt)
+    tgt_dir=$(dirname "$tgt")
     src="$2"
     src=$(relpath "$tgt_dir" "$src")
     if [[ -e "$tgt" && ! -L "$tgt" ]]; then
@@ -32,7 +33,8 @@ function install {
 
 # link all dotfiles/foo -> $HOME/.foo; skip bin dir and install.sh
 for name in *; do
-    [[ "$name" = "README.md" || "$name" = "install.sh" || "$name" = "bin" ]] && continue
+    [[ "$name" = "README.md" || "$name" = "install.sh" ]] && continue
+    [[ "$name" = "bin" || "$name" = "launchbar-scripts" ]] && continue
     install "$HOME/.$name" "$PWD/$name"
 done
 
@@ -40,3 +42,9 @@ done
 for script in bin/*; do
     install "$HOME/$script" "$PWD/$script"
 done
+
+# link lb scripts
+for script in launchbar-scripts/*; do
+    install "$HOME/Library/Application Support/LaunchBar/Actions" "$PWD/$script"
+done
+
