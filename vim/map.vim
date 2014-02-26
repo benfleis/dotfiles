@@ -14,6 +14,9 @@ map _ :silent :call CloseIfOnlyWindow(0)<CR>
 map gd :call RunSdiff()
 map gs :Gstatus
 
+" euro!
+imap <Esc>@ €
+
 " ---------------------------------------------------------------------------
 " leader based maps below
 "
