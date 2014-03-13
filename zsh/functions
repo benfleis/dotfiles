@@ -178,3 +178,11 @@ function relpath {
     done
     print $up/$down
 }
+
+
+##
+# if node_modules/.bin exists, append it to path
+#
+function add-node-module-bin {
+    
+}

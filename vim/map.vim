@@ -54,6 +54,9 @@ map <Leader>t3 :silent :setlocal ts=3 sts=3 sw=3<CR>
 map <Leader>t4 :silent :setlocal ts=4 sts=4 sw=4<CR>
 map <Leader>t8 :silent :setlocal ts=8 sts=8 sw=8<CR>
 
+" delete matching parenthesis/brackets
+map <Leader>d% :silent %x``x
+
 " tslime bindings
 vmap <Leader>y <Plug>SendSelectionToTmux
 nmap <Leader>y <Plug>NormalModeSendToTmux

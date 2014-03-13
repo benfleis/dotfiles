@@ -15,6 +15,8 @@ Bundle 'vim-scripts/vim-json-bundle'
 Bundle 'derekwyatt/vim-scala'
 Bundle 'davidoc/taskpaper.vim'
 Bundle 'ktvoelker/sbt-vim.git'
+Bundle 'kchmck/vim-coffee-script'
+Bundle 'plasticboy/vim-markdown'
 
 " Colorschemes
 Bundle 'nanotech/jellybeans.vim'

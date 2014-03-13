@@ -1,2 +1,7 @@
 .*.swp
 .s.diff
+tags
+
+.idea/
+local/
+node_modules/
