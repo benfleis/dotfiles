@@ -25,7 +25,7 @@ imap <Esc>@ €
 let mapleader = ";"
 
 " toggle paste mode
-nmap <Leader>p :silent :set paste!<CR>
+nmap <Leader>p :silent :setlocal paste!<CR>
 
 " toggle list display
 nmap <Leader>l :silent :setlocal list!<CR>
@@ -34,7 +34,7 @@ nmap <Leader>l :silent :setlocal list!<CR>
 nmap <Leader>w :silent :setlocal wrap!<CR>
 
 " toggle search highlighting via <Leader>h/H
-nmap <Leader>h :silent :set hlsearch!<CR>
+nmap <Leader>h :silent :setlocal hlsearch!<CR>
 
 " strip whitespace
 nmap <Leader>s :silent :call StripTrailingWS()<CR>
