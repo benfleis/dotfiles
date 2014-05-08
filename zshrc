@@ -32,6 +32,8 @@ alias psg="ps ax | grep "
 alias ip="ipython"
 alias tman='tmux_attach_or_new'
 
+alias nech='nesh -c'
+
 # Each matching set is tried in order, which means: first try direct match,
 # then try case insensitive + . -> small subset, then casei + . -> anything
 zstyle ':completion:*' matcher-list \
@@ -120,6 +122,10 @@ export PROMPT='[%(?.$PR_LIGHT_GREEN%m.$PR_RED%m)$PR_NO_COLOUR] $PR_LIGHT_GREEN%~
 
 # backup dir for vim
 mkdir -p /tmp/.backup
+
+# go
+export GOROOT=`go env GOROOT`
+export GOPATH="$HOME/go"
 
 # load up all ze functions
 [ -r $HOME/.zsh/functions ] && . $HOME/.zsh/functions

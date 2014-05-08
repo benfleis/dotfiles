@@ -8,3 +8,5 @@ set expandtab
 set shiftwidth=4
 set softtabstop=4
 set tabstop=8
+
+syn keyword coffeeTodo NOTE contained

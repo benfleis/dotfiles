@@ -1,6 +1,7 @@
 .*.swp
 .s.diff
 tags
+.DS_Store
 
 .idea/
 local/

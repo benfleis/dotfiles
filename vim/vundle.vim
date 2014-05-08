@@ -17,6 +17,7 @@ Bundle 'davidoc/taskpaper.vim'
 Bundle 'ktvoelker/sbt-vim.git'
 Bundle 'kchmck/vim-coffee-script'
 Bundle 'plasticboy/vim-markdown'
+Bundle 'jnwhiteh/vim-golang'
 
 " Colorschemes
 Bundle 'nanotech/jellybeans.vim'

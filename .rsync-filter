@@ -1,0 +1,6 @@
+- /.git
+- .*.swp
+- .*.diff
+- .DS_Store
+- *.dSYM/
+- /vim/view

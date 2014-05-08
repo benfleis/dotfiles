@@ -17,7 +17,6 @@ function relpath {
 }
 
 function install {
-    set -xv
     tgt="$1"
     tgt_dir=$(dirname "$tgt")
     src="$2"

@@ -22,7 +22,7 @@ function sgrep
 # recursive grep of *only* VCS controlled files
 function scgrep
 {
-    scfiles | _filter -f | tr '\n' '\000' | xargs -0 -n 1000 grep $@
+    scfiles | _filter -f | tr '\n' '\000' | xargs -0 -n 1000 grep -I $@
 }
 
 # create gzip'd tar of all controller files, send to stdout
@@ -184,5 +184,18 @@ function relpath {
 # if node_modules/.bin exists, append it to path
 #
 function add-node-module-bin {
-    
+}
+
+# from https://groups.google.com/forum/#!topic/golang-nuts/XPQ51DIYQac
+XXXgo() {
+    GOCMD=`/usr/bin/which go`
+    if [ "$1" == "cd" ]; then
+        shift
+        cd $( $GOCMD list -f '{{.Dir}}' $@ || echo . )
+    elif [ "$1" == "less" ]; then
+        shift
+        $GOCMD doc $@ | $PAGER
+    else
+        $GOCMD $@
+    fi
 }
