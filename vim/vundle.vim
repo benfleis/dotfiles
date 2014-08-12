@@ -18,6 +18,7 @@ Bundle 'ktvoelker/sbt-vim.git'
 Bundle 'kchmck/vim-coffee-script'
 Bundle 'plasticboy/vim-markdown'
 Bundle 'jnwhiteh/vim-golang'
+Bundle 'vim-scripts/VimClojure'
 
 " Colorschemes
 Bundle 'nanotech/jellybeans.vim'

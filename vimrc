@@ -84,6 +84,12 @@ runtime macros/matchit.vim
 
 "------------------------------------------------------------------------------
 
+" XXX temporary, move me to .vim/status.vim
+python from powerline.vim import setup as powerline_setup
+python powerline_setup()
+python del powerline_setup
+set rtp+=~/Library/Python/2.7/lib/python/site-packages/powerline/bindings/vim
+
 " load order not accidental here -- functions first, maps last
 source $HOME/.vim/vundle.vim
 source $HOME/.vim/functions.vim

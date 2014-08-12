@@ -34,6 +34,11 @@ alias tman='tmux_attach_or_new'
 
 alias nech='nesh -c'
 
+# history mgmt
+HISTSIZE=200
+HISTFILE=~/.zsh_history
+SAVEHIST=200
+
 # Each matching set is tried in order, which means: first try direct match,
 # then try case insensitive + . -> small subset, then casei + . -> anything
 zstyle ':completion:*' matcher-list \
