@@ -65,6 +65,7 @@ zstyle ':completion:*:messages' format '%d'
 zstyle ':completion:*:warnings' format 'No matches for: %d'
 zstyle ':completion:*' group-name ''
 
+export _compdir=$HOME/.zsh/completion
 autoload -U compinit
 compinit -u
 
@@ -131,6 +132,9 @@ mkdir -p /tmp/.backup
 # go
 export GOROOT=`go env GOROOT`
 export GOPATH="$HOME/go"
+
+# github
+export HOMEBREW_GITHUB_API_TOKEN=7256831
 
 # load up all ze functions
 [ -r $HOME/.zsh/functions ] && . $HOME/.zsh/functions

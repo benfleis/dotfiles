@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 
 # both $1 and $2 are absolute paths
 # returns $2 relative to $1
@@ -29,6 +29,10 @@ function install {
         ln -sf "$src" "$tgt"
     fi
 }
+
+# setup dirs, but not forcefully
+mkdir -p $HOME/bin
+rmdir "$HOME/Library/Application Support/LaunchBar/Actions"
 
 # link all dotfiles/foo -> $HOME/.foo; skip bin dir and install.sh
 for name in *; do

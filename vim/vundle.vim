@@ -2,7 +2,7 @@
 " To install, run :BundleInstall
 " To update, run :BundleInstall!
 filetype off
-set rtp+=~/.vim/bundle/vundle/
+set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#rc()
 
 " Bundles:
@@ -18,7 +18,12 @@ Bundle 'ktvoelker/sbt-vim.git'
 Bundle 'kchmck/vim-coffee-script'
 Bundle 'plasticboy/vim-markdown'
 Bundle 'jnwhiteh/vim-golang'
-Bundle 'vim-scripts/VimClojure'
+
+" clojure + repl + leiningen
+Bundle 'guns/vim-clojure-static'
+Bundle 'tpope/vim-fireplace'
+Bundle 'tpope/vim-leiningen'
+Bundle 'kien/rainbow_parentheses.vim'
 
 " Colorschemes
 Bundle 'nanotech/jellybeans.vim'
@@ -32,7 +37,7 @@ Bundle 'Lokaltog/vim-powerline'
 Bundle 'tpope/vim-fugitive'
 " rather not have vcscommand AND fugitive, but I want sth for svn
 Bundle 'vim-scripts/vcscommand.vim'
-Bundle 'tsaleh/vim-matchit'
+"Bundle 'tsaleh/vim-matchit'
 Bundle 'jgdavey/tslime.vim'
 Bundle 'tpope/vim-surround'
 Bundle 'tpope/vim-dispatch'
