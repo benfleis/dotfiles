@@ -3,7 +3,7 @@
 " To update, run :BundleInstall!
 filetype off
 set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#rc()
+call vundle#begin()
 
 " Bundles:
 " let Vundle manage Vundle
