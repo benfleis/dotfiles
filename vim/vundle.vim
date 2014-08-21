@@ -1,59 +1,59 @@
 " Vundle; see https://github.com/gmarik/vundle
-" To install, run :BundleInstall
-" To update, run :BundleInstall!
 filetype off
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 
-" Bundles:
+" Plugins:
 " let Vundle manage Vundle
-Bundle 'gmarik/vundle'
+Plugin 'gmarik/Vundle.vim'
 
 " language specific vundles
-Bundle 'vim-scripts/vim-json-bundle'
-"Bundle 'repos-scala/scala-vundle'
-Bundle 'derekwyatt/vim-scala'
-Bundle 'davidoc/taskpaper.vim'
-Bundle 'ktvoelker/sbt-vim.git'
-Bundle 'kchmck/vim-coffee-script'
-Bundle 'plasticboy/vim-markdown'
-Bundle 'jnwhiteh/vim-golang'
+Plugin 'vim-scripts/vim-json-bundle'
+Plugin 'derekwyatt/vim-scala'
+Plugin 'davidoc/taskpaper.vim'
+Plugin 'ktvoelker/sbt-vim.git'
+Plugin 'kchmck/vim-coffee-script'
+Plugin 'jnwhiteh/vim-golang'
+Plugin 'tpope/vim-markdown'
 
 " clojure + repl + leiningen
-Bundle 'guns/vim-clojure-static'
-Bundle 'tpope/vim-fireplace'
-Bundle 'tpope/vim-leiningen'
-Bundle 'kien/rainbow_parentheses.vim'
+Plugin 'guns/vim-clojure-static'
+Plugin 'tpope/vim-fireplace'
+Plugin 'tpope/vim-leiningen'
+Plugin 'kien/rainbow_parentheses.vim'
 
 " Colorschemes
-Bundle 'nanotech/jellybeans.vim'
-Bundle 'altercation/vim-colors-solarized.git'
+Plugin 'nanotech/jellybeans.vim'
+Plugin 'altercation/vim-colors-solarized.git'
 
 " status line awesomeness
-Bundle 'Lokaltog/vim-powerline'
-"Bundle 'Lokaltog/powerline'  - future version, beta?
+Plugin 'Lokaltog/vim-powerline'
+"Plugin 'Lokaltog/powerline'  - future version, beta?
 
-"Bundle 'Shougo/neocomplete.vim'
-Bundle 'tpope/vim-fugitive'
+"Plugin 'Shougo/neocomplete.vim'
+Plugin 'tpope/vim-fugitive'
 " rather not have vcscommand AND fugitive, but I want sth for svn
-Bundle 'vim-scripts/vcscommand.vim'
-"Bundle 'tsaleh/vim-matchit'
-Bundle 'jgdavey/tslime.vim'
-Bundle 'tpope/vim-surround'
-Bundle 'tpope/vim-dispatch'
-Bundle 'tpope/vim-abolish'
-"Bundle 'rstacruz/sparkup', {'rtp': 'vim/'}
-"Bundle 'llvm-mirror/lldb', {'rtp': 'utils/vim-lldb'}
+"Plugin 'vim-scripts/vcscommand.vim'
+"Plugin 'tsaleh/vim-matchit'
+Plugin 'jgdavey/tslime.vim'
+Plugin 'tpope/vim-surround'
+Plugin 'tpope/vim-dispatch'
+Plugin 'tpope/vim-abolish'
+"Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
+"Plugin 'llvm-mirror/lldb', {'rtp': 'utils/vim-lldb'}
 
-"Bundle 'ack.vim'
-"Bundle 'tsaleh/vim-matchit'
-"Bundle 'tComment'
-"Bundle 'Lokaltog/vim-powerline'
-"Bundle 'ervandew/supertab'
-"Bundle 'tpope/vim-cucumber'
-"Bundle 'tpope/vim-haml'
-"Bundle 'godlygeek/tabular'
-"Bundle 'jgdavey/tslime.vim'
-"Bundle 'endwise.vim'
-"Bundle 'rake.vim'
-"Bundle 'kien/ctrlp.vim'
+"Plugin 'ack.vim'
+"Plugin 'tsaleh/vim-matchit'
+"Plugin 'tComment'
+"Plugin 'Lokaltog/vim-powerline'
+"Plugin 'ervandew/supertab'
+"Plugin 'tpope/vim-cucumber'
+"Plugin 'tpope/vim-haml'
+"Plugin 'godlygeek/tabular'
+"Plugin 'jgdavey/tslime.vim'
+"Plugin 'endwise.vim'
+"Plugin 'rake.vim'
+"Plugin 'kien/ctrlp.vim'
+
+call vundle#end()
+filetype plugin indent on

@@ -91,10 +91,12 @@ runtime macros/matchit.vim
 "set rtp+=~/Library/Python/2.7/lib/python/site-packages/powerline/bindings/vim
 
 " load order not accidental here -- functions first, maps last
+source $HOME/.vim/pre.vim
 source $HOME/.vim/vundle.vim
 source $HOME/.vim/functions.vim
 source $HOME/.vim/autocommand.vim
 source $HOME/.vim/map.vim
+source $HOME/.vim/post.vim
 
 " load bundle opts here.  always wrap them in conditionals.
 if exists('g:Powerline_loaded') && g:Powerline_loaded
