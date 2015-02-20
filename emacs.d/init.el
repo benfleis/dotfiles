@@ -126,6 +126,7 @@
   ;; (sp-local-pair 'clojure-mode '"'" nil :actions :rem)
   ;; (sp-pair "'" nil :actions nil)
   (define-key evil-normal-state-map (kbd "C-)") 'sp-forward-slurp-sexp)
+  (define-key evil-normal-state-map (kbd "C-}") 'sp-forward-barf-sexp)
 
   ;; leader versions, replace w/ set-key-mode
   (evil-leader/set-key "i9" 'sp-backward-slurp-sexp)
@@ -138,10 +139,19 @@
   (evil-leader/set-key "f" 'sp-backward-sexp)
   )
 
+(defun mp-evil-cider-bindings ()
+  (when (fboundp 'cider-mode)
+    (define-key evil-normal-state-map "\C-]" 'cider-jump)
+    (define-key evil-motion-state-map "\C-t" 'cider-jump-back)))
+
+(defun mp-evil-bindings ()
+  (mp-evil-sp-bindings)
+  (mp-evil-cider-bindings))
+
 (defun mp-lispy-bits ()
   (message "Installing lispy-bits")
   (mp-proggy-bits)
-  (mp-evil-sp-bindings))
+  (mp-evil-bindings))
 
 (add-hook 'clojure-mode-hook 'mp-lispy-bits)
 (add-hook 'emacs-lisp-mode 'mp-lispy-bits)
@@ -151,11 +161,17 @@
   (message "current vc-mode: %s" (car (buffer-local-value 'vc-mode (current-buffer))))
   )
 
-(defun mp-evil-cider-bindings ()
-  (when (fboundp 'cider-mode)
-    (define-key evil-normal-state-map (kbd "C-]") 'cider-jump)))
+;; ----------------------------------------------------------------------------
 
-;; (add-hook 'clojure-mode-hook 'mp-evil-cider-bindings)
+(when nil
+  ;; http://www.emacswiki.org/emacs/Evil find: RET and SPC
+  (defun my-move-key (keymap-from keymap-to key)
+    "Moves key binding from one keymap to another, deleting from the old location. "
+    (define-key keymap-to key (lookup-key keymap-from key))
+    (define-key keymap-from key nil))
+  (my-move-key evil-motion-state-map evil-normal-state-map (kbd "RET"))
+  (my-move-key evil-motion-state-map evil-normal-state-map " ")
+  )
 
 ;; ----------------------------------------------------------------------------
 
