@@ -20,7 +20,8 @@
 ;; add check for existance of repos, and if not do a refresh
 
 (defvar mp-base-packages
-  '(better-defaults
+  '(base16-theme
+    better-defaults
     cider
     clojure-mode
     company
@@ -57,6 +58,12 @@
 (require 'ido)
 (ido-mode t)
 
+;; visual basis
+;;(load-theme base16-default)
+;;(load-theme "solarized-dark")
+(require 'powerline)
+(require 'powerline-evil)
+
 ;; -----------------------------------------------------------------------------
 ;; configure evil basics.
 ;;
@@ -67,6 +74,7 @@
 ;(require 'evil-lisp-state)
 (require 'smartparens-config)
 (smartparens-global-strict-mode)
+(powerline-evil-center-color-theme)
 (evil-mode 1) ; last so that leader get applied at the right time
 
 ;; skip evil in these modes
@@ -110,7 +118,7 @@
 
 ;; ----------------------------------------------------------------------------
 
-(setq cider-repl-history-file "./.cider-repl.log")
+(setq cider-repl-history-file (concat default-directory ".cider-repl.log"))
 
 (defun mp-proggy-bits ()
   (message "Installing proggy-bits")
@@ -118,43 +126,73 @@
   (company-mode)
   (rainbow-delimiters-mode-enable))
 
+(defun mp-evil-base-bindings ()
+  (evil-leader/set-key "a" 'ag-project)
+  (evil-leader/set-key "A" 'ag)
+  (evil-leader/set-key "w" 'toggle-truncate-lines))
+
+; when (fboundp 'cider-mode)
+(defun mp-evil-cider-bindings ()
+  ;; still need bindings for eval-region, eval-buffer, etc.
+  (evil-leader/set-key "t" 'cider-test-run-test)
+  (evil-leader/set-key "T" 'cider-test-run-tests)
+  (define-key evil-normal-state-map "\C-]" 'cider-jump)
+  (define-key evil-motion-state-map "\C-t" 'cider-jump-back))
+
+(defun mp-evil-magit-bindings()
+  (evil-add-hjkl-bindings magit-status-mode-map 'emacs
+    "C-b" (lookup-key evil-motion-state-map "C-b")
+    "C-f" (lookup-key evil-motion-state-map "C-f")
+    "K" 'magit-discard-item
+    "l" 'magit-key-mode-popup-logging
+    "h" 'magit-toggle-diff-refine-hunk)
+  (evil-add-hjkl-bindings magit-diff-mode-map 'emacs
+    "C-b" (lookup-key evil-motion-state-map "C-b")
+    "C-f" (lookup-key evil-motion-state-map "C-f"))
+  )
+
 (defun mp-evil-sp-bindings ()
   (message "Installing evil-sp bindings")
-  ;; (sp-local-pair)
   (sp-use-paredit-bindings)
-  ;; this is wrong, since it's not local, but i can't figure out how to get sp-local-pair to work w/ clojure-mode:
-  ;; (sp-local-pair 'clojure-mode '"'" nil :actions :rem)
-  ;; (sp-pair "'" nil :actions nil)
   (define-key evil-normal-state-map (kbd "C-)") 'sp-forward-slurp-sexp)
   (define-key evil-normal-state-map (kbd "C-}") 'sp-forward-barf-sexp)
 
   ;; leader versions, replace w/ set-key-mode
-  (evil-leader/set-key "i9" 'sp-backward-slurp-sexp)
-  (evil-leader/set-key "i0" 'sp-forward-slurp-sexp)
-  (evil-leader/set-key "o9" 'sp-backward-barf-sexp)
-  (evil-leader/set-key "o0" 'sp-forward-barf-sexp)
+  (evil-leader/set-key "ib" 'sp-backward-slurp-sexp)
+  (evil-leader/set-key "if" 'sp-forward-slurp-sexp)
+  (evil-leader/set-key "ob" 'sp-backward-barf-sexp)
+  (evil-leader/set-key "of" 'sp-forward-barf-sexp)
+
+  ;; git related
+  (evil-leader/set-key "g" 'magit-status)
   (evil-leader/set-key "u" 'sp-unwrap-sexp)
   (evil-leader/set-key "j" 'sp-join-sexp)
   (evil-leader/set-key "b" 'sp-backward-sexp)
   (evil-leader/set-key "f" 'sp-backward-sexp)
   )
 
-(defun mp-evil-cider-bindings ()
-  (when (fboundp 'cider-mode)
-    (define-key evil-normal-state-map "\C-]" 'cider-jump)
-    (define-key evil-motion-state-map "\C-t" 'cider-jump-back)))
+(defun mp-evil-window-bindings ()
+  ;;(define-key evil-normal-state-map (kbd "C-w q") 'ido-kill-buffer)
+  (define-key evil-normal-state-map (kbd "-") 'evil-prev-buffer)
+  (define-key evil-normal-state-map (kbd "+") 'evil-next-buffer)
+  (define-key evil-window-map "q" 'evil-window-delete) ; imperfect, but better than nothing
+  )
 
 (defun mp-evil-bindings ()
+  (mp-evil-base-bindings)
+  (mp-evil-window-bindings)
   (mp-evil-sp-bindings)
-  (mp-evil-cider-bindings))
+  (mp-evil-cider-bindings)
+  (mp-evil-magit-bindings))
 
 (defun mp-lispy-bits ()
   (message "Installing lispy-bits")
   (mp-proggy-bits)
-  (mp-evil-bindings))
+  )
 
 (add-hook 'clojure-mode-hook 'mp-lispy-bits)
 (add-hook 'emacs-lisp-mode 'mp-lispy-bits)
+(mp-evil-bindings)
 
 (defun mp-git-bits ()
   (message "Installing git-bits")
@@ -240,19 +278,3 @@
     (kill-line arg)))
 
 )
-
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-   (quote
-    ("a8245b7cc985a0610d71f9852e9f2767ad1b852c2bdea6f4aadc12cce9c4d6d0" default)))
- '(inhibit-startup-screen t))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
