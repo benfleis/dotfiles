@@ -120,6 +120,18 @@
 
 (setq cider-repl-history-file (concat default-directory ".cider-repl.log"))
 
+(defun mp-cider-eval-dwim ()
+  (interactive)
+  (if (use-region-p) ;; mark-active + use-empty-active-region instead?
+    (cider-eval-region (region-beginning) (region-end))
+    (cider-eval-last-sexp) ; this is awkward w/ evil
+    ))
+
+(defun mp-cider-switch-to-repl-buffer ()
+  ;; XXX incomplete; idea is to check if one exists, and otherwise make it
+  (interactive)
+  )
+
 (defun mp-proggy-bits ()
   (message "Installing proggy-bits")
   (local-set-key (kbd "C-x g") 'magit-status)
@@ -127,17 +139,41 @@
   (rainbow-delimiters-mode-enable))
 
 (defun mp-evil-base-bindings ()
+  ;; unbind SPC and RET from motion, since i don't use them
+  ;; to return them to normal, do as http://www.emacswiki.org/emacs/Evil
+  (define-key evil-motion-state-map " " nil)
+  (define-key evil-motion-state-map (kbd "RET") nil)
   (evil-leader/set-key "a" 'ag-project)
-  (evil-leader/set-key "A" 'ag)
-  (evil-leader/set-key "w" 'toggle-truncate-lines))
+  (evil-leader/set-key ";a" 'ag)
+  (evil-leader/set-key "w" 'toggle-truncate-lines)
+
+  ;; rebind C-M-[ufb] to g[ufb]
+  (define-key evil-normal-state-map "gu" (key-binding (kbd "C-M-u") t))
+  (define-key evil-normal-state-map "gb" (key-binding (kbd "C-M-b") t))
+  (define-key evil-normal-state-map "gf" (key-binding (kbd "C-M-f") t))
+  )
 
 ; when (fboundp 'cider-mode)
 (defun mp-evil-cider-bindings ()
-  ;; still need bindings for eval-region, eval-buffer, etc.
-  (evil-leader/set-key "t" 'cider-test-run-test)
-  (evil-leader/set-key "T" 'cider-test-run-tests)
-  (define-key evil-normal-state-map "\C-]" 'cider-jump)
-  (define-key evil-motion-state-map "\C-t" 'cider-jump-back))
+  ;; still need bindings for eval-region, eval-buffer, etc.  most
+  ;; things should be prefixed w/ "c" (clojure), aside from things
+  ;; that should work in many langs
+  (define-key evil-normal-state-map "\C-]" 'cider-jump-to-var)
+  (define-key evil-normal-state-map "\C-t" 'cider-jump-back)
+  ;; consider adding intermediate ; as a pretty-print modifier
+  (evil-leader/set-key "ed"  'mp-cider-eval-dwim)        ; "eval dwim"
+  (evil-leader/set-key "el"  'cider-eval-last-sexp)      ; "eval last" (sexp)
+  (evil-leader/set-key "et"  'cider-eval-defun-at-point) ; "eval this" top-level sexp
+  (evil-leader/set-key "ee"  'cider-load-buffer)         ; "eval everything" (buffer)
+
+  (evil-leader/set-key "cn"  'cider-repl-set-ns)
+  (evil-leader/set-key "ct"  'cider-test-run-test)
+  (evil-leader/set-key "c;t" 'cider-test-run-tests)
+  (evil-leader/set-key "cs"  'cider-jack-in)
+  (evil-leader/set-key "c;s" 'cider-restart)
+  (evil-leader/set-key "cr"  'cider-switch-to-repl-buffer)
+  (evil-leader/set-key "c;r" 'mp-cider-switch-to-repl-buffer)
+  )
 
 (defun mp-evil-magit-bindings()
   (evil-add-hjkl-bindings magit-status-mode-map 'emacs
@@ -153,7 +189,7 @@
 
 (defun mp-evil-sp-bindings ()
   (message "Installing evil-sp bindings")
-  (sp-use-paredit-bindings)
+  (sp-use-paredit-bindings) ; keep these around while i'm still learning
   (define-key evil-normal-state-map (kbd "C-)") 'sp-forward-slurp-sexp)
   (define-key evil-normal-state-map (kbd "C-}") 'sp-forward-barf-sexp)
 
