@@ -61,6 +61,7 @@
 ;; visual basis
 ;;(load-theme base16-default)
 ;;(load-theme "solarized-dark")
+(setq powerline-evil-tag-style 'verbose)
 (require 'powerline)
 (require 'powerline-evil)
 
@@ -141,10 +142,10 @@
 (defun mp-evil-base-bindings ()
   ;; unbind SPC and RET from motion, since i don't use them
   ;; to return them to normal, do as http://www.emacswiki.org/emacs/Evil
-  (define-key evil-motion-state-map " " nil)
-  (define-key evil-motion-state-map (kbd "RET") nil)
-  (evil-leader/set-key "a" 'ag-project)
-  (evil-leader/set-key ";a" 'ag)
+  ;;(define-key evil-motion-state-map " " nil)
+  ;;(define-key evil-motion-state-map (kbd "RET") nil)
+  (evil-leader/set-key "a" 'ag-project-regexp)
+  (evil-leader/set-key ";a" 'ag-regexp)
   (evil-leader/set-key "w" 'toggle-truncate-lines)
 
   ;; rebind C-M-[ufb] to g[ufb]
@@ -163,6 +164,7 @@
   ;; consider adding intermediate ; as a pretty-print modifier
   (evil-leader/set-key "ed"  'mp-cider-eval-dwim)        ; "eval dwim"
   (evil-leader/set-key "el"  'cider-eval-last-sexp)      ; "eval last" (sexp)
+  (evil-leader/set-key "er"  'cider-eval-region)         ; "eval region"
   (evil-leader/set-key "et"  'cider-eval-defun-at-point) ; "eval this" top-level sexp
   (evil-leader/set-key "ee"  'cider-load-buffer)         ; "eval everything" (buffer)
 
@@ -211,8 +213,8 @@
   ;;(define-key evil-normal-state-map (kbd "C-w q") 'ido-kill-buffer)
   (define-key evil-normal-state-map (kbd "-") 'evil-prev-buffer)
   (define-key evil-normal-state-map (kbd "+") 'evil-next-buffer)
-  (define-key evil-window-map "q" 'evil-window-delete) ; imperfect, but better than nothing
-  )
+  ;; imperfect, but better than nothing 'evil-window-delete; could add (balance-windows)
+  (define-key evil-window-map "q" 'delete-window))
 
 (defun mp-evil-bindings ()
   (mp-evil-base-bindings)
@@ -223,8 +225,7 @@
 
 (defun mp-lispy-bits ()
   (message "Installing lispy-bits")
-  (mp-proggy-bits)
-  )
+  (mp-proggy-bits))
 
 (add-hook 'clojure-mode-hook 'mp-lispy-bits)
 (add-hook 'emacs-lisp-mode 'mp-lispy-bits)
@@ -314,3 +315,15 @@
     (kill-line arg)))
 
 )
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(frame-background-mode (quote dark)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
