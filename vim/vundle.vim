@@ -18,8 +18,8 @@ Plugin 'tpope/vim-markdown'
 
 " clojure + repl + leiningen
 Plugin 'guns/vim-clojure-static'
-Plugin 'tpope/vim-fireplace'
-Plugin 'tpope/vim-leiningen'
+"Plugin 'tpope/vim-fireplace'
+"Plugin 'tpope/vim-leiningen'
 Plugin 'kien/rainbow_parentheses.vim'
 
 " Colorschemes

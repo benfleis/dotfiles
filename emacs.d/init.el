@@ -26,6 +26,7 @@
     cider
     clojure-mode
     company
+    delight
     epl
     evil
     evil-leader
@@ -73,18 +74,19 @@
 (global-evil-leader-mode)
 (evil-leader/set-leader ";")
 (global-evil-surround-mode 1)
-                                        ;(require 'evil-lisp-state)
+;;(require 'evil-lisp-state)
 (require 'smartparens-config)
 (smartparens-global-strict-mode)
 (powerline-evil-center-color-theme)
+
+(setq-default evil-symbol-word-search t) ; * and # use emacs-symbols instead of words
+
 (evil-mode 1) ; last so that leader get applied at the right time
 
 ;; skip evil in these modes
 (mapc (lambda (mode) (evil-set-initial-state mode 'emacs))
       '(inferior-emacs-lisp-mode
-        shell-mode
         term-mode
-        ;; cider-repl-mode
         magit-log-edit-mode
         magit-branch-manager-mode))
 
@@ -101,7 +103,9 @@
 (set-keyboard-coding-system 'utf-8)
 ;;(prefer-coding-sytem 'utf-8)
 
-(add-hook 'before-save-hook 'delete-trailing-whitespace)
+;; (add-hook 'before-save-hook 'delete-trailing-whitespace)
+(require 'ws-butler)
+(add-hook 'clojure-mode-hook 'ws-butler-mode)
 
 ;; lein-clean+cider-restart, from chris@adgoji
 (defun my-cider-clean-restart (&optional prompt-project)
@@ -120,6 +124,7 @@
 ;; ----------------------------------------------------------------------------
 
 (setq cider-repl-history-file (concat default-directory ".cider-repl.log"))
+(setq cider-prompt-for-symbol nil)
 
 (defun my-cider-eval-dwim ()
   (interactive)
@@ -139,7 +144,8 @@
   (condition-case nil
       (progn
         (cider-get-repl-buffer)
-        (cider-restart))
+        (nrepl-close)
+        (cider-jack-in))
     (error (cider-jack-in))))
 
 (defun my-proggy-bits ()
@@ -157,7 +163,14 @@
   (evil-leader/set-key ";a" 'ag-regexp)
   (evil-leader/set-key "w" 'toggle-truncate-lines)
 
-  ;; rebind C-M-[ufb] to g[ufb]
+  ;; git related
+  (evil-leader/set-key "gs" 'magit-status)
+  (evil-leader/set-key "gb" 'vc-annotate)
+  (evil-leader/set-key "g;b" 'magit-blame-mode)
+  (evil-leader/set-key "gd" 'vc-diff)
+
+  ;; rebind C-M-[nufb] to g[nufb]
+  (define-key evil-normal-state-map "gn" (key-binding (kbd "C-M-n") t))
   (define-key evil-normal-state-map "gu" (key-binding (kbd "C-M-u") t))
   (define-key evil-normal-state-map "gb" (key-binding (kbd "C-M-b") t))
   (define-key evil-normal-state-map "gf" (key-binding (kbd "C-M-f") t))
@@ -167,6 +180,15 @@
   ;; still need bindings for eval-region, eval-buffer, etc.
   (define-key evil-normal-state-map "\C-]" 'cider-jump-to-var)
   (define-key evil-normal-state-map "\C-t" 'cider-jump-back)
+  (evil-ex-define-cmd "t[ag]" 'cider-jump-to-var)
+
+  (evil-add-hjkl-bindings magit-status-mode-map 'emacs
+    "C-b" (lookup-key evil-motion-state-map "C-b")
+    "C-f" (lookup-key evil-motion-state-map "C-f")
+    "K" 'magit-discard-item
+    "l" 'magit-key-mode-popup-logging
+    "h" 'magit-toggle-diff-refine-hunk)
+
   ;; consider adding intermediate ; as a pretty-print modifier
   (evil-leader/set-key-for-mode 'clojure-mode
     ;; evals
@@ -177,24 +199,41 @@
     "ee"  'cider-load-buffer                ; "eval everything" (buffer)
     "e;e" 'cider-refresh                    ; "eval Everything" (all buffers)
 
+    ;; XXX unlearn ;c
+    "c"   'ding
+
     ;; repl commands
-    "rn"  'cider-repl-set-ns                ; repl namespace
+    "rn"  'cider-repl-set-ns                ; repl use namespace
+    "r;n" 'cider-eval-ns-form               ; repl eval namespace form
     "rt"  'cider-test-run-test              ; repl test
     "r;t" 'cider-test-run-tests             ; repl tests
     ;; "rs"  'cider-jack-in                    ; repl start
     "rs"  'my-cider-re-or-start             ; repl (re)start
     "r;s" 'cider-restart                    ; repl restart
-    "rq"  'cider-close-nrepl-session        ; repl quit
+    "rq"  'nrepl-close                      ; repl quit relevant
     "rr"  'cider-switch-to-repl-buffer      ; repl repl!
     ;; fight! let the winner stand.
-    "rl" 'cider-find-and-clear-repl-buffer  ; repl clear (from ^L)
-    "rc" 'cider-find-and-clear-repl-buffer  ; repl clear
+    "rl"  'cider-find-and-clear-repl-buffer  ; repl clear (from ^L)
+    "rc"  'cider-find-and-clear-repl-buffer  ; repl clear
+
+    "r;c" nil
 
     ;; macro expansion
     "mm" 'cider-macroexpand-1               ; default expand: currently 1
     "m1" 'cider-macroexpand-1               ; expand 1
     "mr" 'cider-macroexpand                 ; expand repeatedly, no subforms
     "ma" 'cider-macroexpand-all             ; expand all, w/ subforms
+
+    ;; debugger goo
+    "di" 'cider-debug-defun-at-point        ; instrument function
+    )
+
+  (evil-leader/set-key-for-mode 'cider-repl-mode
+    ;; repl commands
+    "rs"  'my-cider-re-or-start             ; repl (re)start
+    "r;s" 'cider-restart                    ; repl restart
+    "rq"  'nrepl-close                      ; repl quit relevant
+    ";"   'cider-repl-return                ; repl return (eval current)
     ))
 
 (defun my-evil-elisp-bindings ()
@@ -228,13 +267,12 @@
   (evil-leader/set-key "ob" 'sp-backward-barf-sexp)
   (evil-leader/set-key "of" 'sp-forward-barf-sexp)
 
-  ;; git related
-  (evil-leader/set-key "gs" 'magit-status)
-  (evil-leader/set-key "gd" 'vc-diff)
+  ;; sexp manipulation
   (evil-leader/set-key "u" 'sp-unwrap-sexp)
   (evil-leader/set-key "j" 'sp-join-sexp)
   (evil-leader/set-key "b" 'sp-backward-sexp)
   (evil-leader/set-key "f" 'sp-backward-sexp)
+  (evil-leader/set-key "r" 'sp-rewrap-sexp)
   )
 
 (defun my-evil-window-bindings ()
@@ -264,6 +302,16 @@
   (message "Installing git-bits")
   (message "current vc-mode: %s" (car (buffer-local-value 'vc-mode (current-buffer))))
   )
+
+(defun my-terminal-visible-bell ()
+  "A friendlier visual bell effect."
+  (invert-face 'mode-line)
+  (run-with-timer 0.15 nil 'invert-face 'mode-line)
+  (run-with-timer 0.30 nil 'invert-face 'mode-line)
+  (run-with-timer 0.45 nil 'invert-face 'mode-line))
+
+(setq visible-bell nil
+      ring-bell-function 'my-terminal-visible-bell)
 
 ;; Count hyphens, etc. as word characters in lisps
 ;;(add-hook 'clojure-mode-hook (lambda () (modify-syntax-entry ?- "w")))
@@ -296,6 +344,17 @@
     (define-key function-key-map "[-^{" (kbd "C-{"))
     (define-key function-key-map "[-^}" (kbd "C-}"))
     ))
+
+;; =============================================================================
+;; delight (mode display) config
+;;
+
+(require 'delight)
+(delight '((magit-auto-revert-mode "" magit)
+           (company-mode "" company)
+           (undo-tree-mode "" undo-tree)
+           (ws-butler-mode "" ws-butler)
+           (cider-mode "cider" cider)))
 
 ;; =============================================================================
 

@@ -1,8 +1,7 @@
 .*.swp
-.s.diff
+*.diff
 tags
 .DS_Store
-
 .idea/
 local/
 node_modules/
