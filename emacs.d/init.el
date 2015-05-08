@@ -35,6 +35,7 @@
     evil-surround
     git-gutter+
     magit
+    midje-mode
     rainbow-delimiters
     solarized-theme
     smartparens
@@ -95,6 +96,7 @@
 ;;
 
 (add-to-list 'auto-mode-alist '("\\.boot\\'" . clojure-mode))
+(add-to-list 'auto-mode-alist '("\\.cljc\\'" . clojure-mode))
 
 ;; -----------------------------------------------------------------------------
 
@@ -103,7 +105,6 @@
 (set-keyboard-coding-system 'utf-8)
 ;;(prefer-coding-sytem 'utf-8)
 
-;; (add-hook 'before-save-hook 'delete-trailing-whitespace)
 (require 'ws-butler)
 (add-hook 'clojure-mode-hook 'ws-butler-mode)
 
