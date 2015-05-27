@@ -1,3 +1,15 @@
+;;;
+;;; Very evil-centric config, focused on Clojure usage.
+;;; TODO:
+;;; - key bindings for (vc-)Diff mode
+;;; - key bindings for magit status/diff
+;;; - perspective OR workgroups for windows
+;;; - helm? (default install is more annoying than helpful in evil)
+;;; - el-get? github? for package mgmt (builtin is annoying) 
+;;; - ???
+;;;
+
+
 ;; Turn off mouse interface early in startup to avoid momentary display
 (when (fboundp 'menu-bar-mode) (menu-bar-mode -1))
 (when (fboundp 'tool-bar-mode) (tool-bar-mode -1))
@@ -34,6 +46,7 @@
     evil-matchit
     evil-surround
     git-gutter+
+    helm
     magit
     midje-mode
     rainbow-delimiters
@@ -44,7 +57,6 @@
 (defvar my-extra-packages
   '(powerline-evil))
 
-;; paredit
 ;; helm
 ;; projectile
 ;; goto-chg
@@ -91,6 +103,29 @@
         magit-log-edit-mode
         magit-branch-manager-mode))
 
+;; helm goo, experimental
+(when nil
+  (require 'helm)
+  (require 'helm-config)
+
+  (global-set-key (kbd "C-c h") 'helm-command-prefix)
+  (global-unset-key (kbd "C-x c"))
+
+  (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebind tab to run persistent action
+  (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ; make TAB works in terminal
+  (define-key helm-map (kbd "C-z") 'helm-select-action) ; list actions using C-z
+
+  (when (executable-find "curl")
+    (setq helm-google-suggest-use-curl-p t))
+
+  (setq helm-split-window-in-side-p           t ; open helm buffer inside current window, not occupy whole other window
+        helm-move-to-line-cycle-in-source     t ; move to end or beginning of source when reaching top or bottom of source.
+        helm-ff-search-library-in-sexp        t ; search for library in `require' and `declare-function' sexp.
+        helm-scroll-amount                    8 ; scroll 8 lines other window using M-<next>/M-<prior>
+        helm-ff-file-name-history-use-recentf t)
+
+  (helm-mode 1))
+
 ;; ----------------------------------------------------------------------------
 ;; file mode bindings
 ;;
@@ -124,6 +159,7 @@
 
 ;; ----------------------------------------------------------------------------
 
+(setq clojure-mode-font-lock-comment-sexp t)
 (setq cider-repl-history-file (concat default-directory ".cider-repl.log"))
 (setq cider-prompt-for-symbol nil)
 
@@ -156,6 +192,9 @@
   (rainbow-delimiters-mode-enable))
 
 (defun my-evil-base-bindings ()
+  ;; bdelete
+  ;;(evil-ex-define-cmd "bd[elete]" (lambda () ((key-binding (kbd "C-x k"))) (delete-window)))
+
   ;; unbind SPC and RET from motion, since i don't use them
   ;; to return them to normal, do as http://www.emacswiki.org/emacs/Evil
   ;;(define-key evil-motion-state-map " " nil)
@@ -170,11 +209,48 @@
   (evil-leader/set-key "g;b" 'magit-blame-mode)
   (evil-leader/set-key "gd" 'vc-diff)
 
+  ;; gist
+  (evil-leader/set-key "gg" 'gist-list)
+
   ;; rebind C-M-[nufb] to g[nufb]
   (define-key evil-normal-state-map "gn" (key-binding (kbd "C-M-n") t))
   (define-key evil-normal-state-map "gu" (key-binding (kbd "C-M-u") t))
   (define-key evil-normal-state-map "gb" (key-binding (kbd "C-M-b") t))
   (define-key evil-normal-state-map "gf" (key-binding (kbd "C-M-f") t))
+
+  ;; i love hotkeys for cycling through errors; use my very-old vim
+  ;; bindings AND add sth new
+  (define-key evil-normal-state-map "f9" 'next-error)
+  (define-key evil-normal-state-map "f8" 'previous-error)
+  (evil-leader/set-key "gn" 'next-error)
+  (evil-leader/set-key "gp" 'previous-error)
+  )
+
+;; XXX come back to me.
+;; http://www.gnu.org/software/emacs/manual/html_node/elisp/Choosing-Window.html
+;; need to understand display-buffer-alist, display-buffer-overriding-action
+(defun to-relevant-buffer (&optional arg)
+  (interactive)
+  (let* ((project-directory
+          (or (when (eq 16 arg) (read-directory-name "Project: "))
+              (nrepl-project-directory-for (nrepl-current-dir))))
+         (connection-buffer
+          (or
+           (and (= 1 (length nrepl-connection-list)) (car nrepl-connection-list))
+           (and project-directory
+                (cider-find-connection-buffer-for-project-directory project-directory)))))
+    (display-buffer connection-buffer)
+    ))
+
+;; (goto-char (point-max))
+
+(defun my-evil-cider-test-report-bindings ()
+  ;; XXX doesn't work.
+  (define-key evil-normal-state-local-map "gd" 'cider-test-ediff)
+  (define-key evil-normal-state-local-map "ge" 'cider-test-stacktrace)
+  (define-key evil-normal-state-local-map "gt" 'cider-test-jump)
+  (define-key evil-normal-state-local-map "gn" 'cider-test-next-result)
+  (define-key evil-normal-state-local-map "gp" 'cider-test-previous-result)
   )
 
 (defun my-evil-cider-bindings ()
@@ -182,13 +258,6 @@
   (define-key evil-normal-state-map "\C-]" 'cider-jump-to-var)
   (define-key evil-normal-state-map "\C-t" 'cider-jump-back)
   (evil-ex-define-cmd "t[ag]" 'cider-jump-to-var)
-
-  (evil-add-hjkl-bindings magit-status-mode-map 'emacs
-    "C-b" (lookup-key evil-motion-state-map "C-b")
-    "C-f" (lookup-key evil-motion-state-map "C-f")
-    "K" 'magit-discard-item
-    "l" 'magit-key-mode-popup-logging
-    "h" 'magit-toggle-diff-refine-hunk)
 
   ;; consider adding intermediate ; as a pretty-print modifier
   (evil-leader/set-key-for-mode 'clojure-mode
@@ -199,11 +268,10 @@
     "et"  'cider-eval-defun-at-point        ; "eval this" top-level sexp
     "ee"  'cider-load-buffer                ; "eval everything" (buffer)
     "e;e" 'cider-refresh                    ; "eval Everything" (all buffers)
-
-    ;; XXX unlearn ;c
-    "c"   'ding
+    "en"  'cider-eval-ns-form               ; "eval namespace form"
 
     ;; repl commands
+    "rg"  'cider-switch-to-relevant-repl-buffer ; repl go!
     "rn"  'cider-repl-set-ns                ; repl use namespace
     "r;n" 'cider-eval-ns-form               ; repl eval namespace form
     "rt"  'cider-test-run-test              ; repl test
@@ -225,6 +293,9 @@
     "mr" 'cider-macroexpand                 ; expand repeatedly, no subforms
     "ma" 'cider-macroexpand-all             ; expand all, w/ subforms
 
+    ;; clojure specific handy
+    "ks" 'clojure-toggle-keyword-string     ; :foo -> "foo" -> :foo -> ...
+
     ;; debugger goo
     "di" 'cider-debug-defun-at-point        ; instrument function
     )
@@ -235,7 +306,18 @@
     "r;s" 'cider-restart                    ; repl restart
     "rq"  'nrepl-close                      ; repl quit relevant
     ";"   'cider-repl-return                ; repl return (eval current)
-    ))
+
+;;(add-hook 'clojure-mode-hook (lambda () (modify-syntax-entry ?- "w")))
+    "rS"  (lambda () (progn (interactive) (cider-interactive-eval "(log/merge-config! {:fmt-output-fn (fn [{:keys [throwable message]} & _] (format \";;; %s%s\" (or message \"\") (or (log/stacktrace throwable \"\\n\" {}) \"\")))}")))
+    )
+
+  ;; various cider sub mode hooks
+  (evil-add-hjkl-bindings cider-test-report-mode-map 'motion)
+  (add-hook 'clojure-test-report-mode-hook 'my-evil-cider-test-report-bindings)
+
+  )
+
+;; ----------------------------------------------------------------------------
 
 (defun my-evil-elisp-bindings ()
   (evil-leader/set-key-for-mode 'emacs-lisp-mode
@@ -244,6 +326,8 @@
     "et" 'eval-defun
     "ee" 'eval-buffer))
 
+;; ----------------------------------------------------------------------------
+
 (defun my-evil-magit-bindings()
   (evil-add-hjkl-bindings magit-status-mode-map 'emacs
     "C-b" (lookup-key evil-motion-state-map "C-b")
@@ -251,10 +335,18 @@
     "K" 'magit-discard-item
     "l" 'magit-key-mode-popup-logging
     "h" 'magit-toggle-diff-refine-hunk)
+  
   (evil-add-hjkl-bindings magit-diff-mode-map 'emacs
     "C-b" (lookup-key evil-motion-state-map "C-b")
     "C-f" (lookup-key evil-motion-state-map "C-f"))
   )
+
+;; ----------------------------------------------------------------------------
+
+(defun my-evil-gist-bindings ()
+  (evil-add-hjkl-bindings gist-list-mode-map 'motion))
+
+;; ----------------------------------------------------------------------------
 
 (defun my-evil-sp-bindings ()
   (message "Installing evil-sp bindings")
@@ -269,11 +361,11 @@
   (evil-leader/set-key "of" 'sp-forward-barf-sexp)
 
   ;; sexp manipulation
-  (evil-leader/set-key "u" 'sp-unwrap-sexp)
-  (evil-leader/set-key "j" 'sp-join-sexp)
-  (evil-leader/set-key "b" 'sp-backward-sexp)
-  (evil-leader/set-key "f" 'sp-backward-sexp)
-  (evil-leader/set-key "r" 'sp-rewrap-sexp)
+  (evil-leader/set-key "xu" 'sp-unwrap-sexp)
+  (evil-leader/set-key "xj" 'sp-join-sexp)
+  (evil-leader/set-key "xb" 'sp-backward-sexp)
+  (evil-leader/set-key "xf" 'sp-backward-sexp)
+  (evil-leader/set-key "xr" 'sp-rewrap-sexp)
   )
 
 (defun my-evil-window-bindings ()
@@ -289,7 +381,10 @@
   (my-evil-sp-bindings)
   (my-evil-cider-bindings)
   (my-evil-elisp-bindings)
-  (my-evil-magit-bindings))
+  (my-evil-magit-bindings)
+  (my-evil-gist-bindings))
+
+;; ----------------------------------------------------------------------------
 
 (defun my-lispy-bits ()
   (message "Installing lispy-bits")
@@ -352,10 +447,10 @@
 
 (require 'delight)
 (delight '((magit-auto-revert-mode "" magit)
-           (company-mode "" company)
+           ;(company-mode "" company)
            (undo-tree-mode "" undo-tree)
            (ws-butler-mode "" ws-butler)
-           (cider-mode "cider" cider)))
+           (cider-mode "cidr" cider)))
 
 ;; =============================================================================
 
