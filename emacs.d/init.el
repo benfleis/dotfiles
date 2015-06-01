@@ -308,6 +308,8 @@
     ";"   'cider-repl-return                ; repl return (eval current)
 
 ;;(add-hook 'clojure-mode-hook (lambda () (modify-syntax-entry ?- "w")))
+    ;; just copy the bit below to repl for now
+    ;; (log/merge-config! {:fmt-output-fn (fn [{:keys [throwable message]} & _] (format ";;; %s%s" (or message "") (or (log/stacktrace throwable "\n" {}) "")))})
     "rS"  (lambda () (progn (interactive) (cider-interactive-eval "(log/merge-config! {:fmt-output-fn (fn [{:keys [throwable message]} & _] (format \";;; %s%s\" (or message \"\") (or (log/stacktrace throwable \"\\n\" {}) \"\")))}")))
     )
 
