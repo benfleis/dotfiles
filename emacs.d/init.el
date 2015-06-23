@@ -244,6 +244,17 @@
 
 ;; (goto-char (point-max))
 
+;; ----------------------------------------------------------------------------
+
+(defun my-evil-midje-bindings ()
+  (message "Installing evil-midje bindings")
+  (evil-leader/set-key-for-mode 'cider-mode
+    "tt" 'midje-check-fact
+    "th" 'midje-hide-all-facts
+    "ts" 'midje-show-all-facts
+    "tf" 'midje-focus-on-this-fact
+    "tc" 'midje-clear-comments))
+
 (defun my-evil-cider-test-report-bindings ()
   ;; XXX doesn't work.
   (define-key evil-normal-state-local-map "gd" 'cider-test-ediff)
@@ -258,6 +269,9 @@
   (define-key evil-normal-state-map "\C-]" 'cider-jump-to-var)
   (define-key evil-normal-state-map "\C-t" 'cider-jump-back)
   (evil-ex-define-cmd "t[ag]" 'cider-jump-to-var)
+
+  ;; kbd macro to switch to next cider-repl buf
+  (fset 'switch-buffer-cider-repl "\C-xbcider-repl\C-m")
 
   ;; consider adding intermediate ; as a pretty-print modifier
   (evil-leader/set-key-for-mode 'clojure-mode
@@ -280,10 +294,11 @@
     "rs"  'my-cider-re-or-start             ; repl (re)start
     "r;s" 'cider-restart                    ; repl restart
     "rq"  'nrepl-close                      ; repl quit relevant
-    "rr"  'cider-switch-to-repl-buffer      ; repl repl!
+    ;;"rr"  'cider-switch-to-repl-buffer      ; repl repl!
+    "rr"  'switch-buffer-cider-repl         ; repl repl!
     ;; fight! let the winner stand.
-    "rl"  'cider-find-and-clear-repl-buffer  ; repl clear (from ^L)
-    "rc"  'cider-find-and-clear-repl-buffer  ; repl clear
+    "rl"  'cider-find-and-clear-repl-buffer ; repl clear (from ^L)
+    "rc"  'cider-find-and-clear-repl-buffer ; repl clear
 
     "r;c" nil
 
@@ -309,14 +324,17 @@
 
 ;;(add-hook 'clojure-mode-hook (lambda () (modify-syntax-entry ?- "w")))
     ;; just copy the bit below to repl for now
-    ;; (log/merge-config! {:fmt-output-fn (fn [{:keys [throwable message]} & _] (format ";;; %s%s" (or message "") (or (log/stacktrace throwable "\n" {}) "")))})
-    "rS"  (lambda () (progn (interactive) (cider-interactive-eval "(log/merge-config! {:fmt-output-fn (fn [{:keys [throwable message]} & _] (format \";;; %s%s\" (or message \"\") (or (log/stacktrace throwable \"\\n\" {}) \"\")))}")))
+    ;; (taoensso.timbre/merge-config! {:fmt-output-fn (fn [{:keys [throwable message]} & _] (format ";;; %s%s" (or message "") (or (taoensso.timbre/stacktrace throwable "\n" {}) "")))})
+    "r;l" (lambda () (progn (interactive)
+                           (cider-tooling-eval
+                            "(log/merge-config! {:fmt-output-fn (fn [{:keys [throwable message]} & _] (format \";;; %s%s\" (or message \"\") (or (log/stacktrace throwable \"\\n\" {}) \"\")))}"
+                            (cider-interactive-eval-handler (current-buffer)))))
     )
 
   ;; various cider sub mode hooks
   (evil-add-hjkl-bindings cider-test-report-mode-map 'motion)
   (add-hook 'clojure-test-report-mode-hook 'my-evil-cider-test-report-bindings)
-
+  (my-evil-midje-bindings)
   )
 
 ;; ----------------------------------------------------------------------------
@@ -352,6 +370,10 @@
 
 (defun my-evil-sp-bindings ()
   (message "Installing evil-sp bindings")
+
+  ;; for pasting, en-/disable smartparens
+  (evil-leader/set-key "p" 'smartparens-mode)
+
   (sp-use-paredit-bindings) ; keep these around while i'm still learning
   (define-key evil-normal-state-map (kbd "C-)") 'sp-forward-slurp-sexp)
   (define-key evil-normal-state-map (kbd "C-}") 'sp-forward-barf-sexp)
@@ -391,6 +413,10 @@
 (defun my-lispy-bits ()
   (message "Installing lispy-bits")
   (my-proggy-bits))
+
+(defun my-clojure-bits ()
+  (my-lispy-bits)
+ )
 
 (add-hook 'clojure-mode-hook 'my-lispy-bits)
 (add-hook 'emacs-lisp-mode 'my-lispy-bits)
@@ -524,3 +550,9 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+(defun cider-refresh ()
+  "Refresh loaded code."
+  (interactive)
+  (cider-tooling-eval
+   "(clojure.core/require 'clojure.tools.namespace.repl) (clojure.tools.namespace.repl/refresh)"
+   (cider-interactive-eval-handler (current-buffer))))
