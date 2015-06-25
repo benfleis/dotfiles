@@ -133,9 +133,6 @@ mkdir -p /tmp/.backup
 export GOROOT=`go env GOROOT`
 export GOPATH="$HOME/go"
 
-# github
-export HOMEBREW_GITHUB_API_TOKEN=7256831
-
 # load up all ze functions
 [ -r $HOME/.zsh/functions ] && . $HOME/.zsh/functions
 

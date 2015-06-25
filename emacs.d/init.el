@@ -7,6 +7,14 @@
 ;;; - helm? (default install is more annoying than helpful in evil)
 ;;; - el-get? github? for package mgmt (builtin is annoying) 
 ;;; - ???
+;;; - custom -> custom.el
+;;; - load-path -> split out per mode setup
+;;; - smartparens hook to jump out of )'s and append ;
+;;;   from irc:
+;;;   Fuco > (defun my-foo () (interactive) (sp-up-sexp) (insert ";") (newline) (indent-according-to-mode))
+;;;   zot  > that's along the line i was thinking, although i'd want to add sth to check that the closer is a ')'
+;;;   Fuco > I feel your pain, it's been the same when I got the PHP job :D9:54 am
+;;;   Fuco > `sp-get-enclosing-sexp' will return a data structure you can inspcet iwth `sp-get' macro
 ;;;
 
 
@@ -33,7 +41,8 @@
 ;; add check for existance of repos, and if not do a refresh
 
 (defvar my-base-packages
-  '(base16-theme
+  '(ag
+    base16-theme
     better-defaults
     cider
     clojure-mode
@@ -47,6 +56,7 @@
     evil-surround
     git-gutter+
     helm
+    js2-mode
     magit
     midje-mode
     rainbow-delimiters
@@ -132,8 +142,13 @@
 
 (add-to-list 'auto-mode-alist '("\\.boot\\'" . clojure-mode))
 (add-to-list 'auto-mode-alist '("\\.cljc\\'" . clojure-mode))
+(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+(add-to-list 'interpreter-mode-alist '("node" . js2-mode))
 
 ;; -----------------------------------------------------------------------------
+
+(setq tab-width 4)
+(setq web-mode-markup-indent-offset 4)
 
 ;; always UTF-8
 (set-terminal-coding-system 'utf-8)
@@ -156,6 +171,17 @@
   (let ((exit (shell-command "lein clean")))
     (if (zerop exit) (cider-jack-in prompt-project)
       (message "Could not run lein clean"))))
+
+;; ----------------------------------------------------------------------------
+;; Rust mode goo. Very in progress.
+;;
+
+(require 'flymake-rust)
+(add-hook 'rust-mode-hook 'flymake-rust-load)
+(setq racer-rust-src-path "/Users/ben/src/rust/src")
+(setq racer-cmd "/Users/ben/src/racer/target/release/racer")
+(add-to-list 'load-path "/Users/ben/src/racer/editors/emacs")
+(eval-after-load "rust-mode" '(require 'racer))
 
 ;; ----------------------------------------------------------------------------
 
@@ -266,8 +292,8 @@
 
 (defun my-evil-cider-bindings ()
   ;; still need bindings for eval-region, eval-buffer, etc.
-  (define-key evil-normal-state-map "\C-]" 'cider-jump-to-var)
-  (define-key evil-normal-state-map "\C-t" 'cider-jump-back)
+  (define-key evil-normal-state-local-map "\C-]" 'cider-jump-to-var)
+  (define-key evil-normal-state-local-map "\C-t" 'cider-jump-back)
   (evil-ex-define-cmd "t[ag]" 'cider-jump-to-var)
 
   ;; kbd macro to switch to next cider-repl buf
@@ -418,8 +444,13 @@
   (my-lispy-bits)
  )
 
-(add-hook 'clojure-mode-hook 'my-lispy-bits)
+(defun my-json-bits ()
+  (make-local-variable 'js-indent-level)
+  (setq js-indent-level 2))
+
+(add-hook 'clojure-mode-hook 'my-clojure-bits)
 (add-hook 'emacs-lisp-mode 'my-lispy-bits)
+(add-hook 'json-mode-hook 'my-json-bits)
 (my-evil-bindings)
 
 (defun my-git-bits ()
