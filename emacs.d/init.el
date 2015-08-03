@@ -86,7 +86,7 @@
 ;; visual basis
 (setq powerline-evil-tag-style 'verbose)
 ;;(load-theme 'base16-tomorrow t)
-(load-theme 'base16-chalk t)
+;;(load-theme 'base16-chalk t)
 (require 'powerline)
 (require 'powerline-evil)
 
@@ -374,6 +374,33 @@
 
 ;; ----------------------------------------------------------------------------
 
+(defun my-nodejs-start ()
+  (interactive)
+  (nodejs-repl))
+
+(defun my-nodejs-stop ()
+  ;; XXX figure out how to just do it
+  (interactive)
+  (kill-buffer "*nodejs*"))
+
+(defun my-nodejs-clear ()
+  (interactive)
+  (delete-region (point-min) (point-max))
+  (comint-send-input))
+
+(defun my-evil-js-bindings()
+  (message "Installing evil-js-bindings")
+  (evil-leader/set-key-for-mode 'js2-mode
+    "xd"  (lambda() (progn (insert "debugger; ") (newline-and-indent)))
+
+    "ee"  nil
+    "rs"  'nodejs-repl
+    "rq"  'my-nodejs-stop
+    )
+  )
+
+;; ----------------------------------------------------------------------------
+
 (defun my-evil-magit-bindings()
   (evil-add-hjkl-bindings magit-status-mode-map 'emacs
     "C-b" (lookup-key evil-motion-state-map "C-b")
@@ -416,6 +443,12 @@
   (evil-leader/set-key "xb" 'sp-backward-sexp)
   (evil-leader/set-key "xf" 'sp-backward-sexp)
   (evil-leader/set-key "xr" 'sp-rewrap-sexp)
+
+  ;; hide-show keys
+  (evil-leader/set-key "sh" 'hs-hide-block)
+  (evil-leader/set-key "s;h" 'hs-hide-all)
+  (evil-leader/set-key "ss" 'hs-show-block)
+  (evil-leader/set-key "s;s" 'hs-show-all)
   )
 
 (defun my-evil-window-bindings ()
@@ -431,6 +464,7 @@
   (my-evil-sp-bindings)
   (my-evil-cider-bindings)
   (my-evil-elisp-bindings)
+  (my-evil-js-bindings)
   (my-evil-magit-bindings)
   (my-evil-gist-bindings))
 
@@ -448,10 +482,41 @@
   (make-local-variable 'js-indent-level)
   (setq js-indent-level 2))
 
+;; https://github.com/bodil/emacs.d/blob/master/bodil/bodil-smartparens.el#L40
+(defun my-create-newline-and-enter-sexp (&rest _ignored)
+  "Open a new brace or bracket expression, with relevant newlines and indent. "
+  (newline)
+  (indent-according-to-mode)
+  (forward-line -1)
+  (indent-according-to-mode))
+
+;; Insert space after pair if immediately followed by a word in Lisp modes
+(defun my-add-space-after-sexp-insertion (id action _context)
+  (when (eq action 'insert)
+    (save-excursion
+      (forward-char (length (plist-get (sp-get-pair id) :close)))
+      (when (or (eq (char-syntax (following-char)) ?w)
+                (looking-at (get-opening-regexp)))
+        (insert " ")))))
+
+(defun my-sp-c-like-bits ()
+  (message "Installing c-like-bits.")
+  (sp-with-modes '(c-mode c++-mode js-mode js2-mode java-mode typescript-mode perl-mode)
+    (sp-local-pair "{" nil
+                   :post-handlers '((my-create-newline-and-enter-sexp "RET")))))
+
+;;; (sp-with-modes bodil-lisp-modes
+;;; (sp-local-pair "(" nil :post-handlers
+;;;                 '(:add my-add-space-after-sexp-insertion)))
+
+
 (add-hook 'clojure-mode-hook 'my-clojure-bits)
 (add-hook 'emacs-lisp-mode 'my-lispy-bits)
 (add-hook 'json-mode-hook 'my-json-bits)
+;;(add-hook 'smartparens-mode 'my-sp-c-like-bits)
+(setq hs-minor-mode t)
 (my-evil-bindings)
+(my-sp-c-like-bits)
 
 (defun my-git-bits ()
   (message "Installing git-bits")
@@ -474,6 +539,17 @@
 
 ;; Treat underscores as word characters everywhere
 (add-hook 'after-change-major-mode-hook (lambda () (modify-syntax-entry ?_ "w")))
+
+;; hide-show settings
+(defvar hs-special-modes-alist
+  (mapcar 'purecopy
+          '((c-mode "{" "}" "/[*/]" nil nil)
+            (c++-mode "{" "}" "/[*/]" nil nil)
+            (java-mode "{" "}" "/[*/]" nil nil)
+            (js-mode "{" "}" "/[*/]" nil)
+            (js2-mode "{" "}" "/[*/]" nil)
+            (js3-mode "{" "}" "/[*/]" nil)
+            (rust-mode "{" "}" "/[*/]" nil))))
 
 ;; ----------------------------------------------------------------------------
 
