@@ -35,9 +35,21 @@ alias tman='tmux_attach_or_new'
 alias nech='nesh -c'
 
 # history mgmt
-HISTSIZE=200
-HISTFILE=~/.zsh_history
-SAVEHIST=200
+HISTFILE=~/.zsh/history
+SAVEHIST=10000
+HISTSIZE=10000
+setopt APPEND_HISTORY
+setopt SHARE_HISTORY
+setopt HIST_IGNORE_DUPS
+setopt HIST_REDUCE_BLANKS
+setopt HIST_IGNORE_SPACE
+setopt HIST_NO_STORE
+setopt HIST_VERIFY
+setopt EXTENDED_HISTORY
+
+setopt HIST_SAVE_NO_DUPS
+setopt HIST_EXPIRE_DUPS_FIRST
+setopt HIST_FIND_NO_DUPS
 
 # Each matching set is tried in order, which means: first try direct match,
 # then try case insensitive + . -> small subset, then casei + . -> anything
@@ -142,3 +154,4 @@ export GOPATH="$HOME/go"
 # load anything local to this machine, by name
 machine=$(uname -n | cut -d. -f1)
 [ -r $HOME/.zsh/$machine ] && . $HOME/.zsh/$machine || true
+alias china='ssh-agent bash --rcfile ~/.ssh/china/.bash_profile.cn'
