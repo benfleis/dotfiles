@@ -21,18 +21,19 @@ function install {
     tgt_dir=$(dirname "$tgt")
     src="$2"
     src=$(relpath "$tgt_dir" "$src")
-    if [[ -e "$tgt" && ! -L "$tgt" ]]; then
-        echo "Real file \"$tgt\" already exists.  Please remove."
-    else
-        echo "LINK $tgt -> $src"
-        # if linux, use T
-        ln -sf "$src" "$tgt"
+    if [[ $(readlink "$tgt") == $src ]]; then
+        return 0
     fi
+    if [[ -e "$tgt" ]]; then
+        echo "\"$tgt\" already exists.  Please remove."
+        return 1
+    fi
+    ln -vs "$src" "$tgt"
 }
 
 # setup dirs, but not forcefully
 mkdir -p $HOME/bin
-rmdir "$HOME/Library/Application Support/LaunchBar/Actions"
+rm -rf "$HOME/Library/Application Support/LaunchBar/Actions"
 
 # link all dotfiles/foo -> $HOME/.foo; skip bin dir and install.sh
 for name in *; do
@@ -47,7 +48,6 @@ for script in bin/*; do
 done
 
 # link lb scripts
-for script in launchbar-scripts/*; do
-    install "$HOME/Library/Application Support/LaunchBar/Actions" "$PWD/$script"
-done
-
+#   for script in launchbar-scripts/*; do
+#       install "$HOME/Library/Application Support/LaunchBar/Actions" "$PWD/$script"
+#   done
