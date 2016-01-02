@@ -1,5 +1,16 @@
 #!/bin/bash
 
+# master list of things to install
+dots=".config .ctags .emacs.d .nvim .tmux.conf .tmux .vim .vimrc .zsh .zshenv .zshrc"
+
+# if first arg is '-f', it's force, save it and shift
+force=0
+if [[ $1 == '-f' ]]; then
+    echo "Force enabled."
+    force=1
+    shift
+fi
+
 # both $1 and $2 are absolute paths
 # returns $2 relative to $1
 function relpath {
@@ -24,30 +35,28 @@ function install {
     if [[ $(readlink "$tgt") == $src ]]; then
         return 0
     fi
-    if [[ -e "$tgt" ]]; then
-        echo "\"$tgt\" already exists.  Please remove."
-        return 1
+    if [[ -e "$tgt" || -L "$tgt" ]]; then
+	if [[ $force == 1 ]]; then
+	    rm -f "$tgt"
+	else
+            echo "$tgt already exists.  Please remove."
+            return 1
+	fi
     fi
     ln -vs "$src" "$tgt"
 }
 
-# setup dirs, but not forcefully
-mkdir -p $HOME/bin
-rm -rf "$HOME/Library/Application Support/LaunchBar/Actions"
+function main {
+    # link all dotfiles/foo -> $HOME/foo
+    for name in $dots; do
+        install "$HOME/$name" "$PWD/$name"
+    done
+    
+    # link dotfiles/bin/* -> $HOME/bin/*
+    mkdir -p $HOME/bin
+    for name in bin/*; do
+        install "$HOME/$name" "$PWD/$name"
+    done
+}
 
-# link all dotfiles/foo -> $HOME/.foo; skip bin dir and install.sh
-for name in *; do
-    [[ "$name" = "README.md" || "$name" = "install.sh" ]] && continue
-    [[ "$name" = "bin" || "$name" = "launchbar-scripts" ]] && continue
-    install "$HOME/.$name" "$PWD/$name"
-done
-
-# link dotfiles/bin/* -> $HOME/bin/*
-for script in bin/*; do
-    install "$HOME/$script" "$PWD/$script"
-done
-
-# link lb scripts
-#   for script in launchbar-scripts/*; do
-#       install "$HOME/Library/Application Support/LaunchBar/Actions" "$PWD/$script"
-#   done
+main

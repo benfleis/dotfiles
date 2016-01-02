@@ -1,7 +1,9 @@
+\#*
 .*.swp
 *.diff
 tags
 .DS_Store
-.idea/
 local/
+
+**/.tern-port
 node_modules/
