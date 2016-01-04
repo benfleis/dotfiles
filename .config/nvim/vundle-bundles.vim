@@ -4,7 +4,7 @@ call vundle#begin()
 
 " Plugins:
 " let Vundle manage Vundle
-Plugin 'gmarik/Vundle.vim'
+Plugin 'VundleVim/Vundle.vim'
 
 " visual
 "Plugin 'nanotech/jellybeans.vim'
@@ -14,7 +14,8 @@ Plugin 'airblade/vim-gitgutter'
 Plugin 'editorconfig/editorconfig-vim'
 
 " language specific vundles
-Plugin 'vim-scripts/vim-json-bundle'
+Plugin 'elzr/vim-json'
+"Plugin 'vim-scripts/vim-json-bundle'
 "Plugin 'derekwyatt/vim-scala'
 "Plugin 'davidoc/taskpaper.vim'
 "Plugin 'ktvoelker/sbt-vim.git'
@@ -38,8 +39,7 @@ Plugin 'Shougo/neocomplete.vim'
 Plugin 'tpope/vim-fugitive'
 Plugin 'benekastah/neomake'
 
-" rather not have vcscommand AND fugitive, but I want sth for svn
-"Plugin 'tsaleh/vim-matchit'
+Plugin 'kassio/neoterm'
 "Plugin 'jgdavey/tslime.vim'
 "Plugin 'tpope/vim-surround'
 "Plugin 'tpope/vim-dispatch'
