@@ -24,6 +24,11 @@ Plugin 'jnwhiteh/vim-golang'
 Plugin 'tpope/vim-markdown'
 Plugin 'moll/vim-node'
 Plugin 'ternjs/tern_for_vim'
+Plugin 'rbgrouleff/bclose.vim'
+
+" experimental -- really want smartparens, or some set of plugins that do the
+" same.
+Plugin 'jiangmiao/auto-pairs'
 
 " clojure + repl + leiningen
 "Plugin 'guns/vim-clojure-static'
@@ -35,22 +40,22 @@ Plugin 'ternjs/tern_for_vim'
 "Plugin 'Lokaltog/vim-powerline'
 "Plugin 'Lokaltog/powerline'  - future version, beta?
 
+Plugin 'benekastah/neomake'
+Plugin 'kassio/neoterm'
+Plugin 'rking/ag.vim'
 Plugin 'Shougo/neocomplete.vim'
 Plugin 'tpope/vim-fugitive'
-Plugin 'benekastah/neomake'
+Plugin 'tpope/vim-repeat'
+Plugin 'tpope/vim-surround'
 
-Plugin 'kassio/neoterm'
 "Plugin 'jgdavey/tslime.vim'
-"Plugin 'tpope/vim-surround'
 "Plugin 'tpope/vim-dispatch'
 "Plugin 'tpope/vim-abolish'
 "Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
 "Plugin 'llvm-mirror/lldb', {'rtp': 'utils/vim-lldb'}
 
-"Plugin 'ack.vim'
 "Plugin 'tsaleh/vim-matchit'
 "Plugin 'tComment'
-"Plugin 'Lokaltog/vim-powerline'
 "Plugin 'ervandew/supertab'
 "Plugin 'tpope/vim-cucumber'
 "Plugin 'tpope/vim-haml'
@@ -58,7 +63,6 @@ Plugin 'kassio/neoterm'
 "Plugin 'jgdavey/tslime.vim'
 "Plugin 'endwise.vim'
 "Plugin 'rake.vim'
-"Plugin 'kien/ctrlp.vim'
 
 call vundle#end()
 filetype plugin indent on

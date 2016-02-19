@@ -18,19 +18,21 @@ export EXTENDED_GLOB
 
 prefer less more; export PAGER=$PREFER
 prefer vim vi; export EDITOR=$PREFER
+prefer nvim $EDITOR; export EDITOR=$PREFER
 export VISUAL=$EDITOR
 
 export USERXSESSIONRC=$HOME/.xsession
 
 # aliases
-prefer vim && alias vi="vim"
-prefer vim && alias view="vim -R"
+echo $EDITOR | grep -q vim && alias vi="vim"
+echo $EDITOR | grep -q vim && alias view="vim -R"
 
 alias webster="ssh monkey.org webster"
 alias m=$PAGER
 alias psg="ps ax | grep "
 alias ip="ipython"
 alias tman='tmux_attach_or_new'
+alias gx='open -a GitX'
 
 alias nech='nesh -c'
 
@@ -154,4 +156,3 @@ export GOPATH="$HOME/go"
 # load anything local to this machine, by name
 machine=$(uname -n | cut -d. -f1)
 [ -r $HOME/.zsh/$machine ] && . $HOME/.zsh/$machine || true
-alias china='ssh-agent bash --rcfile ~/.ssh/china/.bash_profile.cn'
