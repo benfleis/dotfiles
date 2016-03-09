@@ -143,8 +143,8 @@ export PROMPT='[%(?.$PR_LIGHT_GREEN%m.$PR_RED%m)$PR_NO_COLOUR] $PR_LIGHT_GREEN%~
 # backup dir for vim
 mkdir -p /tmp/.backup
 
-# go
-export GOROOT=`go env GOROOT`
+# go, presumed to be installed via brew
+export GOROOT="/usr/local/opt/go/libexec"
 export GOPATH="$HOME/go"
 
 # load up all ze functions

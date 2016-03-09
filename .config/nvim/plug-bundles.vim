@@ -18,15 +18,17 @@ Plug 'tpope/vim-markdown'
 Plug 'moll/vim-node'
 Plug 'ternjs/tern_for_vim'
 Plug 'rbgrouleff/bclose.vim'
+Plug 'avakhov/vim-yaml'
 
 " experimental -- really want smartparens, or some set of plugins that do the
 " same.
 Plug 'jiangmiao/auto-pairs'
 
+Plug 'Shougo/neocomplete.vim'
 Plug 'benekastah/neomake'
 Plug 'kassio/neoterm'
 Plug 'rking/ag.vim'
-Plug 'Shougo/neocomplete.vim'
+Plug 'scrooloose/syntastic'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-surround'

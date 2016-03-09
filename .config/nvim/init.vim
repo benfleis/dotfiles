@@ -26,6 +26,8 @@ set background=light
 " allows buffers to stick around w/o windows, even outside of files
 set hidden
 
+let g:airline_powerline_fonts = 1
+
 colorscheme desert
 hi SpecialKey ctermfg=red ctermbg=yellow
 
