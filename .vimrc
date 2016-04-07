@@ -43,7 +43,7 @@ set notitle
 
 set t_Co=256
 set background=dark
-colorscheme solarized
+colorscheme desert
 hi SpecialKey ctermfg=red ctermbg=yellow
 
 

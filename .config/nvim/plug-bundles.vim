@@ -9,6 +9,8 @@ Plug 'VundleVim/Vundle.vim'
 "Plug 'altercation/vim-colors-solarized.git'
 Plug 'bling/vim-airline'
 Plug 'airblade/vim-gitgutter'
+
+" config
 Plug 'editorconfig/editorconfig-vim'
 
 " language specific vundles
@@ -24,6 +26,8 @@ Plug 'avakhov/vim-yaml'
 " same.
 Plug 'jiangmiao/auto-pairs'
 
+Plug 'tpope/vim-vinegar'
+Plug 'ctrlpvim/ctrlp.vim'
 Plug 'Shougo/neocomplete.vim'
 Plug 'benekastah/neomake'
 Plug 'kassio/neoterm'

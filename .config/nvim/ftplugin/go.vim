@@ -9,5 +9,7 @@ nnoremap <C-t> <C-o>
 
 nnoremap <Leader>ee :GoBuild<CR>
 
-nnoremap <Leader>tt :GoTest<CR>
+" test this, file, compile
+nnoremap <Leader>tt :GoTestFunc<CR>
+nnoremap <Leader>tf :GoTest<CR>
 nnoremap <Leader>tc :GoTestCompile<CR>
