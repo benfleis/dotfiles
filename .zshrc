@@ -113,6 +113,9 @@ bindkey "^N" history-beginning-search-forward
 
 bindkey -a "Q" push-line
 
+# autojump
+[[ -s $(brew --prefix)/etc/profile.d/autojump.sh  ]] && . $(brew --prefix)/etc/profile.d/autojump.sh
+
 # ulimits
 ulimit -c unlimited
 ulimit -d unlimited

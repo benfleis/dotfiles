@@ -9,6 +9,7 @@ Plug 'VundleVim/Vundle.vim'
 "Plug 'altercation/vim-colors-solarized.git'
 Plug 'bling/vim-airline'
 Plug 'airblade/vim-gitgutter'
+Plug 'chriskempson/base16-vim'
 
 " config
 Plug 'editorconfig/editorconfig-vim'
@@ -21,6 +22,8 @@ Plug 'moll/vim-node'
 Plug 'ternjs/tern_for_vim'
 Plug 'rbgrouleff/bclose.vim'
 Plug 'avakhov/vim-yaml'
+" Plug 'jelera/vim-javascript-syntax'
+Plug 'pangloss/vim-javascript'
 
 " experimental -- really want smartparens, or some set of plugins that do the
 " same.

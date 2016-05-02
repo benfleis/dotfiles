@@ -69,3 +69,6 @@ let g:airline#extensions#tabline#fnamemod = ':t'
 " from vim-go guide
 let g:syntastic_go_checkers = ['golint', 'govet', 'errcheck']
 let g:syntastic_mode_map = { 'mode': 'active', 'passive_filetypes': ['go'] }
+
+let g:syntastic_javascript_checkers = ["standard"]
+let g:syntastic_sh_checkers = ['bashate']
