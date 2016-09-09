@@ -85,6 +85,9 @@ compinit -u
 
 autoload zmv
 
+autoload edit-command-line
+bindkey -M vicmd V edit-command-line
+
 # theoretical preexec sweetness.  no worky, but worth checking later.
 # http://forums.macosxhints.com/archive/index.php/t-6493.html
 #preexec ()
@@ -120,6 +123,7 @@ bindkey -a "Q" push-line
 ulimit -c unlimited
 ulimit -d unlimited
 ulimit -s unlimited
+ulimit -n 8192
 
 ##
 # some bits stolen from: http://www.aperiodic.net/phil/prompt/prompt.txt

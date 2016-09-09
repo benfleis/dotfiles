@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # master list of things to install
-dots=".config .ctags .emacs.d .nvim .tmux.conf .tmux .vim .vimrc .zsh .zshenv .zshrc"
+dots=".config .ctags .emacs.d .nvim .ptconfig.toml .tmux.conf .tmux .vim .vimrc .zsh .zshenv .zshrc"
 
 # if first arg is '-f', it's force, save it and shift
 force=0

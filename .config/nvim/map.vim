@@ -16,16 +16,18 @@ nnoremap <A-l> <C-w>l
 " CTRL-a does paragraph reformat
 map  gqap
 
-"map - :bp
-"map = :bn
-"map _ :silent :call CloseIfOnlyWindow(0)<CR>
-
-" useful "go" commands
+" useful "go" commands, also duplicated w/ <Leader>
 map gd :Gdiff
 map gs :Gstatus
 
 " euro!
 imap <Esc>@ €
+
+" holy scheisse my life is complete. swap arrow / ctrl-[np] in cmdline editing.
+cnoremap <Up> <C-p>
+cnoremap <Down> <C-n>
+cnoremap <C-p> <Up>
+cnoremap <C-n> <Down>
 
 " ---------------------------------------------------------------------------
 " leader based maps below
@@ -33,7 +35,8 @@ imap <Esc>@ €
 
 " toggles: paste, list display, wrap, search highlight
 nmap <Leader>p :silent :setlocal paste!<CR>
-nmap <Leader>l :silent :setlocal list!<CR>
+" nmap <Leader>S :silent :setlocal list!<CR>
+nmap <Leader>S :silent :setlocal spell!<CR>
 nmap <Leader>w :silent :setlocal wrap!<CR>
 nmap <Leader>W :silent :call WrapStyleToggle()<CR>
 nmap <Leader>h :silent :setlocal hlsearch!<CR>
@@ -57,15 +60,21 @@ map <Leader>d% :silent %x``x
 " gitx
 nnoremap <Leader>gx :silent :!open -a GitX .<CR><CR>
 
-"
-nnoremap <Leader>gn :GitGutterNextHunk<CR>
-nnoremap <Leader>gp :GitGutterPrevHunk<CR>
-nnoremap <Leader>gh :GitGutterLineHighlightsToggle<CR>
-nnoremap <Leader>gP :GitGutterPreviewHunk<CR>
-nnoremap <Leader>gR :GitGutterRevertHunk<CR>
-nnoremap <Leader>gS :GitGutterStageHunk<CR>
+" g/re/p -- ;g
+nnoremap <Leader><Leader>g :Grepper -noprompt -cword<CR>
+nnoremap <Leader>gr :Grepper<CR>
+nnoremap <Leader>gw :Grepper -noprompt -cword<CR>
+nnoremap <Leader>* :Grepper -tool git -open -switch -cword -noprompt<CR>
 
-" buffer switches, identical to the :commands, 'cept bd -> Bclose
+" git gutter -- ;G
+nnoremap <Leader>Gn :GitGutterNextHunk<CR>
+nnoremap <Leader>Gp :GitGutterPrevHunk<CR>
+nnoremap <Leader>Gh :GitGutterLineHighlightsToggle<CR>
+nnoremap <Leader>GP :GitGutterPreviewHunk<CR>	
+nnoremap <Leader>GU :GitGutterUndoHunk<CR>
+nnoremap <Leader>GS :GitGutterStageHunk<CR>
+
+" buffers -- ;b -- identical to the :commands, 'cept bd -> Bclose
 nnoremap <Leader>bd :Bclose<CR>
 nnoremap <Leader>bn :bn<CR>
 nnoremap <Leader>bp :bp<CR>
@@ -93,6 +102,11 @@ nnoremap <Leader>tt :tabedit %<CR>
 nnoremap <Leader>tn gt
 nnoremap <Leader>tp gT
 
+" different mnemonic: compile <X>
+" ;cc typically replaced by language specific thing
+nnoremap <Leader>cc :make<CR> 
+nnoremap <Leader>cm :make<CR>
+
 " "double tap" shortcuts, for me ;;<X>. valuable, saved for most frequent.
 " window movement with 1 hand; testing to see if I like.
 nnoremap <Leader><Leader>h <C-w>h
@@ -114,7 +128,7 @@ nmap <Leader><Leader>e :silent :e <C-R>=expand("%:p:h") . "/"<CR>
 " open sibling, netrw explorer
 nmap <Leader><Leader>E :silent :E <C-R>=expand("%:p:h") . "/"<CR>
 
-" THIS shortcuts being with ;t
+" THIS shortcuts begin with ;t
 nnoremap <Leader>tc :SyntasticCheck<CR> " this check
 
 " THIS N-step tab settings
@@ -122,9 +136,3 @@ map <Leader>t2 :silent :setlocal ts=2 sts=2 sw=2<CR>
 map <Leader>t3 :silent :setlocal ts=3 sts=3 sw=3<CR>
 map <Leader>t4 :silent :setlocal ts=4 sts=4 sw=4<CR>
 map <Leader>t8 :silent :setlocal ts=8 sts=8 sw=8<CR>
-
-" REPLy stuff; broken, should be per lang
-"nnoremap <Leader>er :TREPLSend<CR>
-"vnoremap <Leader>er :TREPLSend<CR>
-"nnoremap <Leader>ee :TREPLSendFile<CR>
-

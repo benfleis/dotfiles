@@ -31,6 +31,18 @@ set diffopt=filler,vertical
 
 let g:airline_powerline_fonts = 1
 
+if executable('pt')
+  set grepprg=pt\ --nogroup\ --nocolor\ --column\ --context=0\ --smart-case\ --ignore\ local/\ --ignore\ *.diff
+  let g:ackprg = 'pt --nogroup --nocolor --column --context=0 --smart-case --ignore local --ignore "*.diff"'
+  let g:grepper = {
+	\ 'tools': ['pt'],
+	\ 'pt': {
+	\   'grepprg':    'pt --nocolor --column --context=0 --smart-case --ignore local --ignore "*.diff"',
+	\   'grepformat': '%f:%l:%m',
+	\   'escape':     '\+*^$()[]',
+	\ }}
+endif
+
 colorscheme desert
 hi SpecialKey ctermfg=red ctermbg=yellow
 
@@ -64,7 +76,8 @@ endif
 
 " experimental, needs to move
 let g:airline#extensions#tabline#enabled = 1
-let g:airline#extensions#tabline#fnamemod = ':t'
+let g:airline#extensions#tabline#fnamemod = ':.'
+let g:airline#extensions#tabline#formatter = 'unique_tail_improved'
 
 " from vim-go guide
 let g:syntastic_go_checkers = ['golint', 'govet', 'errcheck']

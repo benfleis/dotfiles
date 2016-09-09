@@ -1,0 +1,4 @@
+color = true
+context = 3
+ignore = ["vendor", "Godeps", "node-modules", "local"]
+smart-case = true

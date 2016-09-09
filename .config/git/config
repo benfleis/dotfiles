@@ -23,3 +23,5 @@
 	default = simple
 [url "ssh://gitolite@code.uber.internal:2222/"]
 	insteadOf = https://code.uber.internal/
+[diff]
+	compactionHeuristic = 1
