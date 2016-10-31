@@ -1,11 +1,11 @@
 dotfiles
 ========
 
-# vim files
+To experimentally bootstrap this on an arbitrary host:
 
-# zsh files
+  curl https://raw.githubusercontent.com/benfleis/dotfiles/master/bootstrap.bash
+  bash bootstrap.bash
 
-* zshrc - basis zshrc
-* zshenv - handle ssh-agent soft linking so that reconnects in tmux, etc., "just work" (most of the time)
-* zshrc/function - frequently used utility funcs (severely need pruning)
-* zshrc/local - not present, since it's per machine
+This will create a --bare clone in src/dotfiles.git, and check it out in $HOME.
+Git will complain if there are conflicting files. You must clear them out
+yourself for this to work. (Maybe I'll add --force later.)
