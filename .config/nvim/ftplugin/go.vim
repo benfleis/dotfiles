@@ -5,7 +5,7 @@ set ts=4
 set nolist
 
 let g:go_fmt_command = "goimports"
-" let g:go_list_type = ""
+let g:go_list_type = "quickfix"
 let g:go_term_enabled = 1
 let g:go_highlight_operators = 1
 let g:go_highlight_functions = 1
@@ -18,9 +18,9 @@ let g:go_highlight_interfaces = 1
 " GoBuild.
 function! GoBuildOrTestFile()
     if expand("%t") =~ "_test\.go$"
-		GoTest()
+		execute "GoTestCompile"
     else
-		GoBuild()
+		execute "GoBuild"
     endif
 endfunction
 

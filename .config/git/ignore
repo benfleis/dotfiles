@@ -3,7 +3,9 @@
 *.diff
 tags
 .DS_Store
+.local/
 local/
+_local/
 
 **/.tern-port
 node_modules/

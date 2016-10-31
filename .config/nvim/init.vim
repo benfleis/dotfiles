@@ -32,12 +32,12 @@ set diffopt=filler,vertical
 let g:airline_powerline_fonts = 1
 
 if executable('pt')
-  set grepprg=pt\ --nogroup\ --nocolor\ --column\ --context=0\ --smart-case\ --ignore\ local/\ --ignore\ *.diff
-  let g:ackprg = 'pt --nogroup --nocolor --column --context=0 --smart-case --ignore local --ignore "*.diff"'
+  set grepprg=pt\ --nogroup\ --nocolor\ --column\ --context=0\ --smart-case
+  let g:ackprg = 'pt --nogroup --nocolor --column --context=0 --smart-case'
   let g:grepper = {
 	\ 'tools': ['pt'],
 	\ 'pt': {
-	\   'grepprg':    'pt --nocolor --column --context=0 --smart-case --ignore local --ignore "*.diff"',
+	\   'grepprg':    'pt --nocolor --column --context=0 --smart-case',
 	\   'grepformat': '%f:%l:%m',
 	\   'escape':     '\+*^$()[]',
 	\ }}
