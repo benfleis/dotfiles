@@ -13,6 +13,7 @@ let g:go_highlight_functions = 1
 " let g:go_highlight_fields = 1
 " let g:go_highlight_structs = 1
 let g:go_highlight_interfaces = 1
+let g:go_fmt_experimental = 1
 
 " if file name ends in _test.go, call GoTest to test the file. Otherwise do
 " GoBuild.
@@ -24,7 +25,7 @@ function! GoBuildOrTestFile()
     endif
 endfunction
 
-nnoremap <Leader>cc :GoBuild<CR>
+nnoremap <Leader>cf :GoBuild<CR>
 
 " test this, file, compile
 nnoremap <Leader>tt :GoTestFunc<CR>

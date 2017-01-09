@@ -11,8 +11,12 @@ set smartcase
 " tabbing/indenting/formatting
 set autoindent
 set backspace=2
+set cursorline
 set expandtab
 set formatoptions=croqln
+set list
+" set listchars=tab:·\ ,eol:¬,trail:»
+set listchars=trail:»
 set nohlsearch
 set shiftround
 set shiftwidth=4
@@ -30,6 +34,13 @@ set hidden
 set diffopt=filler,vertical
 
 let g:airline_powerline_fonts = 1
+
+" cursorline only for active window
+augroup CursorLineOnlyInActiveWindow
+  autocmd!
+  autocmd VimEnter,WinEnter,BufWinEnter * setlocal cursorline
+  autocmd WinLeave * setlocal nocursorline
+augroup END
 
 if executable('pt')
   set grepprg=pt\ --nogroup\ --nocolor\ --column\ --context=0\ --smart-case
@@ -85,3 +96,14 @@ let g:syntastic_mode_map = { 'mode': 'active', 'passive_filetypes': ['go'] }
 
 let g:syntastic_javascript_checkers = ["standard"]
 let g:syntastic_sh_checkers = ['bashate']
+
+" search terms are unreadable in my default colorscheme
+highlight Search ctermfg=0 ctermbg=12
+" cursorline "highlights" to true black w/ my base16 term setup
+highlight CursorLine cterm=none ctermbg=16
+
+" if list mode enabled, use this instead of default
+" NonText: eol, extends, precedes
+" SpecialKey: nbsp, tab, trail
+highlight NonText cterm=none ctermfg=darkgray
+highlight SpecialKey cterm=none ctermfg=darkgray

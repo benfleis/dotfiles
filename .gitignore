@@ -8,7 +8,7 @@
 
 .config/itape/%*
 
-.config/nvim/bundle
+.config/nvim/bundles
 .config/nvim/local.vim
 
 .emacs.d/auto-save-list

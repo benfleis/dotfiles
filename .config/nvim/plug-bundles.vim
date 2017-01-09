@@ -15,6 +15,10 @@ Plug 'chriskempson/base16-vim'
 Plug 'editorconfig/editorconfig-vim'
 Plug 'rbgrouleff/bclose.vim'
 
+" fzf
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+Plug 'junegunn/fzf.vim'
+
 " language specific vundles
 Plug 'elzr/vim-json'
 Plug 'fatih/vim-go'
@@ -25,13 +29,14 @@ Plug 'avakhov/vim-yaml'
 Plug 'pangloss/vim-javascript'
 Plug 'solarnz/thrift.vim'
 Plug 'gabrielelana/vim-markdown'
+Plug 'elubow/cql-vim'
 
 " experimental -- really want smartparens, or some set of plugins that do the
 " same.
-Plug 'jiangmiao/auto-pairs'
+" Plug 'jiangmiao/auto-pairs'
+Plug 'snoe/nvim-parinfer.js'
 
 Plug 'tpope/vim-vinegar'
-Plug 'ctrlpvim/ctrlp.vim'
 Plug 'Shougo/neocomplete.vim'
 Plug 'benekastah/neomake'
 Plug 'kassio/neoterm'
