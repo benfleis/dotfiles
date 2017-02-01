@@ -45,3 +45,9 @@ nmap <Leader>db m`:g/^\s*runtime.Breakpoint()\s*$/d<CR>:g/^\s*"runtime"\s*$/d<CR
 
 " for funsies, more pedantic runtime deletion search only imports
 " :/^import ($/,/^)$/g/"runtime"/d
+
+" if neomake && ./go-build && ./Makefile, use make
+
+if exists("g:loaded_neomake") && filereadable("./Makefile") && isdirectory("./go-build")
+	" echo "yes."
+endif

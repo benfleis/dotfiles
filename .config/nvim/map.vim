@@ -1,5 +1,7 @@
 " define leader char
 let mapleader = ";"
+" double up leader
+map <space> ;
 
 " alt-[hjkl] ALWAYS work for window mvmt, esp. with :terminal goo
 tnoremap <C-[><C-[> <C-\><C-n>
@@ -64,6 +66,7 @@ nnoremap <Leader>gx :silent :!open -a GitX .<CR><CR>
 nnoremap <Leader><Leader>g :Grepper -noprompt -cword<CR>
 nnoremap <Leader>gr :Grepper<CR>
 nnoremap <Leader>gw :Grepper -noprompt -cword<CR>
+nnoremap <Leader># :Grepper -tool git -open -switch -cword -noprompt<CR>
 nnoremap <Leader>* :Grepper -tool git -open -switch -cword -noprompt<CR>
 
 " git gutter -- ;G
@@ -82,30 +85,25 @@ nnoremap <Leader>bl :ls<CR>
 nnoremap <Leader>bb :buffer<Space>
 
 " and list walkers too, like above, but also cf variants for file
-nnoremap <Leader>cc :cc<CR>
+nnoremap <Leader>ct :cc<CR> " t=this
 nnoremap <Leader>cn :cn<CR>
 nnoremap <Leader>cp :cp<CR>
 nnoremap <Leader>cfn :cnf<CR>
 nnoremap <Leader>cfp :cpf<CR>
-nnoremap <Leader>cd :cclose<CR>
+nnoremap <Leader>cc :cclose<CR>
 nnoremap <Leader>co :copen<CR>
 
-nnoremap <Leader>ll :ll<CR>
+nnoremap <Leader>lt :ll<CR> " t=this
 nnoremap <Leader>ln :lnext<CR>
 nnoremap <Leader>lp :lprevious<CR>
 nnoremap <Leader>lfn :lnf<CR>
 nnoremap <Leader>lfp :lpf<CR>
-nnoremap <Leader>ld :lclose<CR>
+nnoremap <Leader>lc :lclose<CR>
 nnoremap <Leader>lo :lopen<CR>
 
-nnoremap <Leader>tt :tabedit %<CR>
-nnoremap <Leader>tn gt
-nnoremap <Leader>tp gT
-
 " different mnemonic: compile <X>
-" ;cc typically replaced by language specific thing
-nnoremap <Leader>cc :make<CR> 
-nnoremap <Leader>cm :make<CR>
+nnoremap <Leader>cm :Neomake<CR>
+nnoremap <Leader>mm :Neomake<CR>
 
 " "double tap" shortcuts, for me ;;<X>. valuable, saved for most frequent.
 " window movement with 1 hand; testing to see if I like.
@@ -129,7 +127,7 @@ nmap <Leader><Leader>e :silent :e <C-R>=expand("%:p:h") . "/"<CR>
 nmap <Leader><Leader>E :silent :E <C-R>=expand("%:p:h") . "/"<CR>
 
 " THIS shortcuts begin with ;t
-nnoremap <Leader>tc :SyntasticCheck<CR> " this check
+" nnoremap <Leader>tc :SyntasticCheck<CR> " this check
 
 " THIS N-step tab settings
 map <Leader>t2 :silent :setlocal ts=2 sts=2 sw=2<CR>

@@ -10,14 +10,18 @@ Plug 'VundleVim/Vundle.vim'
 Plug 'bling/vim-airline'
 Plug 'airblade/vim-gitgutter'
 Plug 'chriskempson/base16-vim'
+Plug 'Yggdroot/indentLine'
 
 " config
 Plug 'editorconfig/editorconfig-vim'
 Plug 'rbgrouleff/bclose.vim'
-
+Plug 'gerw/vim-HiLinkTrace'
 " fzf
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
+
+" motion
+Plug 'easymotion/vim-easymotion'
 
 " language specific vundles
 Plug 'elzr/vim-json'
@@ -30,6 +34,7 @@ Plug 'pangloss/vim-javascript'
 Plug 'solarnz/thrift.vim'
 Plug 'gabrielelana/vim-markdown'
 Plug 'elubow/cql-vim'
+Plug 'artur-shaik/vim-javacomplete2'
 
 " experimental -- really want smartparens, or some set of plugins that do the
 " same.
@@ -37,7 +42,7 @@ Plug 'elubow/cql-vim'
 Plug 'snoe/nvim-parinfer.js'
 
 Plug 'tpope/vim-vinegar'
-Plug 'Shougo/neocomplete.vim'
+Plug 'Shougo/deoplete.vim', { 'do': ':UpdateRemotePlugins' }
 Plug 'benekastah/neomake'
 Plug 'kassio/neoterm'
 Plug 'scrooloose/syntastic'

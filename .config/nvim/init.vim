@@ -16,7 +16,7 @@ set expandtab
 set formatoptions=croqln
 set list
 " set listchars=tab:·\ ,eol:¬,trail:»
-set listchars=trail:»
+set listchars=tab:·\ ,trail:»
 set nohlsearch
 set shiftround
 set shiftwidth=4
@@ -90,6 +90,10 @@ let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tabline#fnamemod = ':.'
 let g:airline#extensions#tabline#formatter = 'unique_tail_improved'
 
+" indentline is installed, but disabled by default; enabled in java
+let g:indentLine_color_term = 234 " (black, on dark grey in current colorscheme)
+let g:indentLine_enabled = 0
+
 " from vim-go guide
 let g:syntastic_go_checkers = ['golint', 'govet', 'errcheck']
 let g:syntastic_mode_map = { 'mode': 'active', 'passive_filetypes': ['go'] }
@@ -99,8 +103,10 @@ let g:syntastic_sh_checkers = ['bashate']
 
 " search terms are unreadable in my default colorscheme
 highlight Search ctermfg=0 ctermbg=12
+" darker grey, in seoul-256
+highlight CursorLine cterm=none ctermbg=238
 " cursorline "highlights" to true black w/ my base16 term setup
-highlight CursorLine cterm=none ctermbg=16
+"highlight CursorLine cterm=none ctermbg=16
 
 " if list mode enabled, use this instead of default
 " NonText: eol, extends, precedes
