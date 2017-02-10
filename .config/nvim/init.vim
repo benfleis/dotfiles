@@ -104,7 +104,7 @@ let g:syntastic_sh_checkers = ['bashate']
 " search terms are unreadable in my default colorscheme
 highlight Search ctermfg=0 ctermbg=12
 " darker grey, in seoul-256
-highlight CursorLine cterm=none ctermbg=238
+highlight CursorLine cterm=none ctermbg=235
 " cursorline "highlights" to true black w/ my base16 term setup
 "highlight CursorLine cterm=none ctermbg=16
 
