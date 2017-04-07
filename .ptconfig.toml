@@ -1,4 +1,4 @@
 color = true
 context = 3
-ignore = ["vendor", "Godeps", "node_modules", ".local", "local", "_local", "*.diff", "tags"]
+ignore = ["vendor", "Godeps", "node_modules", ".local", "local", "_local", "*.diff", "*.class", "tags"]
 smart-case = true

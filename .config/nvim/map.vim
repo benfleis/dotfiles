@@ -82,7 +82,24 @@ nnoremap <Leader>bd :Bclose<CR>
 nnoremap <Leader>bn :bn<CR>
 nnoremap <Leader>bp :bp<CR>
 nnoremap <Leader>bl :ls<CR>
-nnoremap <Leader>bb :buffer<Space>
+" nnoremap <Leader>bb :buffer<Space>
+function! s:buflist()
+  redir => ls
+  silent ls
+  redir END
+  return split(ls, '\n')
+endfunction
+
+function! s:bufopen(e)
+  execute 'buffer' matchstr(a:e, '^[ 0-9]*')
+endfunction
+
+nnoremap <silent> <Leader>bb :call fzf#run({
+\   'source':  reverse(<sid>buflist()),
+\   'sink':    function('<sid>bufopen'),
+\   'options': '+m',
+\   'down':    len(<sid>buflist()) + 2
+\ })<CR>
 
 " and list walkers too, like above, but also cf variants for file
 nnoremap <Leader>ct :cc<CR> " t=this
@@ -134,3 +151,6 @@ map <Leader>t2 :silent :setlocal ts=2 sts=2 sw=2<CR>
 map <Leader>t3 :silent :setlocal ts=3 sts=3 sw=3<CR>
 map <Leader>t4 :silent :setlocal ts=4 sts=4 sw=4<CR>
 map <Leader>t8 :silent :setlocal ts=8 sts=8 sw=8<CR>
+
+" FZF shorties
+map <Leader>ff :Files<CR>
