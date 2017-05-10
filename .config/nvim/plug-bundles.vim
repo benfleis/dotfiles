@@ -39,10 +39,10 @@ Plug 'artur-shaik/vim-javacomplete2'
 " experimental -- really want smartparens, or some set of plugins that do the
 " same.
 " Plug 'jiangmiao/auto-pairs'
-Plug 'snoe/nvim-parinfer.js'
+" Plug 'snoe/nvim-parinfer.js'
 
 Plug 'tpope/vim-vinegar'
-Plug 'Shougo/deoplete.vim', { 'do': ':UpdateRemotePlugins' }
+Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'benekastah/neomake'
 Plug 'kassio/neoterm'
 Plug 'scrooloose/syntastic'

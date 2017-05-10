@@ -151,8 +151,15 @@ export PROMPT='[%(?.$PR_LIGHT_GREEN%m.$PR_RED%m)$PR_NO_COLOUR] $PR_LIGHT_GREEN%~
 mkdir -p /tmp/.backup
 
 # go, presumed to be installed via brew
-export GOROOT="/usr/local/opt/go/libexec"
 export GOPATH="$HOME/go"
+export PATH="$PATH:$GOPATH/bin"
+
+# get JAVA_HOME as right as possible
+# use javac instead of java, since using java can get stuck under jre path
+# instead of main (for header/includes)
+uname -a | grep -q Linux && {
+    export JAVA_HOME=$(update-alternatives --query javac | sed -n 's#^Value: \(.*\)/bin/javac$#\1#p') ;
+}
 
 # load up all ze functions
 [ -r $HOME/.zsh/functions ] && . $HOME/.zsh/functions
@@ -163,3 +170,9 @@ export GOPATH="$HOME/go"
 # load anything local to this machine, by name
 machine=$(uname -n | cut -d. -f1)
 [ -r $HOME/.zsh/$machine ] && . $HOME/.zsh/$machine || true
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="/home/benfleis/.sdkman"
+[[ -s "/home/benfleis/.sdkman/bin/sdkman-init.sh" ]] && source "/home/benfleis/.sdkman/bin/sdkman-init.sh"
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

@@ -121,6 +121,7 @@ nnoremap <Leader>lo :lopen<CR>
 " different mnemonic: compile <X>
 nnoremap <Leader>cm :Neomake<CR>
 nnoremap <Leader>mm :Neomake<CR>
+nnoremap <Leader>cv :3verb Neomake<CR>
 
 " "double tap" shortcuts, for me ;;<X>. valuable, saved for most frequent.
 " window movement with 1 hand; testing to see if I like.
