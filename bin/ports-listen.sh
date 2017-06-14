@@ -19,7 +19,7 @@ lsof -nP -i tcp -s tcp:listen -F pcnf | while read -r line || [[ -n $line ]]; do
     case $type in
         p)  # pid ALWAYS comes first, afaict
             pid=$datum
-            args=$(ps -q $pid -o args= | cut -b 1-40)
+            args=$(ps -p $pid -o args= | cut -b 1-40)
             ;;
         c) printf "$(yellow "$datum") -- $pid -- $(blue "$args")\n" ;;
         n) printf "    $datum\n" ;;
