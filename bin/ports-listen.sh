@@ -13,10 +13,11 @@ fi
 function blue   { printf "${BLUE:-}$@${NC:-}"; }
 function yellow { printf "${YELLOW:-}$@${NC:-}"; }
 
-port_arg=""
-[ -n "${1:-}" ] && port_arg=":$1"
+# in bash man page, see ":-word" and ":+word"
+# will be "" or ":12345"
+port_arg="${1:+":"}${1:-}"
 
-lsof -nP -i tcp"$port_arg" -s tcp:listen -F pcnf | while read -r line || [[ -n $line ]]; do
+lsof -nP -i "tcp$port_arg" -s tcp:listen -F pcnf | while read -r line || [[ -n $line ]]; do
     type=${line:0:1}
     datum=${line:1}
     case $type in
