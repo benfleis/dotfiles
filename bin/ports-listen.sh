@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eu pipefail
+set -euo pipefail
 
 if [ -t 1 ]; then
     RED='\033[0;31m'
@@ -10,10 +10,13 @@ if [ -t 1 ]; then
     NC='\033[0m'
 fi
 
-function blue   { printf "${BLUE}$@${NC}"; }
-function yellow { printf "${YELLOW}$@${NC}"; }
+function blue   { printf "${BLUE:-}$@${NC:-}"; }
+function yellow { printf "${YELLOW:-}$@${NC:-}"; }
 
-lsof -nP -i tcp -s tcp:listen -F pcnf | while read -r line || [[ -n $line ]]; do
+port_arg=""
+[ -n "${1:-}" ] && port_arg=":$1"
+
+lsof -nP -i tcp"$port_arg" -s tcp:listen -F pcnf | while read -r line || [[ -n $line ]]; do
     type=${line:0:1}
     datum=${line:1}
     case $type in
