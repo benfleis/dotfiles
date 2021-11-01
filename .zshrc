@@ -1,6 +1,8 @@
 # zsh init; ben
 
-PATH=$HOME/bin:/usr/local/bin:/usr/local/sbin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/X11R6/bin
+export LANGUAGE=en_US.UTF-8
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
 
 prefer() {
     PREFER=`which $1 2> /dev/null`
@@ -114,10 +116,7 @@ bindkey "^N" history-beginning-search-forward
 #bindkey '^P' history-beginning-search-backward-end
 #bindkey '^N' history-beginning-search-forward-end
 
-bindkey -a "Q" push-line
-
-# autojump
-[[ -s $(brew --prefix)/etc/profile.d/autojump.sh  ]] && . $(brew --prefix)/etc/profile.d/autojump.sh
+bindkey -a "Q" push-input
 
 # ulimits
 ulimit -c unlimited
@@ -139,20 +138,34 @@ for color in RED GREEN YELLOW BLUE MAGENTA CYAN WHITE; do
     eval PR_LIGHT_$color='%{$fg[${(L)color}]%}'
     (( count = $count + 1 ))
 done
-PR_NO_COLOUR="%{$terminfo[sgr0]%}"
+PR_RESET="%{$terminfo[sgr0]%}"
 
 # export PS1='[%U%m%u] %B%~%b $ '
 ## preferred prompts; first is for white bg, second is for black bg (iterm)
-export PROMPT='[%(?.$PR_LIGHT_GREEN%m.$PR_RED%m)$PR_NO_COLOUR] $PR_LIGHT_GREEN%~$PR_NO_COLOUR $ '
-#export PROMPT='[%(?.$PR_LIGHT_GREEN%m.$PR_RED%m)$PR_NO_COLOUR] $PR_LIGHT_BLUE%~$PR_NO_COLOUR $ '
-#export PROMPT='[%(?.$PR_GREEN%m.$PR_RED%m)$PR_WHITE] $PR_BLUE%~$PR_NO_COLOUR $ '
+set_prompt() {
+    #export PROMPT='@%(?.$PR_LIGHT_GREEN$PROMPT_AT.$PR_RED$PROMPT_AT)$PR_RESET| $PR_BLUE%~$PR_RESET $ '
+    export PROMPT='@$PR_LIGHT_GREEN$PROMPT_AT$PR_RESET%(?-| -|${PR_RED}X${PR_RESET}) $PR_BLUE%~$PR_RESET $ '
+}
+export PROMPT_AT="%m"
+set_prompt
 
 # backup dir for vim
 mkdir -p /tmp/.backup
 
+## Lang/Env setups -- eg go, python, SDKMAN, anaconda
+
+# python
+# leverage pyenv if installed
+command -v pyenv >/dev/null && eval "$(pyenv init -)"
+
+# rust
+command -v cargo >/dev/null && PATH="$HOME/.cargo/bin:$PATH"
+
 # go, presumed to be installed via brew
-export GOPATH="$HOME/go"
-export PATH="$PATH:$GOPATH/bin"
+if command -v gofmt >/dev/null; then
+    export GOPATH="$HOME/go"
+    export PATH="$GOPATH/bin:$PATH"
+fi
 
 # get JAVA_HOME as right as possible
 # use javac instead of java, since using java can get stuck under jre path
@@ -161,11 +174,18 @@ uname -a | grep -q Linux && {
     export JAVA_HOME=$(update-alternatives --query javac | sed -n 's#^Value: \(.*\)/bin/javac$#\1#p') ;
 }
 
+# use zsh-z [ https://github.com/agkozak/zsh-z ]
+export ZSHZ_CMD=j
+ZSH_Z="$HOME/src/zsh-z/zsh-z.plugin.zsh"
+[ -r "$ZSH_Z" ] && . "$ZSH_Z"
+zstyle ':completion:*' menu select
+
+
 # load up all ze functions
 [ -r $HOME/.zsh/functions ] && . $HOME/.zsh/functions
 
 # load anything local to this machine
-[ -r $HOME/.zsh/local ] && . $HOME/.zsh/local
+[ -r $HOME/.zsh/rc-local ] && . $HOME/.zsh/rc-local
 
 # load anything local to this machine, by name
 machine=$(uname -n | cut -d. -f1)
@@ -176,3 +196,4 @@ export SDKMAN_DIR="/home/benfleis/.sdkman"
 [[ -s "/home/benfleis/.sdkman/bin/sdkman-init.sh" ]] && source "/home/benfleis/.sdkman/bin/sdkman-init.sh"
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+

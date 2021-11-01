@@ -1,6 +1,12 @@
 " always use utf8
 set encoding=utf-8
 
+" terminal Truecolor madness!
+set termguicolors
+" set Vim-specific sequences for RGB colors -- may be unnecessary in neovim
+let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+
 " sanity. this ain't vi.
 set nocompatible
 
@@ -26,90 +32,43 @@ set softtabstop=4
 set tabstop=8
 set textwidth=80
 
-set background=light
-
 " allows buffers to stick around w/o windows, even outside of files
 set hidden
 
 set diffopt=filler,vertical
 
-let g:airline_powerline_fonts = 1
-
-" cursorline only for active window
-augroup CursorLineOnlyInActiveWindow
-  autocmd!
-  autocmd VimEnter,WinEnter,BufWinEnter * setlocal cursorline
-  autocmd WinLeave * setlocal nocursorline
-augroup END
-
-if executable('pt')
-  set grepprg=pt\ --nogroup\ --nocolor\ --column\ --context=0\ --smart-case
-  let g:ackprg = 'pt --nogroup --nocolor --column --context=0 --smart-case'
-  let g:grepper = {
-	\ 'tools': ['pt'],
-	\ 'pt': {
-	\   'grepprg':    'pt --nocolor --column --context=0 --smart-case',
-	\   'grepformat': '%f:%l:%m',
-	\   'escape':     '\+*^$()[]',
-	\ }}
-endif
-
-colorscheme desert
-hi SpecialKey ctermfg=red ctermbg=yellow
-
 syntax on
 
-" assume that first entry is "home config". we could iterate through and take
-" the first one that includes $HOME.
-let g:rtp0=split(&g:rtp, ",")[0]
+""
+" useful path computations in neovim
+" stdpath('config') = $HOME/.config/nvim + '/init.vim'
+" stdpath('data') = $HOME/.local/share
 
-" install/load vundle, then the bundles themselves
-silent echom "Loading bundles"
-execute "source " . g:rtp0 . "/plug-install.vim"
-execute "source " . g:rtp0 . "/plug-bundles.vim"
-"execute "source " . g:rtp0 . "/vundle-install.vim"
-"execute "source " . g:rtp0 . "/vundle-bundles.vim"
+" NOTE: if nvim -u BLAHBLAH, could/should grab sibling files from there?
+let g:config_path = stdpath('config')	" typ. $HOME/.config/nvim
+let g:data_path = stdpath('data')	" typ. $HOME/.local/share/nvim
 
-silent echom "Loading custom functions"
-execute "source " . g:rtp0 . "/functions.vim"
+" source a series of files with a helper
+function s:SourceConfig(name, tail)
+    let full_path = g:config_path . "/" . a:tail
+    if filereadable(full_path)
+        silent echo a:name . " @ " . full_path . ": loading"
+        execute "source " . full_path
+    else
+        echom a:name . " @ " . full_path . ": nothing found?!?!"
+    endif
+endfunction
 
-silent echom "Loading keyboard mappings"
-execute "source " . g:rtp0 . "/map.vim"
+silent echo "Sourcing and Configing"
 
-" plugin opts that should follow?
-let g:neoterm_position = 'vertical'
+let g:plug_home = g:data_path . "/site/pack"
+call s:SourceConfig("plugins", "plug-defs.vim")
+call s:SourceConfig("key maps", "map.vim")
+call s:SourceConfig("focus mode", "focus.vim")
 
-" install $RTP/local.vim
-if filereadable(g:rtp0 . "/local.vim")
-    silent echom "Loading nvim/local"
-    execute "source " . g:rtp0 . "/local.vim"
-endif
+set background=dark
+colorscheme papercolor
+" colorscheme desert
 
-" experimental, needs to move
-let g:airline#extensions#tabline#enabled = 1
-let g:airline#extensions#tabline#fnamemod = ':.'
-let g:airline#extensions#tabline#formatter = 'unique_tail_improved'
-
-" indentline is installed, but disabled by default; enabled in java
-let g:indentLine_color_term = 234 " (black, on dark grey in current colorscheme)
-let g:indentLine_enabled = 0
-
-" from vim-go guide
-let g:syntastic_go_checkers = ['golint', 'govet', 'errcheck']
-let g:syntastic_mode_map = { 'mode': 'active', 'passive_filetypes': ['go'] }
-
-let g:syntastic_javascript_checkers = ["standard"]
-let g:syntastic_sh_checkers = ['bashate']
-
-" search terms are unreadable in my default colorscheme
-highlight Search ctermfg=0 ctermbg=12
-" darker grey, in seoul-256
-highlight CursorLine cterm=none ctermbg=235
-" cursorline "highlights" to true black w/ my base16 term setup
-"highlight CursorLine cterm=none ctermbg=16
-
-" if list mode enabled, use this instead of default
-" NonText: eol, extends, precedes
-" SpecialKey: nbsp, tab, trail
-highlight NonText cterm=none ctermfg=darkgray
-highlight SpecialKey cterm=none ctermfg=darkgray
+"" Load lua, last for now
+lua require('base')
