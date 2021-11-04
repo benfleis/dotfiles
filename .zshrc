@@ -23,6 +23,9 @@ prefer vim vi; export EDITOR=$PREFER
 prefer nvim $EDITOR; export EDITOR=$PREFER
 export VISUAL=$EDITOR
 
+[[ "$EDITOR" == */nvim ]] && \
+    export MANPAGER='nvim +Man!'
+
 export USERXSESSIONRC=$HOME/.xsession
 
 # aliases

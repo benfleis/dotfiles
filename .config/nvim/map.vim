@@ -35,6 +35,9 @@ nnoremap <Leader><Leader>e <cmd>Telescope file_browser<CR>
 " nnoremap <Leader><Leader>g <cmd>Telescope live_grep<CR>
 " nnoremap <Leader><Leader>g <cmd>Telescope grep_string<CR>
 
+" open/find sibling files
+nnoremap <Leader><Leader>e <cmd>lua require('telescope.builtin').find_files{cwd = get_buf_dir()}<CR>
+
 " toggles: paste, list display, wrap, search highlight
 nmap <Leader>p <cmd>setlocal paste!<CR>
 " nmap <Leader>S <cmd>setlocal list!<CR>
