@@ -21,8 +21,11 @@ set cursorline
 set expandtab
 set formatoptions=croqln
 set list
+
 " set listchars=tab:·\ ,eol:¬,trail:»
 set listchars=tab:·\ ,trail:»
+set fillchars+=vert:\‖
+
 set nohlsearch
 set shiftround
 set shiftwidth=4

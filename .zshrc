@@ -162,7 +162,7 @@ mkdir -p /tmp/.backup
 command -v pyenv >/dev/null && eval "$(pyenv init -)"
 
 # rust
-command -v cargo >/dev/null && PATH="$HOME/.cargo/bin:$PATH"
+( command -v cargo >/dev/null || [[ -x $HOME/.cargo/bin/cargo ]] ) && PATH="$HOME/.cargo/bin:$PATH"
 
 # go, presumed to be installed via brew
 if command -v gofmt >/dev/null; then

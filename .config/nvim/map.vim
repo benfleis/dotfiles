@@ -31,18 +31,30 @@ nnoremap <Leader><Leader>n <cmd>bn<CR>
 nnoremap <Leader><Leader>p <cmd>bp<CR>
 nnoremap <Leader><Leader>l <cmd>ls<CR>
 nnoremap <Leader><Leader>b <cmd>Telescope buffers<CR>
-nnoremap <Leader><Leader>e <cmd>Telescope file_browser<CR>
-" nnoremap <Leader><Leader>g <cmd>Telescope live_grep<CR>
-" nnoremap <Leader><Leader>g <cmd>Telescope grep_string<CR>
+" nnoremap <Leader><Leader>e <cmd>Telescope file_browser<CR>
 
 " open/find sibling files
-nnoremap <Leader><Leader>e <cmd>lua require('telescope.builtin').find_files{cwd = get_buf_dir()}<CR>
+nnoremap <Leader><Leader>e <cmd>lua require('telescope.builtin').find_files{cwd = get_file_dir()}<CR>
+
+" grepper
+nnoremap <Leader>gr <cmd>lua require('telescope.builtin').live_grep{cwd = get_file_dir()}<CR>
+nnoremap <Leader>gp <cmd>lua require('telescope.builtin').live_grep{cwd = get_file_dir() .. "/.."}<CR>
+
+" open telescope file finder in grandparent of current buf/file
+" TODO: add <N> support before 'p' for multiple parents upward
+nnoremap <Leader>ep <cmd>lua require('telescope.builtin').find_files{cwd = get_file_dir() .. "/.."}<CR>
+
+" open telescope file finder in $XDG_CONFIG_HOME/nvim
+" XXX fix this to use stdpath('config') in lua
+nnoremap <Leader>eC <cmd>lua require('telescope.builtin').find_files{cwd = '~/.config/nvim'}<CR>
+
 
 " toggles: paste, list display, wrap, search highlight
 nmap <Leader>p <cmd>setlocal paste!<CR>
 " nmap <Leader>S <cmd>setlocal list!<CR>
 nmap <Leader>S <cmd>setlocal spell!<CR>
 nmap <Leader>w <cmd>setlocal wrap!<CR>
+nmap <Leader>l <cmd>setlocal linebreak!<CR>
 nmap <Leader>W <cmd>call WrapStyleToggle()<CR>
 nmap <Leader>h <cmd>setlocal hlsearch!<CR>
 map <Leader>y "*y

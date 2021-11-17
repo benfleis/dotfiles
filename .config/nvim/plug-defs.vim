@@ -25,9 +25,38 @@ Plug 'arcticicestudio/nord-vim'
 "Plug 'chriskempson/base16-vim'
 "Plug 'Yggdroot/indentLine'
 
+" "correct" buffer close behavior, simple & essential
+Plug 'rbgrouleff/bclose.vim'
+
+" focus mode
+Plug 'junegunn/goyo.vim'
+Plug 'junegunn/limelight.vim'
+
+" ----------------------------------------------------------
+
+" Experiments
+" Plug 'vimwiki/vimwiki'
+Plug 'kristijanhusak/orgmode.nvim'
+
+Plug 'xolox/vim-misc'
+Plug 'xolox/vim-notes'
+
+" new focus
+Plug 'folke/zen-mode.nvim'
+
+" new org mode neorg
+Plug 'nvim-neorg/neorg'
+
+" treesitter playground
+Plug 'nvim-treesitter/playground'
+
+
+" ----------------------------------------------------------
+" Everything below is old and awaiting a short try-or-prune.
+"
+
 " config
 "Plug 'editorconfig/editorconfig-vim'
-"Plug 'rbgrouleff/bclose.vim'
 "Plug 'gerw/vim-HiLinkTrace'
 
 " fzf
@@ -66,9 +95,7 @@ Plug 'arcticicestudio/nord-vim'
 "Plug 'tpope/vim-surround'
 "Plug 'mhinz/vim-grepper'
 
-" Experiments
-Plug 'junegunn/goyo.vim'
-Plug 'junegunn/limelight.vim'
+
 "Plug 'reedes/vim-colors-pencil'
 "Plug 'subnut/vim-iawriter'
 
