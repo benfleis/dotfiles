@@ -159,7 +159,11 @@ mkdir -p /tmp/.backup
 
 # python
 # leverage pyenv if installed
-command -v pyenv >/dev/null && eval "$(pyenv init -)"
+[[ -x $HOME/.pyenv/bin/pyenv ]] && export PATH="$HOME/.pyenv/bin:$PATH"
+if ( command -v pyenv >/dev/null ); then
+    eval "$(pyenv init -)"  # sigh.
+    export PATH="$HOME/.pyenv/shims:$PATH"
+fi
 
 # rust
 ( command -v cargo >/dev/null || [[ -x $HOME/.cargo/bin/cargo ]] ) && PATH="$HOME/.cargo/bin:$PATH"
