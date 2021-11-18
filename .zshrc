@@ -159,14 +159,14 @@ mkdir -p /tmp/.backup
 
 # python
 # leverage pyenv if installed
-[[ -x $HOME/.pyenv/bin/pyenv ]] && export PATH="$HOME/.pyenv/bin:$PATH"
+[[ -x $HOME/.pyenv/bin ]] && export PATH="$HOME/.pyenv/bin:$PATH"
 if ( command -v pyenv >/dev/null ); then
-    eval "$(pyenv init -)"  # sigh.
+    source $HOME/.zsh/pyenv-init.zsh
     export PATH="$HOME/.pyenv/shims:$PATH"
 fi
 
 # rust
-( command -v cargo >/dev/null || [[ -x $HOME/.cargo/bin/cargo ]] ) && PATH="$HOME/.cargo/bin:$PATH"
+[[ -x $HOME/.cargo/bin ]] && PATH="$HOME/.cargo/bin:$PATH"
 
 # go, presumed to be installed via brew
 if command -v gofmt >/dev/null; then
