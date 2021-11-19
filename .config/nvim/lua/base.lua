@@ -51,11 +51,13 @@ require('neorg').setup {
         ["core.norg.dirman"] = { -- Manage your directories with Neorg
             config = {
                 workspaces = {
-                    logs = "~/Documents/logs"
+                    hiring = "~/Documents/hiring",
+                    logs = "~/Documents/logs",
                 }
             }
-        }
+        },
+        ["core.integrations.telescope"] = {},
     },
 
-    hook = neorg_local.setup_keybinds
+    hook = neorg_local.setup_keybinds,
 }

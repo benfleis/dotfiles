@@ -46,6 +46,7 @@ Plug 'folke/zen-mode.nvim'
 
 " new org mode neorg
 Plug 'nvim-neorg/neorg'
+Plug 'nvim-neorg/neorg-telescope'
 
 " treesitter playground
 Plug 'nvim-treesitter/playground'
