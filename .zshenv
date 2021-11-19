@@ -14,4 +14,3 @@ if [ ! -z "$SSH_AUTH_SOCK" -a -z "$_SSH_AUTH_SOCK" ]; then
     export _SSH_AUTH_SOCK="$SSH_AUTH_SOCK"
     export SSH_AUTH_SOCK="$SOCK"
 fi
-. "$HOME/.cargo/env"

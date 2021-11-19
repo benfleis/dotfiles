@@ -167,6 +167,8 @@ fi
 
 # rust
 [[ -x $HOME/.cargo/bin ]] && PATH="$HOME/.cargo/bin:$PATH"
+[[ -r "$HOME/.cargo/env" ]] && . "$HOME/.cargo/env"
+
 
 # go, presumed to be installed via brew
 if command -v gofmt >/dev/null; then
