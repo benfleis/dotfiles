@@ -36,7 +36,7 @@ Plug 'junegunn/limelight.vim'
 
 " Experiments
 " Plug 'vimwiki/vimwiki'
-Plug 'kristijanhusak/orgmode.nvim'
+" Plug 'kristijanhusak/orgmode.nvim'
 
 Plug 'xolox/vim-misc'
 Plug 'xolox/vim-notes'
@@ -47,6 +47,7 @@ Plug 'folke/zen-mode.nvim'
 " new org mode neorg
 Plug 'nvim-neorg/neorg'
 Plug 'nvim-neorg/neorg-telescope'
+Plug 'tjdevries/vlog.nvim'
 
 " treesitter playground
 Plug 'nvim-treesitter/playground'
