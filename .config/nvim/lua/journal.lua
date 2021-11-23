@@ -80,28 +80,29 @@ function _find_next_entry_from_time_seq(seq)
     return nil
 end
 
-local _find_steps = {[-1]="backward", [1]="forward"}
+local _find_entry_step_names = {[-1]="backward", [1]="forward"}
 
--- p=entry (default expand('%')), direction={-1,1}, max=[90]
-function _find_entry_from(start, direction, max_days)
-    direction = direction or 1
+-- common code for finding entries, also handle UX (errors, calling `edit`)
+-- p=entry (default expand('%')), step={-1,1}, max=[90]
+function _find_entry_from(start, step, max_days)
+    step = step or 1
     max_days = max_days or 90
 
     -- sanity check args so we don't run amok
-    assert.True(direction == -1 or direction == 1)
+    assert.True(step == -1 or step == 1)
     assert.True(max_days > 0 and max_days < 365 * 100)
 
     local time = journal.get_time_from_path(p)
     local days_seq = {}
     for i=1, max_days do
-        days_seq[i] = time + (direction * i * 60 * 60 * 24)
+        days_seq[i] = time + (step * i * 60 * 60 * 24)
     end
 
     local entry = _find_next_entry_from_time_seq(days_seq)
     if entry == nil then
-        -- do some lovely error display
-        -- vim.cmd(string.format('echoerr "journal: Found no entries within %s days forward."', max_reads))
-        error(string.format("journal: Found no entries within %s days forward.", max_reads))
+        error(string.format(
+            "journal: Found no entries within %s days %s",
+            max_reads, _find_entry_step_names[step]))
     else
         vim.cmd("edit " .. entry)
     end

@@ -28,9 +28,9 @@ export VISUAL=$EDITOR
 
 export USERXSESSIONRC=$HOME/.xsession
 
-# aliases
-echo $EDITOR | grep -q vim && alias vi="vim"
-echo $EDITOR | grep -q vim && alias view="vim -R"
+# aliases -- vimlike editors get aliases for vi and view
+echo $EDITOR | grep -q vim && alias vi="$EDITOR"
+echo $EDITOR | grep -q vim && alias view="$EDITOR -R"
 
 alias webster="ssh monkey.org webster"
 alias m=$PAGER

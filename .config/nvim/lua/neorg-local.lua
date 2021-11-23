@@ -3,7 +3,7 @@ local neorg_local = {}
 function neorg_local.setup_keybinds()
     -- This sets the leader for all Neorg keybinds. It is separate from the regular <Leader>,
     -- And allows you to shove every Neorg keybind under one "umbrella".
-    local neorg_leader = "<Leader>" -- You may also want to set this to <Leader>o for "organization"
+    local leader = "<LocalLeader>" -- You may also want to set this to <Leader>o for "organization"
 
     -- Require the user callbacks module, which allows us to tap into the core of Neorg
     local neorg_callbacks = require('neorg.callbacks')
@@ -19,10 +19,10 @@ function neorg_local.setup_keybinds()
                     n = { -- Bind keys in normal mode
 
                         -- Keys for managing TODO items and setting their states
-                        { "td", "core.norg.qol.todo_items.todo.task_done" },
-                        { "tu", "core.norg.qol.todo_items.todo.task_undone" },
-                        { "tp", "core.norg.qol.todo_items.todo.task_pending" },
-                        { "t<Space>", "core.norg.qol.todo_items.todo.task_cycle" },
+                        { leader .. "md", "core.norg.qol.todo_items.todo.task_done" },
+                        { leader .. "mu", "core.norg.qol.todo_items.todo.task_undone" },
+                        { leader .. "mp", "core.norg.qol.todo_items.todo.task_pending" },
+                        { leader .. "m<Space>", "core.norg.qol.todo_items.todo.task_cycle" },
 
                         -- Keys for managing notes
                         -- { neorg_leader .. "nn", "core.norg.dirman.new.note" },
