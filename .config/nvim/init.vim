@@ -70,7 +70,7 @@ call s:SourceConfig("key maps", "map.vim")
 call s:SourceConfig("focus mode", "focus.vim")
 
 set background=dark
-colorscheme papercolor
+colorscheme PaperColor
 " colorscheme desert
 
 "" Load lua, last for now

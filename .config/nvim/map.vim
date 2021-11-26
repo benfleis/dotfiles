@@ -48,6 +48,9 @@ nnoremap <Leader>ep <cmd>lua require('telescope.builtin').find_files{cwd = get_f
 " XXX fix this to use stdpath('config') in lua
 nnoremap <Leader>eC <cmd>lua require('telescope.builtin').find_files{cwd = '~/.config/nvim'}<CR>
 
+" journal today
+nnoremap <Leader>jt <cmd>lua require('journal').edit_today()<CR>
+
 
 " toggles: paste, list display, wrap, search highlight
 nmap <Leader>p <cmd>setlocal paste!<CR>

@@ -63,9 +63,17 @@ function journal.edit_previous_weekday_from_path(p)
     vim.cmd("edit " .. journal.get_path_from_time(journal.get_previous_weekday_from_path()))
 end
 
+function journal.edit_from_path(p)
+    vim.cmd("edit " .. journal.get_path_from_time(p))
+end
+
+function journal.edit_today()
+    return journal.edit_from_path()
+end
+
 -- given a sequence of times, for each: convert to entry path, attempt to fstat
 -- it, and if successful return the entry path; if none succeeds, return nil
-function _find_next_entry_from_time_seq(seq)
+function _find_entry_from_time_seq(seq)
     for i=1,#seq do
         local entry = journal.get_path_from_time(seq[i])
         local stat = vim.loop.fs_stat(entry)
@@ -98,7 +106,7 @@ function _find_entry_from(start, step, max_days)
         days_seq[i] = time + (step * i * 60 * 60 * 24)
     end
 
-    local entry = _find_next_entry_from_time_seq(days_seq)
+    local entry = _find_entry_from_time_seq(days_seq)
     if entry == nil then
         error(string.format(
             "journal: Found no entries within %s days %s",
@@ -119,6 +127,17 @@ end
 -- vim.fn.expand('%')), find the next one, attempting up to max=90 reads.
 function journal.find_next_entry(p, max_days)
     return _find_entry_from(p, 1, max_days)
+end
+
+function journal.find_entry(p)
+    local time = journal.get_time_from_path(p)
+    local entry = _find_entry_from_time_seq({time})
+    if entry == nil then
+        error(string.format("journal: Found no entries for %s", time))
+    else
+        vim.cmd("edit " .. entry)
+    end
+    return entry
 end
 
 return journal
