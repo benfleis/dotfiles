@@ -201,8 +201,11 @@ machine=$(uname -n | cut -d. -f1)
 [ -r $HOME/.zsh/$machine ] && . $HOME/.zsh/$machine || true
 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-export SDKMAN_DIR="/home/benfleis/.sdkman"
-[[ -s "/home/benfleis/.sdkman/bin/sdkman-init.sh" ]] && source "/home/benfleis/.sdkman/bin/sdkman-init.sh"
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# always $HOME/bin atop path
+export PATH="$HOME/bin:$PATH"
 

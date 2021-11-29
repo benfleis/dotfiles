@@ -37,7 +37,8 @@ nnoremap <Leader><Leader>b <cmd>Telescope buffers<CR>
 nnoremap <Leader><Leader>e <cmd>lua require('telescope.builtin').find_files{cwd = get_file_dir()}<CR>
 
 " grepper
-nnoremap <Leader>gr <cmd>lua require('telescope.builtin').live_grep{cwd = get_file_dir()}<CR>
+nnoremap <Leader>gr <cmd>lua require('telescope.builtin').live_grep()<CR>
+nnoremap <Leader>gh <cmd>lua require('telescope.builtin').live_grep{cwd = get_file_dir()}<CR>
 nnoremap <Leader>gp <cmd>lua require('telescope.builtin').live_grep{cwd = get_file_dir() .. "/.."}<CR>
 
 " open telescope file finder in grandparent of current buf/file
