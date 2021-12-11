@@ -1,0 +1,8 @@
+#!/bin/bash
+
+HERE="$(cd "$( dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
+
+"$HERE/is-clean" || {
+    echo "Working directory is not clean. Check git status." >&2
+    exit 1
+}

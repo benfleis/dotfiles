@@ -36,17 +36,21 @@ nnoremap <Leader><Leader>b <cmd>Telescope buffers<CR>
 " open/find sibling files
 nnoremap <Leader><Leader>e <cmd>lua require('telescope.builtin').find_files{cwd = get_file_dir()}<CR>
 
-" grepper
-nnoremap <Leader>gr <cmd>lua require('telescope.builtin').live_grep()<CR>
-nnoremap <Leader>gh <cmd>lua require('telescope.builtin').live_grep{cwd = get_file_dir()}<CR>
-nnoremap <Leader>gp <cmd>lua require('telescope.builtin').live_grep{cwd = get_file_dir() .. "/.."}<CR>
+" grepper: <Leader>gr? grr,gcc -- grep [cwd], grs: grep siblings, grp: grep from parent
+nnoremap <Leader>grr <cmd>lua require('telescope.builtin').live_grep()<CR>
+nnoremap <Leader>grc <cmd>lua require('telescope.builtin').live_grep()<CR>
+nnoremap <Leader>grs <cmd>lua require('telescope.builtin').live_grep{cwd = get_file_dir()}<CR>
+nnoremap <Leader>grp <cmd>lua require('telescope.builtin').live_grep{cwd = get_file_dir() .. "/.."}<CR>
 
 " open telescope file finder in grandparent of current buf/file
 " TODO: add <N> support before 'p' for multiple parents upward
+" es: edit from siblings, ep: edit from parent dir
+nnoremap <Leader>ec <cmd>lua require('telescope.builtin').find_files()<CR>
+nnoremap <Leader>es <cmd>lua require('telescope.builtin').find_files{cwd = get_file_dir()}<CR>
 nnoremap <Leader>ep <cmd>lua require('telescope.builtin').find_files{cwd = get_file_dir() .. "/.."}<CR>
 
 " open telescope file finder in $XDG_CONFIG_HOME/nvim
-" XXX fix this to use stdpath('config') in lua
+" TODO fix this to use stdpath('config') in lua
 nnoremap <Leader>eC <cmd>lua require('telescope.builtin').find_files{cwd = '~/.config/nvim'}<CR>
 
 " journal today

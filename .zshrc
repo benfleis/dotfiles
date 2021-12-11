@@ -32,14 +32,9 @@ export USERXSESSIONRC=$HOME/.xsession
 echo $EDITOR | grep -q vim && alias vi="$EDITOR"
 echo $EDITOR | grep -q vim && alias view="$EDITOR -R"
 
-alias webster="ssh monkey.org webster"
-alias m=$PAGER
-alias psg="ps ax | grep "
 alias ip="ipython"
-alias tman='tmux_attach_or_new'
-alias gx='open -a GitX'
-
-alias nech='nesh -c'
+alias zi="$HOME/bin/tmux-zoom in"
+alias zo="$HOME/bin/tmux-zoom out"
 
 # history mgmt
 HISTFILE=~/.zsh/history
