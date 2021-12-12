@@ -1,0 +1,159 @@
+#!/usr/bin/env python3
+
+from collections import namedtuple
+import json
+import logging
+import subprocess as p
+import sys
+
+_pane_state_keys = [
+    'session_id',
+    'pane_id',
+    'pane_width',
+    'pane_height',
+    'window_id',
+    'window_width',
+    'window_height',
+    'window_name',      # MUST be last, since it does not get split when reading
+]
+PaneState = namedtuple('PaneState', _pane_state_keys)
+
+_zoom_state_env = 'TZOOM_STATE'
+
+PaneRestoreState = namedtuple('PaneRestoreState',
+        'window_id pane_id prev_window_name prev_pane_width prev_pane_height')
+
+def _from_pane_state(ps):
+    return PaneRestoreState(window_id=ps.window_id, pane_id=ps.pane_id,
+        prev_window_name=unwrap_window_name(ps.window_name),
+        prev_pane_width=ps.pane_width, prev_pane_height=ps.pane_height)
+PaneRestoreState.from_pane_state = _from_pane_state
+
+
+def run_tmux(cmd_and_args):
+    return p.run(['tmux'] + cmd_and_args, stdout=p.PIPE, stderr=p.PIPE, encoding='utf-8')
+
+
+def encode_zoom_state(state):
+    return json.dumps([v for v in state.values()])
+
+def decode_zoom_state(s):
+    return s and {v[0]:PaneRestoreState(*v) for v in json.loads(s)}
+
+
+def wrap_window_name(name):
+    if name.startswith('Zoomed ('):
+        return name
+    return f'Zoomed ({name})'
+
+def unwrap_window_name(name):
+    prefix = 'Zoomed ('
+    if not name.startswith(prefix):
+        return name
+    return name[len(prefix):-1]
+
+
+def read_pane_state(pane_id=None):
+    """call tmux to read pane state, store in pane_state"""
+    filter=['-f', pane_id and str(pane_id) or '#{pane_active}']
+    format=['-F', '#{' + '} #{'.join(_pane_state_keys) + '}']
+    ran = run_tmux(['list-panes'] + filter + format)
+    assert ran.returncode == 0, ran.stderr
+    return PaneState(**dict(zip(
+            _pane_state_keys,
+            ran.stdout.strip().split(None, len(_pane_state_keys) - 1))))
+
+
+def read_zoom_state():
+    """reads and return zoom state (from tmux env) or None"""
+    ran = run_tmux(['show-environment', '-h', _zoom_state_env])
+    zoom_state = None
+    if ran.returncode != 0:
+        assert ran.stderr.startswith('unknown variable:'), ran.stderr
+    if ran.stdout and ran.stdout != '-' + _zoom_state_env:
+        s = ran.stdout[len(_zoom_state_env + '='):].strip()
+        zoom_state = s and decode_zoom_state(s)
+    return zoom_state or None
+
+
+def write_zoom_state(state):
+    """writes given zoom state to tmux env"""
+    if state:
+        cmd = [_zoom_state_env, encode_zoom_state(state)]
+    else:
+        cmd = ['-u', _zoom_state_env]
+    ran = run_tmux(['set-environment', '-h'] + cmd)
+    assert ran.returncode == 0, ran.stderr
+
+
+def window_has_zoomed_pane(pane_state, zoom_state):
+    return bool(zoom_state and zoom_state[pane_state.window_id])
+
+
+def zoom_in(pane_state, zoom_state):
+    """Zoom in on active window/pane"""
+    pane_id = pane_state.pane_id
+    window_id = pane_state.window_id
+
+    # compute zoom and update commands
+    pane_width = int(pane_state.pane_width)
+    pane_height = int(pane_state.pane_height)
+    zoom_width = int(int(pane_state.window_width) * 0.80)
+    zoom_height = int(int(pane_state.window_height) * 0.80)
+
+    zoom_cmds = []
+    if zoom_width > pane_width:
+        zoom_cmds.extend(['-x', str(zoom_width)])
+    if zoom_height > pane_height:
+        zoom_cmds.extend(['-y', str(zoom_height)])
+
+    # if there are commands, execute then write new state to env
+    if len(zoom_cmds) > 0:
+        window_zs = PaneRestoreState.from_pane_state(pane_state)
+        run_tmux(['rename-window', '-t', window_id, wrap_window_name(pane_state.window_name)])
+        run_tmux(['resize-pane', '-t', pane_id] + zoom_cmds)
+
+        zoom_state[window_id] = window_zs
+        write_zoom_state(zoom_state)
+    return zoom_state
+
+
+def zoom_out(pane_state, zoom_state):
+    """Zoom out from current zoom"""
+    if not window_has_zoomed_pane(pane_state, zoom_state):
+        return zoom_state
+
+    window_zs = zoom_state[pane_state.window_id]
+    run_tmux(['resize-pane', '-t', window_zs.pane_id,
+        '-x', str(window_zs.prev_pane_width), '-y', str(window_zs.prev_pane_height)])
+    run_tmux(['rename-window', '-t', window_zs.window_id, window_zs.prev_window_name])
+
+    del zoom_state[window_zs.window_id]
+    write_zoom_state(zoom_state)
+    return zoom_state
+
+
+def zoom_toggle(pane_state, zoom_state):
+    if window_has_zoomed_pane(pane_state, zoom_state):
+        return zoom_out(pane_state, zoom_state)
+    else:
+        return zoom_in(pane_state, zoom_state)
+
+
+def main(args):
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('command', choices=['in', 'out', 'toggle', 'state'])
+    command = parser.parse_args(args).command
+
+    ps = read_pane_state()
+    zs = read_zoom_state() or {}
+    if command == 'state':
+        print(window_has_zoomed_pane(ps, zs) and 'zoomed' or 'unzoomed')
+        return
+    globals()['zoom_' + command](ps, zs)
+    return
+
+
+if __name__ == '__main__':
+    main(sys.argv[1:])
