@@ -78,7 +78,7 @@ def read_zoom_state():
 
 def write_zoom_state(state):
     """writes given zoom state to tmux env"""
-    if state:
+    if state and len(state) > 0:
         cmd = [_zoom_state_env, encode_zoom_state(state)]
     else:
         cmd = ['-u', _zoom_state_env]
@@ -115,6 +115,7 @@ def zoom_in(pane_state, zoom_state):
 
         zoom_state[window_id] = window_zs
         write_zoom_state(zoom_state)
+
     return zoom_state
 
 
@@ -134,16 +135,27 @@ def zoom_out(pane_state, zoom_state):
 
 
 def zoom_toggle(pane_state, zoom_state):
+    """If zoomed in, zoom out. If zoomed out, zoom in."""
     if window_has_zoomed_pane(pane_state, zoom_state):
         return zoom_out(pane_state, zoom_state)
     else:
         return zoom_in(pane_state, zoom_state)
 
 
+def zoom_clear(pane_state, zoom_state):
+    """Clear zoom state: window name and env storage. Makes no actual zoom change."""
+    window_id = pane_state.window_id
+    run_tmux(['rename-window', '-t', window_id, unwrap_window_name(pane_state.window_name)])
+    if zoom_state[window_id]:
+        del zoom_state[window_id]
+        write_zoom_state(zoom_state)
+    return zoom_state
+
+
 def main(args):
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('command', choices=['in', 'out', 'toggle', 'state'])
+    parser.add_argument('command', choices=['in', 'out', 'toggle', 'state', 'clear'])
     command = parser.parse_args(args).command
 
     ps = read_pane_state()
