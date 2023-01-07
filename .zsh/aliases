@@ -1,1 +1,2 @@
 alias cg='cd $GOPATH/'
+alias pip='python3 -m pip'

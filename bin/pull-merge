@@ -5,4 +5,4 @@ set -e
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 
 "$HERE/require-clean"
-git pull --rebase=off "${GIT_REMOTE:-origin}" "${1:-master}"
+git pull --no-rebase --no-ff "${GIT_REMOTE:-databricks}" "${1:-master}"

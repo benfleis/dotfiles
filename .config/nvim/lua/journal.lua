@@ -4,9 +4,12 @@
 -- others.
 
 local assert = require('luassert')
-local path = require('plenary.path')
+local Path = require('plenary.path')
 local log = require('vlog')
 local journal = {}
+
+-- redundant with neorg config for logs workspace, but this is independent
+local logs_base = '~/Documents/logs'
 
 log.new({ plugin = 'journal', })
 
@@ -55,20 +58,24 @@ function journal.get_previous_weekday_from_path(p)
 end
 
 -- calc next weekday, and open that file whether or not it exists
+function edit_path(p)
+    vim.cmd("edit " .. tostring(Path:new(logs_base, p)))
+end
+
 function journal.edit_next_weekday_from_path(p)
-    vim.cmd("edit " .. journal.get_path_from_time(journal.get_next_weekday_from_path()))
+    edit_path(journal.get_path_from_time(journal.get_next_weekday_from_path()))
 end
 
 function journal.edit_previous_weekday_from_path(p)
-    vim.cmd("edit " .. journal.get_path_from_time(journal.get_previous_weekday_from_path()))
+    edit_path(journal.get_path_from_time(journal.get_previous_weekday_from_path()))
 end
 
 function journal.edit_from_path(p)
-    vim.cmd("edit " .. journal.get_path_from_time(p))
+    edit_path(journal.get_path_from_time(p))
 end
 
 function journal.edit_today()
-    return journal.edit_from_path()
+    return journal.edit_from_path(nil)
 end
 
 -- given a sequence of times, for each: convert to entry path, attempt to fstat

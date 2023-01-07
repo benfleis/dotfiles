@@ -4,13 +4,6 @@ export LANGUAGE=en_US.UTF-8
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 
-prefer() {
-    PREFER=`which $1 2> /dev/null`
-    [ $? -eq 0 ] && return 0
-    [ $# -eq 2 ] && PREFER=`which $2`
-    return 1
-}
-
 export PATH HOME TERM
 export CVS_RSH=`which ssh`
 export RSYNC_RSH=`which ssh`
@@ -18,19 +11,7 @@ export HISTSIZE=256
 export LESS='-iFMRX'
 export EXTENDED_GLOB
 
-prefer less more; export PAGER=$PREFER
-prefer vim vi; export EDITOR=$PREFER
-prefer nvim $EDITOR; export EDITOR=$PREFER
-export VISUAL=$EDITOR
-
-[[ "$EDITOR" == */nvim ]] && \
-    export MANPAGER='nvim +Man!'
-
 export USERXSESSIONRC=$HOME/.xsession
-
-# aliases -- vimlike editors get aliases for vi and view
-echo $EDITOR | grep -q vim && alias vi="$EDITOR"
-echo $EDITOR | grep -q vim && alias view="$EDITOR -R"
 
 alias ip="ipython"
 alias zi="$HOME/bin/tmux-zoom in"
@@ -107,6 +88,8 @@ bindkey "\M-f" vi-forward-word
 bindkey "\M-d" kill-word
 bindkey "^P" history-beginning-search-backward
 bindkey "^N" history-beginning-search-forward
+bindkey "^[^M" self-insert-unmeta
+
 
 # XXX need to figure out how avail history-search-end to the zsh here.
 #zle -N history-beginning-search-backward-end history-search-end
@@ -150,9 +133,16 @@ set_prompt
 # backup dir for vim
 mkdir -p /tmp/.backup
 
-## Lang/Env setups -- eg go, python, SDKMAN, anaconda
+# load anything local to this machine
+[ -r $HOME/.zsh/rc-local ] && . $HOME/.zsh/rc-local
 
-# python
+# load anything local to this machine, by name
+machine=$(uname -n | cut -d. -f1)
+[ -r $HOME/.zsh/$machine ] && . $HOME/.zsh/$machine || true
+
+## Lang/Tool/Env setups -- eg go, python, SDKMAN, anaconda
+
+# python / pyenv
 # leverage pyenv if installed
 [[ -x $HOME/.pyenv/bin ]] && export PATH="$HOME/.pyenv/bin:$PATH"
 if ( command -v pyenv >/dev/null ); then
@@ -160,10 +150,13 @@ if ( command -v pyenv >/dev/null ); then
     export PATH="$HOME/.pyenv/shims:$PATH"
 fi
 
-# rust
+# rust / rustup
 [[ -x $HOME/.cargo/bin ]] && PATH="$HOME/.cargo/bin:$PATH"
 [[ -r "$HOME/.cargo/env" ]] && . "$HOME/.cargo/env"
 
+# haskell cabal
+[[ -x $HOME/.cabal/bin ]] && PATH="$HOME/.cabal/bin:$PATH"
+[[ -r "$HOME/.cabal/env" ]] && . "$HOME/.cabal/env"
 
 # go, presumed to be installed via brew
 if command -v gofmt >/dev/null; then
@@ -178,22 +171,32 @@ uname -a | grep -q Linux && {
     export JAVA_HOME=$(update-alternatives --query javac | sed -n 's#^Value: \(.*\)/bin/javac$#\1#p') ;
 }
 
-# use zsh-z [ https://github.com/agkozak/zsh-z ]
-export ZSHZ_CMD=j
-ZSH_Z="$HOME/src/zsh-z/zsh-z.plugin.zsh"
-[ -r "$ZSH_Z" ] && . "$ZSH_Z"
-zstyle ':completion:*' menu select
+#   # use zsh-z [ https://github.com/agkozak/zsh-z ]
+#   export ZSHZ_CASE=ignore
+#   export ZSHZ_CMD=j
+#   export ZSHZ_NO_RESOLVE_SYMLINKS=1
+#   ZSH_Z="$HOME/src/zsh-z/zsh-z.plugin.zsh"
+#   [ -r "$ZSH_Z" ] && . "$ZSH_Z"
+#   zstyle ':completion:*' menu select
+#   alias jc="j -c"
 
+# use z [ https://github.com/agkozak/zsh-z ], to also use fz
+export _Z_CASE=ignore
+export _Z_CMD=_j
+export _Z_NO_RESOLVE_SYMLINKS=1
+Z_SRC="$HOME/src/z/z.sh"
+[ -r "$Z_SRC" ] && . "$Z_SRC"
+zstyle ':completion:*' menu select
+# alias jc="j -c"
+
+# fz
+FZ_CMD=jj
+FZ_SUBDIR_CMD=j
+FZ_SRC="$HOME/src/fz.sh/fz.plugin.zsh"
+[ -r "$FZ_SRC" ] && . "$FZ_SRC"
 
 # load up all ze functions
 [ -r $HOME/.zsh/functions ] && . $HOME/.zsh/functions
-
-# load anything local to this machine
-[ -r $HOME/.zsh/rc-local ] && . $HOME/.zsh/rc-local
-
-# load anything local to this machine, by name
-machine=$(uname -n | cut -d. -f1)
-[ -r $HOME/.zsh/$machine ] && . $HOME/.zsh/$machine || true
 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="$HOME/.sdkman"
@@ -203,4 +206,29 @@ export SDKMAN_DIR="$HOME/.sdkman"
 
 # always $HOME/bin atop path
 export PATH="$HOME/bin:$PATH"
+
+# -U uniqifies, keeping first entry
+typeset -U path
+
+
+## EDITOR and related prefs, need to be after PATH setup
+prefer() {
+    PREFER=`which $1 2> /dev/null`
+    [ $? -eq 0 ] && return 0
+    [ $# -eq 2 ] && PREFER=`which $2`
+    return 1
+}
+
+prefer less more; export PAGER=$PREFER
+prefer vim vi; export EDITOR=$PREFER
+prefer nvim $EDITOR; export EDITOR=$PREFER
+export VISUAL=$EDITOR
+
+[[ "$EDITOR" == */nvim ]] && \
+    export MANPAGER='nvim +Man!'
+
+# aliases -- vimlike editors get aliases for vi and view
+echo $EDITOR | grep -q vim && alias vi="$EDITOR"
+echo $EDITOR | grep -q vim && alias view="$EDITOR -R"
+echo $EDITOR | grep -q vim && alias vimdiff="$EDITOR -d"
 

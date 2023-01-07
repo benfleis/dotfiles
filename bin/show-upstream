@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -e
+
+REF="${1:-$(git symbolic-ref -q HEAD)}"
+git for-each-ref --format='%(refname:short) -> %(upstream:short)' "$REF"

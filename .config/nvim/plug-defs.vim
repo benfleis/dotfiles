@@ -10,13 +10,26 @@ Plug 'junegunn/fzf.vim'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'nvim-telescope/telescope.nvim'
 Plug 'nvim-telescope/telescope-fzf-native.nvim'
-Plug 'TimUntersberger/neogit'
+Plug 'nvim-treesitter/playground'
+" Plug 'TimUntersberger/neogit'
+" neogit requires
+" Plug 'sindrets/diffview.nvim'
+
 
 " Plugins:
 " visual
-Plug 'lifepillar/vim-solarized8'
+Plug 'Yggdroot/indentLine'
 Plug 'NLKNguyen/papercolor-theme'
 Plug 'arcticicestudio/nord-vim'
+
+" completion: nvim-cmp
+Plug 'neovim/nvim-lspconfig'
+Plug 'hrsh7th/cmp-nvim-lsp'
+Plug 'hrsh7th/cmp-buffer'
+Plug 'hrsh7th/cmp-path'
+Plug 'hrsh7th/cmp-cmdline'
+Plug 'hrsh7th/nvim-cmp'
+
 
 "Plug 'nanotech/jellybeans.vim'
 "Plug 'altercation/vim-colors-solarized.git'
@@ -32,25 +45,50 @@ Plug 'rbgrouleff/bclose.vim'
 Plug 'junegunn/goyo.vim'
 Plug 'junegunn/limelight.vim'
 
+" lang ++
+Plug 'google/vim-jsonnet'
+
+" lang: scala
+Plug 'scalameta/nvim-metals'
+
+" lang thrift
+Plug 'solarnz/thrift.vim'
+
 " ----------------------------------------------------------
 
 " Experiments
 " Plug 'vimwiki/vimwiki'
 " Plug 'kristijanhusak/orgmode.nvim'
 
-Plug 'xolox/vim-misc'
-Plug 'xolox/vim-notes'
+" Plug 'xolox/vim-misc'
+" Plug 'xolox/vim-notes'
+
+Plug 'sindrets/diffview.nvim'
 
 " new focus
 Plug 'folke/zen-mode.nvim'
 
 " new org mode neorg
-Plug 'nvim-neorg/neorg'
-Plug 'nvim-neorg/neorg-telescope'
+" Plug 'nvim-neorg/neorg'
+" Plug 'nvim-neorg/neorg-telescope'
 Plug 'tjdevries/vlog.nvim'
 
-" treesitter playground
-Plug 'nvim-treesitter/playground'
+" experiment: coq-nvim
+Plug 'neovim/nvim-lspconfig'
+
+" still unhappy w git opts
+Plug 'tpope/vim-fugitive' " still blocks/waits
+Plug 'lambdalisue/gina.vim'
+
+Plug 'lewis6991/gitsigns.nvim'
+
+" github/gh integrations
+Plug 'pwntester/octo.nvim'
+Plug 'kyazdani42/nvim-web-devicons'
+Plug 'skanehira/gh.vim'
+
+" bean-count experiment
+Plug 'nathangrigg/vim-beancount'
 
 
 " ----------------------------------------------------------
@@ -92,7 +130,6 @@ Plug 'nvim-treesitter/playground'
 "Plug 'benekastah/neomake'
 "Plug 'kassio/neoterm'
 "Plug 'scrooloose/syntastic'
-"Plug 'tpope/vim-fugitive'
 "Plug 'tpope/vim-repeat'
 "Plug 'tpope/vim-surround'
 "Plug 'mhinz/vim-grepper'

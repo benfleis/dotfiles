@@ -5,6 +5,9 @@ let maplocalleader = " "
 " euro!
 imap <Esc>@ €
 
+" write & stage (Git add). I should wrap this to be async.
+command -bar WS :write % | :Git add %
+
 " holy scheisse my life is complete. swap arrow / ctrl-[np] in cmdline editing.
 cnoremap <Up> <C-p>
 cnoremap <Down> <C-n>
@@ -34,40 +37,58 @@ nnoremap <Leader><Leader>b <cmd>Telescope buffers<CR>
 " nnoremap <Leader><Leader>e <cmd>Telescope file_browser<CR>
 
 " open/find sibling files
-nnoremap <Leader><Leader>e <cmd>lua require('telescope.builtin').find_files{cwd = get_file_dir()}<CR>
+nnoremap <Leader><Leader>e <cmd>lua require('telescope.builtin').find_files{cwd = require('benfleis').get_file_dir()}<CR>
 
 " grepper: <Leader>gr? grr,gcc -- grep [cwd], grs: grep siblings, grp: grep from parent
-nnoremap <Leader>grr <cmd>lua require('telescope.builtin').live_grep()<CR>
 nnoremap <Leader>grc <cmd>lua require('telescope.builtin').live_grep()<CR>
-nnoremap <Leader>grs <cmd>lua require('telescope.builtin').live_grep{cwd = get_file_dir()}<CR>
-nnoremap <Leader>grp <cmd>lua require('telescope.builtin').live_grep{cwd = get_file_dir() .. "/.."}<CR>
+nnoremap <Leader>grs <cmd>lua require('telescope.builtin').live_grep{cwd = require('benfleis').get_file_dir()}<CR>
+nnoremap <Leader>grp <cmd>lua require('telescope.builtin').live_grep{cwd = require('benfleis').get_file_dir() .. "/.."}<CR>
+nnoremap <Leader>grr <cmd>lua require('telescope.builtin').live_grep()<CR>
 
 " open telescope file finder in grandparent of current buf/file
 " TODO: add <N> support before 'p' for multiple parents upward
 " es: edit from siblings, ep: edit from parent dir
 nnoremap <Leader>ec <cmd>lua require('telescope.builtin').find_files()<CR>
-nnoremap <Leader>es <cmd>lua require('telescope.builtin').find_files{cwd = get_file_dir()}<CR>
-nnoremap <Leader>ep <cmd>lua require('telescope.builtin').find_files{cwd = get_file_dir() .. "/.."}<CR>
+nnoremap <Leader>es <cmd>lua require('telescope.builtin').find_files{cwd = require('benfleis').get_file_dir()}<CR>
+nnoremap <Leader>ep <cmd>lua require('telescope.builtin').find_files{cwd = require('benfleis').get_path_parentage(nil, vim.api.nvim_eval('v:count1') + 1)}<CR>
+nnoremap <Leader>e2p <cmd>lua require('telescope.builtin').find_files{cwd = require('benfleis').get_path_parentage(nil, 3)}<CR>
+nnoremap <Leader>e3p <cmd>lua require('telescope.builtin').find_files{cwd = require('benfleis').get_path_parentage(nil, 4)}<CR>
+nnoremap <Leader>e4p <cmd>lua require('telescope.builtin').find_files{cwd = require('benfleis').get_path_parentage(nil, 5)}<CR>
+nnoremap <Leader>er <cmd>lua require('telescope.builtin').find_files{cwd = require('benfleis').get_repo_root()}<CR>
 
 " open telescope file finder in $XDG_CONFIG_HOME/nvim
 " TODO fix this to use stdpath('config') in lua
 nnoremap <Leader>eC <cmd>lua require('telescope.builtin').find_files{cwd = '~/.config/nvim'}<CR>
 
-" journal today
-nnoremap <Leader>jt <cmd>lua require('journal').edit_today()<CR>
+" [jump] journal today
+nnoremap <Leader>gt <cmd>lua require('journal').edit_today()<CR>
+nnoremap <Leader>ej <cmd>lua require('telescope.builtin').find_files{cwd = '~/Documents/logs', default_text = '2022/02'}<CR>
 
+" [jump] transient: sql notes
+nnoremap <Leader>gn <cmd>edit ~/Documents/notes/sql-exec-api.norg<CR>
+
+" attach/detach gitsigns gutter for this buffer
+" move detach to the attached state only
+nnoremap <Leader>ha <cmd>lua require('gitsigns').attach()<CR>
+nnoremap <Leader>hd <cmd>lua require('gitsigns').detach()<CR>
+
+" toggle conceal/show // F: comments
+syntax match Ignore '^.*// F:.*$' conceal transparent cchar=-
+" nnoremap <Leader>FC <cmd>syntax match Ignore '^.*// F:.*$' conceal cchar=-<CR>
+" nnoremap <Leader>FH <cmd>set conceallevel=2<CR>
+" nnoremap <Leader>FS <cmd>set conceallevel=0<CR>
 
 " toggles: paste, list display, wrap, search highlight
 nmap <Leader>p <cmd>setlocal paste!<CR>
 " nmap <Leader>S <cmd>setlocal list!<CR>
-nmap <Leader>S <cmd>setlocal spell!<CR>
+" nmap <Leader>S <cmd>setlocal spell!<CR>
 nmap <Leader>w <cmd>setlocal wrap!<CR>
 nmap <Leader>l <cmd>setlocal linebreak!<CR>
 nmap <Leader>W <cmd>call WrapStyleToggle()<CR>
 nmap <Leader>h <cmd>setlocal hlsearch!<CR>
 map <Leader>y "*y
 
-map gs :Neogit<CR>
+map gs :Git<CR>
 
 "" Navigation
 " Pane Movement: alt-[hjkl] ALWAYS work, esp. with :terminal goo

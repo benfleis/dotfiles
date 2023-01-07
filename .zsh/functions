@@ -1,137 +1,22 @@
-# useful vars
-diff=.s.diff
-
-# output the list of files controlled by VCS
-function scfiles
-{
-    git ls-files $@ 2>/dev/null || svn st -v --xml $@ | _svn_entries
+# get list of files in git conflict state
+function conflicts {
+    git diff --name-only --diff-filter=U --relative $@
 }
 
-# output the list of MODIFIED/ADDED/DELETED files controlled by VCS
-function smfiles
-{
-    git ls-files -m $@ 2>/dev/null || svn st --xml $@ | _svn_entries
+# get list of files in git updated
+function updates {
+    git diff --name-only --relative HEAD $@
 }
 
-# recursive grep skips VCS metadata
-function sgrep
-{
-    find . -print0 \! \( -name .git -or -name .svn -or -name CVS \) -or -prune | xargs -0 -n 1000 grep -I $@ .
+# get original branch base
+function branch-base {
+    git reflog show --format=format:%h $@ | tail -1
 }
 
-# recursive grep of *only* VCS controlled files
-function scgrep
-{
-    scfiles | _filter -f | tr '\n' '\000' | xargs -0 -n 1000 grep -I $@
-}
-
-# create gzip'd tar of all controller files, send to stdout
-function sctgz
-{
-    scfiles $@ | tar -c --no-recursion -T- -zf-
-}
-
-# create gzip'd tar of all modified source files, send to stdout
-function smtgz
-{
-    smfiles $@ | tar -c --no-recursion -T- -zf-
-}
-
-# invoke a tar creation of all sc files
-function scsync
-{
-    tmp="/tmp/.scsync.$$"
-    scfiles > "$tmp"
-
-    # user args are appended, so you can do things like -n (no execute) or
-    # -b (make backups)
-    rsync -i --files-from="$tmp" . $@
-    rm -f "$tmp"
-}
-
-##
-# sdiff - generate a diff (of optionally specified dirs/files), filter out
-# the ? lines, and store it in $diff, then call your $EDITOR on it.
-#
-function sdiff
-{
-    if [[ $# -eq 0 ]]; then
-        git diff --relative 2>/dev/null || \
-            svn diff --diff-cmd diff -x "-U40 -N" `smfiles`
-    else
-        git diff --relative $@ 2>/dev/null || \
-            svn diff --diff-cmd diff -x "-U40 -N" $@
-    fi
-}
-
-##
-# sdv - generate a diff (of optionally specified dirs/files), filter out
-# the ? lines, and store it in $diff, then call your $EDITOR on it.
-#
-function sdv
-{
-    sdiff $@ > $diff && $EDITOR $diff
-}
-
-# sdvd - (SVN only) - use vimdiff to display diffs, in sequence
-function sdvd
-{
-    echo "UNIMPLEMENTED" >&2; return 1
-    #for i in `smfiles $@` | sed 's/\(.*\)/"\1"/g'; do
-    #    svn diff --diff-cmd $HOME/.sdvd_diff_wrapper.sh $1 > $diff
-    #done
-}
-
-# se - invoke $EDITOR on all files in smfiles
-function se
-{
-    $EDITOR `smfiles`
-}
-
-# get the list of files found in a specified diff.
-function dfiles
-{
-    grep '^Index:' "$@" | cut -d' ' -f2
-}
-
-# dfiles for VCS
-function sdfiles
-{
-    echo "UNIMPLEMENTED" >&2; return 1
-}
-
-##
-# regenerate a diff, specifying only files currently found in that diff,
-# storing it in $diff.
-#
-function srediff { sdiff $(dfiles $@) }
-
-# st -- list the file status for all locally modified files
-function st
-{
-    echo "UNIMPLEMENTED" >&2; return 1
-    #svn st "$@" 2>&1 | sed '/^?/d'
-}
-
-# sconflicts -- get list of files in conflict state
-function sconflicts
-{
-    echo "UNIMPLEMENTED" >&2; return 1
-    #st | grep '^C' | cut -b3- | sed -e 's/^\s*//g' -e 's/\s*$//g'
-}
-
-# perform an update on the repository
-function up
-{
-    echo "UNIMPLEMENTED" >&2; return 1
-    #svn up "$@" 2>&1 | sed '/At revision /d'
-}
-
-# checkin related funcs
-function sdci
-{
-    echo "UNIMPLEMENTED" >&2; return 1
-    #svn ci $(dfiles "$@")
+# get list of files in git updated since branch creation pt
+function branch-updates {
+    base=$(branch-base)
+    git diff --name-only --relative HEAD..$base
 }
 
 # -----------------------------------------------------------------------------
@@ -198,4 +83,20 @@ XXXgo() {
     else
         $GOCMD $@
     fi
+}
+
+# args [-q] <HH[:MM[:SS]]> [more days]
+sleep-until() {
+    local slp tzoff now quiet=false
+    [ "$1" = "-q" ] && shift && quiet=true
+    local -a hms=(${1//:/ })
+    printf -v now '%(%s)T' -1
+    printf -v tzoff '%(%z)T\n' $now
+    tzoff=$((0${tzoff:0:1}(3600*${tzoff:1:2}+60*${tzoff:3:2})))
+    slp=$((
+       ( 86400+(now-now%86400) + 10#$hms*3600 + 10#${hms[1]}*60 + 
+         ${hms[2]}-tzoff-now ) %86400 + ${2:-0}*86400
+    ))
+    $quiet || printf 'sleep %ss, -> %(%c)T\n' $slp $((now+slp))
+    sleep $slp
 }

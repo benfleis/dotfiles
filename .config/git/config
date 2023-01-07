@@ -1,5 +1,6 @@
 [user]
     name = ben fleis
+    email = benfleis@users.noreply.github.com
 
 [merge]
     renameLimit = 999999
@@ -33,3 +34,8 @@
 
 [diff]
     compactionHeuristic = 1
+
+[feature]
+    manyFiles = true
+[extensions]
+    worktreeConfig = true

@@ -3,5 +3,5 @@
 set -e
 
 BRANCH="${1:-$(git branch --show-current)}"
-git reflog show --no-abbrev "$BRANCH"
+git reflog show --no-abbrev --date=iso "$BRANCH"
 

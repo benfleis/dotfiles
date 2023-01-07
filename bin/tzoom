@@ -2,7 +2,6 @@
 
 from collections import namedtuple
 import json
-import logging
 import subprocess as p
 import sys
 

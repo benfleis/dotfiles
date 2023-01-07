@@ -26,6 +26,8 @@ set list
 set listchars=tab:·\ ,trail:»
 set fillchars+=vert:\‖
 
+set shortmess-=F
+
 set nohlsearch
 set shiftround
 set shiftwidth=4
@@ -62,7 +64,10 @@ function s:SourceConfig(name, tail)
     endif
 endfunction
 
-silent echo "Sourcing and Configing"
+silent echo "Setting Plugin Config"
+let g:indentLine_char = '⦙'
+
+silent echo "Sourcing and Configuring"
 
 let g:plug_home = g:data_path . "/site/pack"
 call s:SourceConfig("plugins", "plug-defs.vim")
@@ -71,7 +76,10 @@ call s:SourceConfig("focus mode", "focus.vim")
 
 set background=dark
 colorscheme PaperColor
-" colorscheme desert
 
 "" Load lua, last for now
-lua require('base')
+lua require('benfleis').init()
+" lua require('benfleis').setup_coq()
+lua require('benfleis').setup_metals()
+
+" lua require('nvim-treesitter.configs').setup{highlight={enable=true}}  " At the bottom of your init.vim, keep all configs on one line
