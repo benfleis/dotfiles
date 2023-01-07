@@ -1,17 +1,12 @@
 # zsh init; ben
-
 export LANGUAGE=en_US.UTF-8
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 
 export PATH HOME TERM
-export CVS_RSH=`which ssh`
 export RSYNC_RSH=`which ssh`
-export HISTSIZE=256
 export LESS='-iFMRX'
 export EXTENDED_GLOB
-
-export USERXSESSIONRC=$HOME/.xsession
 
 alias ip="ipython"
 alias zi="$HOME/bin/tmux-zoom in"
@@ -19,8 +14,8 @@ alias zo="$HOME/bin/tmux-zoom out"
 
 # history mgmt
 HISTFILE=~/.zsh/history
-SAVEHIST=10000
-HISTSIZE=10000
+SAVEHIST=100000
+HISTSIZE=100000
 setopt APPEND_HISTORY
 setopt SHARE_HISTORY
 setopt HIST_IGNORE_DUPS
@@ -105,33 +100,25 @@ ulimit -d unlimited
 ulimit -s unlimited
 ulimit -n 8192
 
-##
-# some bits stolen from: http://www.aperiodic.net/phil/prompt/prompt.txt
-#
-autoload colors zsh/terminfo
-setopt promptpercent
-setopt promptsubst
-if [[ "$terminfo[colors]" -ge 8 ]]; then
-    colors
-fi
-for color in RED GREEN YELLOW BLUE MAGENTA CYAN WHITE; do
-    eval PR_$color='%{$terminfo[bold]$fg[${(L)color}]%}'
-    eval PR_LIGHT_$color='%{$fg[${(L)color}]%}'
-    (( count = $count + 1 ))
-done
-PR_RESET="%{$terminfo[sgr0]%}"
-
-# export PS1='[%U%m%u] %B%~%b $ '
-## preferred prompts; first is for white bg, second is for black bg (iterm)
-set_prompt() {
-    #export PROMPT='@%(?.$PR_LIGHT_GREEN$PROMPT_AT.$PR_RED$PROMPT_AT)$PR_RESET| $PR_BLUE%~$PR_RESET $ '
-    export PROMPT='@$PR_LIGHT_GREEN$PROMPT_AT$PR_RESET%(?-| -|${PR_RED}X${PR_RESET}) $PR_BLUE%~$PR_RESET $ '
-}
-export PROMPT_AT="%m"
-set_prompt
-
 # backup dir for vim
 mkdir -p /tmp/.backup
+
+# load ZIM before local stuff
+export ZIM_HOME=$HOME/.cache/zim
+if [[ ! -r $ZIM_HOME/zimfw.zsh ]]; then
+    mkdir -p $ZIM_HOME ;
+    ln -s $HOME/src/zimfw/zimfw.zsh $ZIM_HOME ;
+fi
+[[ -r $ZIM_HOME/zimfw.zsh ]] || unset ZIM_HOME
+
+if [[ -n "$ZIM_HOME" ]]; then
+    # Install missing modules, and update ${ZIM_HOME}/init.zsh if missing or outdated.
+    if [[ ! ${ZIM_HOME}/init.zsh -nt ${ZDOTDIR:-${HOME}}/.zimrc ]]; then
+        source ${ZIM_HOME}/zimfw.zsh init -q
+    fi
+    source ${ZIM_HOME}/init.zsh
+fi
+
 
 # load anything local to this machine
 [ -r $HOME/.zsh/rc-local ] && . $HOME/.zsh/rc-local
@@ -180,29 +167,38 @@ uname -a | grep -q Linux && {
 #   zstyle ':completion:*' menu select
 #   alias jc="j -c"
 
-# use z [ https://github.com/agkozak/zsh-z ], to also use fz
-export _Z_CASE=ignore
-export _Z_CMD=_j
-export _Z_NO_RESOLVE_SYMLINKS=1
-Z_SRC="$HOME/src/z/z.sh"
-[ -r "$Z_SRC" ] && . "$Z_SRC"
-zstyle ':completion:*' menu select
-# alias jc="j -c"
+#   # use z [ https://github.com/agkozak/zsh-z ], to also use fz
+#   export _Z_CASE=ignore
+#   export _Z_CMD=_j
+#   export _Z_NO_RESOLVE_SYMLINKS=1
+#   Z_SRC="$HOME/src/z/z.sh"
+#   [ -r "$Z_SRC" ] && . "$Z_SRC"
+#   zstyle ':completion:*' menu select
+#   # alias jc="j -c"
 
-# fz
-FZ_CMD=jj
-FZ_SUBDIR_CMD=j
+zstyle ':completion:*' menu select
+
+# init fzf first, so z.lua && fz see it
+[[ -r ~/.fzf.zsh ]] && source ~/.fzf.zsh
+
+# use z.lua [ https://github.com/skywind3000/z.lua ], to also use fz
+export _ZL_CMD=j
+export _ZL_DATA=$HOME/.z
+export _ZL_CASE=ignore
+export _ZL_NO_RESOLVE_SYMLINKS=1
+ZL_SRC="$HOME/src/z.lua/z.lua"
+[[ -r "$ZL_SRC" ]] && eval "$(lua $ZL_SRC --init zsh)"
+
+# fz [ https://github.com/changyuheng/fz.sh ]
+export FZ_CMD=jj
+export FZ_SUBDIR_CMD=j
+export FZ_HISTORY_CD_CMD=_zlua
 FZ_SRC="$HOME/src/fz.sh/fz.plugin.zsh"
-[ -r "$FZ_SRC" ] && . "$FZ_SRC"
+[[ -r "$FZ_SRC" ]] && source "$FZ_SRC"
 
 # load up all ze functions
-[ -r $HOME/.zsh/functions ] && . $HOME/.zsh/functions
+[[ -r $HOME/.zsh/functions ]] && . $HOME/.zsh/functions
 
-#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-export SDKMAN_DIR="$HOME/.sdkman"
-[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
-
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 # always $HOME/bin atop path
 export PATH="$HOME/bin:$PATH"
@@ -232,3 +228,9 @@ echo $EDITOR | grep -q vim && alias vi="$EDITOR"
 echo $EDITOR | grep -q vim && alias view="$EDITOR -R"
 echo $EDITOR | grep -q vim && alias vimdiff="$EDITOR -d"
 
+# XXX hacky prompt update
+_ps1="$PS1"
+_rps1="$RPS1"
+unset RPS1
+export PROMPT_AT=${PROMPT_AT:-$(hostname -s)}
+export PS1="[%F{white}%*·${PROMPT_AT}%f $_rps1]"$'\n'"$_ps1"
