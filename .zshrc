@@ -8,6 +8,8 @@ export RSYNC_RSH=`which ssh`
 export LESS='-iFMRX'
 export EXTENDED_GLOB
 
+export XDG_CONFIG_HOME=$HOME/.config
+
 alias ip="ipython"
 alias zi="$HOME/bin/tmux-zoom in"
 alias zo="$HOME/bin/tmux-zoom out"

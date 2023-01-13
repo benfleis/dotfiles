@@ -54,6 +54,17 @@ Plug 'scalameta/nvim-metals'
 " lang thrift
 Plug 'solarnz/thrift.vim'
 
+" lang clojure
+Plug 'clojure-vim/clojure.vim'
+Plug 'tpope/vim-dispatch' " required for vim-dispatch-neovim
+Plug 'radenling/vim-dispatch-neovim' " required for vim-jack-in
+Plug 'clojure-vim/vim-jack-in'
+Plug 'Olical/conjure'
+
+" lang fennel -- only for tweaking conjure
+Plug 'jaawerth/fennel.vim'
+Plug 'Olical/aniseed'
+
 " ----------------------------------------------------------
 
 " Experiments
@@ -90,6 +101,9 @@ Plug 'skanehira/gh.vim'
 " bean-count experiment
 Plug 'nathangrigg/vim-beancount'
 
+
+" beancount
+Plug 'nathangrigg/vim-beancount'
 
 " ----------------------------------------------------------
 " Everything below is old and awaiting a short try-or-prune.
