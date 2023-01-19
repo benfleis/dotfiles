@@ -65,6 +65,9 @@ Plug 'Olical/conjure'
 Plug 'jaawerth/fennel.vim'
 Plug 'Olical/aniseed'
 
+" lang json
+Plug 'phelipetls/jsonpath.nvim' " shows jq path
+
 " ----------------------------------------------------------
 
 " Experiments

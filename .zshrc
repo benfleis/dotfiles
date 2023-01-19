@@ -181,12 +181,32 @@ uname -a | grep -q Linux && {
 zstyle ':completion:*' menu select
 
 # init fzf first, so z.lua && fz see it
+
+# Preview file content using bat (https://github.com/sharkdp/fd)
+export FZF_CTRL_T_OPTS="
+  --preview 'bat -n --color=always {}'
+  --bind 'ctrl-/:change-preview-window(down|hidden|)'"
+
+# CTRL-/ to toggle small preview window to see the full command
+# CTRL-Y to copy the command into clipboard using pbcopy
+export FZF_CTRL_R_OPTS="
+  --preview 'echo {}' --preview-window up:3:hidden:wrap
+  --bind 'ctrl-/:toggle-preview'
+  --bind 'ctrl-y:execute-silent(echo -n {2..} | pbcopy)+abort'
+  --color header:italic
+  --header 'Press CTRL-Y to copy command into clipboard'"
+
+# Print tree structure in the preview window
+export FZF_ALT_C_OPTS="--preview 'tree -C -L 2 {}'"
+export FZF_COMPLETION_TRIGGER=',,'
+
 [[ -r ~/.fzf.zsh ]] && source ~/.fzf.zsh
 
 # use z.lua [ https://github.com/skywind3000/z.lua ], to also use fz
 export _ZL_CMD=j
 export _ZL_DATA=$HOME/.z
 export _ZL_CASE=ignore
+export _ZL_HYPHEN=1
 export _ZL_NO_RESOLVE_SYMLINKS=1
 ZL_SRC="$HOME/src/z.lua/z.lua"
 [[ -r "$ZL_SRC" ]] && eval "$(lua $ZL_SRC --init zsh)"
