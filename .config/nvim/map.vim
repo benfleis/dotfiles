@@ -6,7 +6,7 @@ let maplocalleader = " "
 imap <Esc>@ €
 
 " write & stage (Git add). I should wrap this to be async.
-command -bar WS :write % | :Git add %
+" command -bar WS :write % | :Git add %
 
 " holy scheisse my life is complete. swap arrow / ctrl-[np] in cmdline editing.
 cnoremap <Up> <C-p>
