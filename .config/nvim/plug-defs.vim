@@ -87,9 +87,6 @@ Plug 'folke/zen-mode.nvim'
 " Plug 'nvim-neorg/neorg-telescope'
 Plug 'tjdevries/vlog.nvim'
 
-" experiment: coq-nvim
-Plug 'neovim/nvim-lspconfig'
-
 " still unhappy w git opts
 Plug 'tpope/vim-fugitive' " still blocks/waits
 Plug 'lambdalisue/gina.vim'
