@@ -1,9 +1,9 @@
 local Path = require('plenary.path')
 local Job = require('plenary.job')
-local m = {}
+local M = {}
 
 -- get the directory containing "current file" (via vim.fn.expand('%'))
-function m.get_file_dir()
+function M.get_file_dir()
     -- get expand('%:h') if buffer has filename, otherwise use $CWD
     local sibling = vim.fn.expand('%:h')
     if (sibling ~= nil and sibling ~= '') then
@@ -12,9 +12,9 @@ function m.get_file_dir()
     return vim.fn.getcwd()
 end
 
--- get parentage of given path; path==nil -> use vim.fn.expand('%:h') for
+-- get ancestor of given path; path==nil -> use vim.fn.expand('%:h') for
 -- current buf's file; depth==nil -> depth=1
-function m.get_path_parentage(path, depth)
+function M.get_path_ancestor(path, depth)
     local cur = Path:new(path or vim.fn.expand('%:p'))
     depth = depth or 1
     -- assert depth numeric && >= 0
@@ -23,7 +23,7 @@ function m.get_path_parentage(path, depth)
     return tostring(cur)
 end
 
-function m.get_repo_root()
+function M.get_repo_root()
     local outputs = {}
     Job:new({
         command = 'git',
@@ -38,7 +38,7 @@ function m.get_repo_root()
     return table.concat(outputs, ""):match'^%s*(.*%S)' or ''
 end
 
-function m.init()
+function M.init()
     -- local parser_configs = require('nvim-treesitter.parsers').get_parser_configs()
 
     -- parser_configs.norg = {
@@ -66,32 +66,32 @@ function m.init()
     -- }
 
     -- finish tree sitter config
-    require('nvim-treesitter.configs').setup {
-        -- " "norg", "norg_meta", "norg_table", 
-        ensure_installed = { "haskell", "cpp", "c", "javascript", "markdown" },
-        highlight = {
-            enable = true,
-        },
+----require('nvim-treesitter.configs').setup {
+----    -- " "norg", "norg_meta", "norg_table", 
+----    ensure_installed = { "haskell", "cpp", "c", "javascript", "markdown" },
+----    highlight = {
+----        enable = true,
+----    },
 
-        playground = {
-            enable = true,
-            disable = {},
-            updatetime = 25, -- Debounced time for highlighting nodes in the playground from source code
-            persist_queries = false, -- Whether the query persists across vim sessions
-            keybindings = {
-                toggle_query_editor = 'o',
-                toggle_hl_groups = 'i',
-                toggle_injected_languages = 't',
-                toggle_anonymous_nodes = 'a',
-                toggle_language_display = 'I',
-                focus_language = 'f',
-                unfocus_language = 'F',
-                update = 'R',
-                goto_node = '<cr>',
-                show_help = '?',
-            },
-        }
-    }
+----    playground = {
+----        enable = true,
+----        disable = {},
+----        updatetime = 25, -- Debounced time for highlighting nodes in the playground from source code
+----        persist_queries = false, -- Whether the query persists across vim sessions
+----        keybindings = {
+----            toggle_query_editor = 'o',
+----            toggle_hl_groups = 'i',
+----            toggle_injected_languages = 't',
+----            toggle_anonymous_nodes = 'a',
+----            toggle_language_display = 'I',
+----            focus_language = 'f',
+----            unfocus_language = 'F',
+----            update = 'R',
+----            goto_node = '<cr>',
+----            show_help = '?',
+----        },
+----    }
+----}
 
     -- local neorg_local = require('neorg-local')
     -- use {
@@ -150,44 +150,44 @@ function m.init()
 --------    float_precision = 0.01,
 --------},
 
-        -- hook = m.setup_neorg_keybinds,
+        -- hook = M.setup_neorg_keybinds,
     --}
 
     -- https://github.com/lewis6991/gitsigns.nvim
-    require('gitsigns').setup {
-        on_attach = function(bufnr)
-            local function map(mode, lhs, rhs, opts)
-                opts = vim.tbl_extend('force', {noremap = true, silent = true}, opts or {})
-                vim.api.nvim_buf_set_keymap(bufnr, mode, lhs, rhs, opts)
-            end
+----require('gitsigns').setup {
+----    on_attach = function(bufnr)
+----        local function map(mode, lhs, rhs, opts)
+----            opts = vim.tbl_extend('force', {noremap = true, silent = true}, opts or {})
+----            vim.api.nvim_buf_set_keymap(bufnr, mode, lhs, rhs, opts)
+----        end
 
-            -- Navigation
-            map('n', ']c', "&diff ? ']c' : '<cmd>Gitsigns next_hunk<CR>'", {expr=true})
-            map('n', '[c', "&diff ? '[c' : '<cmd>Gitsigns prev_hunk<CR>'", {expr=true})
+----        -- Navigation
+----        map('n', ']c', "&diff ? ']c' : '<cmd>Gitsigns next_hunk<CR>'", {expr=true})
+----        map('n', '[c', "&diff ? '[c' : '<cmd>Gitsigns prev_hunk<CR>'", {expr=true})
 
-            -- Actions
-            map('n', '<leader>hs', ':Gitsigns stage_hunk<CR>')
-            map('v', '<leader>hs', ':Gitsigns stage_hunk<CR>')
-            map('n', '<leader>hr', ':Gitsigns reset_hunk<CR>')
-            map('v', '<leader>hr', ':Gitsigns reset_hunk<CR>')
-            map('n', '<leader>hS', '<cmd>Gitsigns stage_buffer<CR>')
-            map('n', '<leader>hu', '<cmd>Gitsigns undo_stage_hunk<CR>')
-            map('n', '<leader>hR', '<cmd>Gitsigns reset_buffer<CR>')
-            map('n', '<leader>hp', '<cmd>Gitsigns preview_hunk<CR>')
-            map('n', '<leader>hb', '<cmd>lua require"gitsigns".blame_line{full=true}<CR>')
-            map('n', '<leader>tb', '<cmd>Gitsigns toggle_current_line_blame<CR>')
-            map('n', '<leader>hd', '<cmd>Gitsigns diffthis<CR>')
-            map('n', '<leader>hD', '<cmd>lua require"gitsigns".diffthis("~")<CR>')
-            map('n', '<leader>td', '<cmd>Gitsigns toggle_deleted<CR>')
+----        -- Actions
+----        map('n', '<leader>hs', ':Gitsigns stage_hunk<CR>')
+----        map('v', '<leader>hs', ':Gitsigns stage_hunk<CR>')
+----        map('n', '<leader>hr', ':Gitsigns reset_hunk<CR>')
+----        map('v', '<leader>hr', ':Gitsigns reset_hunk<CR>')
+----        map('n', '<leader>hS', '<cmd>Gitsigns stage_buffer<CR>')
+----        map('n', '<leader>hu', '<cmd>Gitsigns undo_stage_hunk<CR>')
+----        map('n', '<leader>hR', '<cmd>Gitsigns reset_buffer<CR>')
+----        map('n', '<leader>hp', '<cmd>Gitsigns preview_hunk<CR>')
+----        map('n', '<leader>hb', '<cmd>lua require"gitsigns".blame_line{full=true}<CR>')
+----        map('n', '<leader>tb', '<cmd>Gitsigns toggle_current_line_blame<CR>')
+----        map('n', '<leader>hd', '<cmd>Gitsigns diffthis<CR>')
+----        map('n', '<leader>hD', '<cmd>lua require"gitsigns".diffthis("~")<CR>')
+----        map('n', '<leader>td', '<cmd>Gitsigns toggle_deleted<CR>')
 
-            -- Text object
-            map('o', 'ih', ':<C-U>Gitsigns select_hunk<CR>')
-            map('x', 'ih', ':<C-U>Gitsigns select_hunk<CR>')
-        end
-    }
+----        -- Text object
+----        map('o', 'ih', ':<C-U>Gitsigns select_hunk<CR>')
+----        map('x', 'ih', ':<C-U>Gitsigns select_hunk<CR>')
+----    end
+----}
 end
 
-function m.setup_neorg_keybinds()
+function M.setup_neorg_keybinds()
     -- This sets the leader for all Neorg keybinds. It is separate from the regular <Leader>,
     -- And allows you to shove every Neorg keybind under one "umbrella".
     local leader = "<LocalLeader>" -- You may also want to set this to <Leader>o for "organization"
@@ -238,61 +238,7 @@ function m.setup_neorg_keybinds()
 end
 
 
-function m.setup_coq()
-    require('lspconfig').pyright.setup{}
-
-    local nvim_lsp = require('lspconfig')
-
-    -- Use an on_attach function to only map the following keys
-    -- after the language server attaches to the current buffer
-    local on_attach = function(client, bufnr)
-        local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
-        local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
-
-        -- Enable completion triggered by <c-x><c-o>
-        buf_set_option('omnifunc', 'v:lua.vim.lsp.omnifunc')
-
-        -- Mappings.
-        local opts = { noremap=true, silent=true }
-
-        -- See `:help vim.lsp.*` for documentation on any of the below functions
-        buf_set_keymap('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>', opts)
-        buf_set_keymap('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)
-        buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
-
-        buf_set_keymap('n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)
-        buf_set_keymap('n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
-
-        buf_set_keymap('n', '<LocalLeader>wa', '<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>', opts)
-        buf_set_keymap('n', '<LocalLeader>wr', '<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>', opts)
-        buf_set_keymap('n', '<LocalLeader>wl', '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>', opts)
-
-        buf_set_keymap('n', '<LocalLeader>D', '<cmd>lua vim.lsp.buf.type_definition()<CR>', opts)
-        buf_set_keymap('n', '<LocalLeader>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
-        buf_set_keymap('n', '<LocalLeader>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
-        buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
-        buf_set_keymap('n', '<LocalLeader>e', '<cmd>lua vim.diagnostic.open_float()<CR>', opts)
-        buf_set_keymap('n', '[d', '<cmd>lua vim.diagnostic.goto_prev()<CR>', opts)
-        buf_set_keymap('n', ']d', '<cmd>lua vim.diagnostic.goto_next()<CR>', opts)
-        buf_set_keymap('n', '<LocalLeader>q', '<cmd>lua vim.diagnostic.setloclist()<CR>', opts)
-        buf_set_keymap('n', '<LocalLeader>f', '<cmd>lua vim.lsp.buf.formatting()<CR>', opts)
-
-    end
-
-    -- Use a loop to conveniently call 'setup' on multiple servers and
-    -- map buffer local keybindings when the language server attaches
-    local servers = { 'pyright' } -- , 'rust_analyzer', 'tsserver' }
-    for _, lsp in ipairs(servers) do
-        nvim_lsp[lsp].setup {
-            on_attach = on_attach,
-            flags = {
-                debounce_text_changes = 150,
-            }
-        }
-    end
-end
-
-function m.setup_metals()
+function M.setup_metals()
     -------------------------------------------------------------------------------
     -- These are example settings to use with nvim-metals and the nvim built-in
     -- LSP. Be sure to thoroughly read the `:help nvim-metals` docs to get an
@@ -495,4 +441,4 @@ function m.setup_metals()
 end
 
 
-return m
+return M

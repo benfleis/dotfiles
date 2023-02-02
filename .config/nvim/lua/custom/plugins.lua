@@ -7,5 +7,6 @@ return function(use)
         require("which-key").setup({})
       end
   })
+  use({"rbgrouleff/bclose.vim"})
 end
 
