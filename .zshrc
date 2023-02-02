@@ -223,7 +223,7 @@ FZ_SRC="$HOME/src/fz.sh/fz.plugin.zsh"
 
 
 # always $HOME/bin atop path
-export PATH="$HOME/bin:$PATH"
+export PATH="$HOME/bin:/opt/homebrew/bin:$PATH"
 
 # -U uniqifies, keeping first entry
 typeset -U path
