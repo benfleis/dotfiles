@@ -30,5 +30,18 @@ return function(use)
       }
     end
   })
+
+  -- look ma, no config necessary!
+  local plugins = {
+    "clojure-vim/clojure.vim",
+    "tpope/vim-dispatch", -- required for vim-dispatch-neovim
+    "radenling/vim-dispatch-neovim", -- required for vim-jack-in
+    "clojure-vim/vim-jack-in", -- handy for conjure
+    "Olical/conjure",
+  }
+
+  for _, plugin in ipairs(plugins) do
+    use({ plugin })
+  end
 end
 

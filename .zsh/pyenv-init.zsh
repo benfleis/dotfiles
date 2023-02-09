@@ -1,5 +1,11 @@
+PATH="$(bash --norc -ec 'IFS=:; paths=($PATH); 
+for i in ${!paths[@]}; do 
+if [[ ${paths[i]} == "''/Users/ben/.pyenv/shims''" ]]; then unset '\''paths[i]'\''; 
+fi; done; 
+echo "${paths[*]}"')"
+export PATH="/Users/ben/.pyenv/shims:${PATH}"
 export PYENV_SHELL=zsh
-source '/usr/local/Cellar/pyenv/2.2.0/libexec/../completions/pyenv.zsh'
+source '/opt/homebrew/Cellar/pyenv/2.3.12/libexec/../completions/pyenv.zsh'
 command pyenv rehash 2>/dev/null
 pyenv() {
   local command
@@ -9,7 +15,7 @@ pyenv() {
   fi
 
   case "$command" in
-  rehash|shell)
+  activate|deactivate|rehash|shell)
     eval "$(pyenv "sh-$command" "$@")"
     ;;
   *)
@@ -17,3 +23,4 @@ pyenv() {
     ;;
   esac
 }
+
