@@ -1,30 +1,26 @@
-_pyenv_base="/opt/homebrew/Cellar/pyenv/"
-_pyenv_version="$(ls -1d $_pyenv_base/*.*.*)"
-_pyenv_count=$(echo $_pyenv_version | wc -l | xargs) # xargs is quick and dirty space trimmer
+PATH="$(bash --norc -ec 'IFS=:; paths=($PATH); 
+for i in ${!paths[@]}; do 
+if [[ ${paths[i]} == "''/Users/ben/.pyenv/shims''" ]]; then unset '\''paths[i]'\''; 
+fi; done; 
+echo "${paths[*]}"')"
+export PATH="/Users/ben/.pyenv/shims:${PATH}"
+export PYENV_SHELL=zsh
+source '/opt/homebrew/Cellar/pyenv/2.3.12/libexec/../completions/pyenv.zsh'
+command pyenv rehash 2>/dev/null
+pyenv() {
+  local command
+  command="${1:-}"
+  if [ "$#" -gt 0 ]; then
+    shift
+  fi
 
-if [[ "$_pyenv_count" = 0 ]]; then
-    # echo "pyenv not found" >&2
-elif [[ "$_pyenv_count" -gt 1 ]]; then
-    echo "multiple pyenv versions found, see $_pyenv_base" >&1
-else
-    export PYENV_SHELL=zsh
-    source "$_pyenv_version/libexec/../completions/pyenv.zsh"
-    command pyenv rehash 2>/dev/null
+  case "$command" in
+  activate|deactivate|rehash|shell)
+    eval "$(pyenv "sh-$command" "$@")"
+    ;;
+  *)
+    command pyenv "$command" "$@"
+    ;;
+  esac
+}
 
-    pyenv() {
-        local command
-        command="${1:-}"
-        if [ "$#" -gt 0 ]; then
-            shift
-        fi
-
-        case "$command" in
-        rehash|shell)
-            eval "$(pyenv "sh-$command" "$@")"
-            ;;
-        *)
-            command pyenv "$command" "$@"
-            ;;
-        esac
-        }
-fi

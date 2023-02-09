@@ -6,7 +6,12 @@
  }
 
  :deps {
+        babashka/fs {:mvn/version "0.2.15"}
+        clj-commons/clj-yaml {:mvn/version "1.0.26"}
         clojure.java-time/clojure.java-time {:mvn/version "1.1.0"}
+        com.taoensso/timbre {:mvn/version "6.0.4"}
+        org.babashka/cli {:mvn/version "0.6.45"}
         org.clojure/data.csv {:mvn/version "1.0.1"}
+        org.clojure/tools.logging {:mvn/version "1.2.4"}
  }
 }

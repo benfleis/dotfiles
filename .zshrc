@@ -153,6 +153,20 @@ if command -v gofmt >/dev/null; then
     export PATH="$GOPATH/bin:$PATH"
 fi
 
+# node/nvm
+if [[ -s "/opt/homebrew/opt/nvm/nvm.sh" ]]; then
+    export NVM_DIR="$HOME/.nvm"
+    source "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
+    [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && source "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
+fi
+
+# found elsewhere, many opts to remove updates
+export HOMEBREW_NO_ANALYTICS=1
+# export HOMEBREW_NO_AUTO_UPDATE=1
+# export HOMEBREW_NO_INSTALL_UPGRADE=1
+# export HOMEBREW_NO_INSTALL_CLEANUP=1
+# export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
+
 # get JAVA_HOME as right as possible
 # use javac instead of java, since using java can get stuck under jre path
 # instead of main (for header/includes)

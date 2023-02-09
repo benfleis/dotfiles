@@ -9,6 +9,7 @@
 
 .config/nvim/bundles
 .config/nvim/local.vim
+.config/nvim/plugin/packer_compiled.lua
 
 .emacs.d/auto-save-list
 .emacs.d/backups
