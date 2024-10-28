@@ -30,7 +30,7 @@ local function ff(args) -- def for find_files
   return cmd("lua require('telescope.builtin').find_files(" .. args_str .. ")")
 end
 
-local function grep(args) -- def for find_files
+local function grep(args) -- def for live_grep
   local args_str = args and argify(args) or ""
   return cmd("lua require('telescope.builtin').live_grep(" .. args_str .. ")")
 end
@@ -65,101 +65,93 @@ vim.api.nvim_set_keymap("c", "<Up>", "<C-p>", { noremap = true })
 vim.api.nvim_set_keymap("c", "<Down>", "<C-n>", { noremap = true })
 vim.api.nvim_set_keymap("c", "<C-p>", "<Up>", { noremap = true })
 vim.api.nvim_set_keymap("c", "<C-n>", "<Down>", { noremap = true })
-vim.api.nvim_set_keymap("", "<Leader>y", '"*y', { noremap = true }) -- broken, debug me
--- vim.api.nvim_set_keymap("", "<Leader>y", cmd("yank *"), { noremap = true }) -- broken, debug me
+vim.api.nvim_set_keymap("", "<Leader>y", '"*y', { noremap = true })
 
-wk.register({
-  ["<Leader>"] = {
-    b = {
-      name = "buffer",
-      d = { buffer_delete, "[b]uffer [d]elete" },
-      f = { buffer_find, "[b]uffer [f]ind" },
-      n = { buffer_next, "[b]uffer [n]ext" },
-      p = { buffer_prev, "[b]uffer [p]revious" },
-    },
+function Keys (...)
+  if ... == nil or #... == 0 then
+    return ""
+  end
 
-    d = {
-      name = "display",
-      w = { cmd("setlocal wrap!"), "toggle [w]rap on/off" },
-      -- W = { cmd("call WrapStyleToggle()"), "toggle [W]rap style toggle" },
-    },
+  local tail = ""
+  for _, v in ipairs {...} do
+    tail = tail .. (v or "")
+  end
+  if string.len(tail) == 0 then
+    assert(tail ~= "", "No [valid] args given to Keys")
+  end
+  return tail
+end
 
-    f = {
-      name = "find",
-      c = { ff_cwd, "[f]ind files" },
-      s = { ff_sibling, "[f]ind files CWD=[s]ibling" },
-      p = { ff({ cwd = paths.file_parent_n(2) }), "[f]ind files CWD=[p]arent" },
-      ["2p"] = { ff({ cwd = paths.file_parent_n(3) }), "[f]ind files CWD=[2p]arent" },
-      ["3p"] = { ff({ cwd = paths.file_parent_n(4) }), "[f]ind files CWD=[3p]arent" },
-      ["4p"] = { ff({ cwd = paths.file_parent_n(5) }), "[f]ind files CWD=[4p]arent" },
-      r = { ff({ cwd = paths.file_repo }), "[f]ind files CWD=$(git [r]oot)" },
-      C = { ff({ cwd = paths.xdg_config }), "[f]ind files CWD=XDG [C]onfig" },
-      H = { ff({ cwd = paths.home }), "[f]ind files CWD=$[H]OME" },
-      L = { ff({ cwd = paths.xdg_local }), "[f]ind files CWD=XDG [L]ocal" },
-      N = { ff({ cwd = paths.nvim_config }), "[f]ind files CWD=[N]eovim_config" },
-      S = { ff({ cwd = paths.xdg_share }), "[f]ind files CWD=XDG [S]hare" },
-    },
+function L (...) return "<Leader>" .. Keys(...) end
+function LL (...) return "<Leader><Leader>" .. Keys(...) end
 
-    g = {
-      name = "go",
-    },
 
-    j = {
-      name = "jump",
-      n = { cmd("lnext"), "[j]ump [n]ext location" },
-      p = { cmd("lprevious"), "[j]ump [p]revious location" },
-    },
-
-    m = {
-      name = "manage",
-      -- f = { cmd("lua require('telescope.builtin').file_browser()"), "[M]anage [F]ile" },
-      f = { cmd("Telescope file_browser"), "[m]anage [f]ile" },
-      g = { manage_git, "[m]anage [g]it" },
-      p = { cmd("!gh pr browse"), "[m]anage github [p]r" },
-    },
-
-    s = {
-      name = "search",
-      c = { grep({ cwd = paths.cwd }), "[g]rep" },
-      s = { grep({ cwd = paths.file_parent_n(1) }), "[g]rep CWD=[s]ibling" },
-      p = { grep({ cwd = paths.file_parent_n(2) }), "[g]rep CWD=[p]arent" },
-      ["2p"] = { grep({ cwd = paths.file_parent_n(3) }), "[g]rep CWD=[2p]arent" },
-      ["3p"] = { grep({ cwd = paths.file_parent_n(4) }), "[g]rep CWD=[3p]arent" },
-      ["4p"] = { grep({ cwd = paths.file_parent_n(5) }), "[g]rep CWD=[4p]arent" },
-      r = { grep({ cwd = paths.file_repo }), "[g]rep CWD=$(git [r]oot)" },
-      H = { grep({ cwd = paths.home }), "[g]rep CWD=$[H]OME" },
-      N = { grep({ cwd = paths.nvim_config }), "[g]rep CWD=[N]eovim_config" },
-    },
-
-    t = {
-      name = "tab",
-      ["w2"] = { cmd("setlocal ts=2 sts=2 sw=2"), "[t]ab [w]idth = [2]" },
-      ["w3"] = { cmd("setlocal ts=3 sts=3 sw=3"), "[t]ab [w]idth = [3]" },
-      ["w4"] = { cmd("setlocal ts=4 sts=4 sw=4"), "[t]ab [w]idth = [4]" },
-      ["w8"] = { cmd("setlocal ts=8 sts=8 sw=8"), "[t]ab [w]idth = [8]" },
-
-      n = { cmd("tabnext"), "[t]ab [n]ext" },
-      p = { cmd("tabprevious"), "[t]ab [p]revious" },
-    },
-
-    -- y = { '"*y', "[y]ank to system pasteboard" },
+wk.add(
+  {
+    { L("b"), group = "buffer" },
+    { L("bd"), "<Cmd>Bclose<CR>", desc = "[b]uffer [d]elete" },
+    { L("bf"), "<Cmd>Telescope buffers<CR>", desc = "[b]uffer [f]ind" },
+    { L("bn"), "<Cmd>bn<CR>", desc = "[b]uffer [n]ext" },
+    { L("bp"), "<Cmd>bp<CR>", desc = "[b]uffer [p]revious" },
+    { L("d"), group = "display" },
+    { L("dw"), "<Cmd>setlocal wrap!<CR>", desc = "toggle [w]rap on/off" },
+    { L("f"), group = "find" },
+    { L("f2p"), "<Cmd>lua require('telescope.builtin').find_files({cwd = require(\"benfleis\").get_path_ancestor(nil, 3), })<CR>", desc = "[f]ind files CWD=[2p]arent" },
+    { L("f3p"), "<Cmd>lua require('telescope.builtin').find_files({cwd = require(\"benfleis\").get_path_ancestor(nil, 4), })<CR>", desc = "[f]ind files CWD=[3p]arent" },
+    { L("f4p"), "<Cmd>lua require('telescope.builtin').find_files({cwd = require(\"benfleis\").get_path_ancestor(nil, 5), })<CR>", desc = "[f]ind files CWD=[4p]arent" },
+    { L("fC"), "<Cmd>lua require('telescope.builtin').find_files({cwd = \"~/.config\", })<CR>", desc = "[f]ind files CWD=XDG [C]onfig" },
+    { L("fH"), "<Cmd>lua require('telescope.builtin').find_files({cwd = \"~\", })<CR>", desc = "[f]ind files CWD=$[H]OME" },
+    { L("fL"), "<Cmd>lua require('telescope.builtin').find_files({cwd = \"~/.local\", })<CR>", desc = "[f]ind files CWD=XDG [L]ocal" },
+    { L("fN"), "<Cmd>lua require('telescope.builtin').find_files({cwd = \"~/.config/nvim\", })<CR>", desc = "[f]ind files CWD=[N]eovim_config" },
+    { L("fS"), "<Cmd>lua require('telescope.builtin').find_files({cwd = \"~/.share\", })<CR>", desc = "[f]ind files CWD=XDG [S]hare" },
+    { L("fc"), "<Cmd>lua require('telescope.builtin').find_files({cwd = vim.fn.getcwd(), })<CR>", desc = "[f]ind files" },
+    { L("fp"), "<Cmd>lua require('telescope.builtin').find_files({cwd = require(\"benfleis\").get_path_ancestor(nil, 2), })<CR>", desc = "[f]ind files CWD=[p]arent" },
+    { L("fr"), "<Cmd>lua require('telescope.builtin').find_files({cwd = require(\"benfleis\").get_repo_root(), })<CR>", desc = "[f]ind files CWD=$(git [r]oot)" },
+    { L("fs"), "<Cmd>lua require('telescope.builtin').find_files({cwd = require(\"benfleis\").get_path_ancestor(nil, 1), })<CR>", desc = "[f]ind files CWD=[s]ibling" },
+    { L("g"), group = "go" },
+    { L("j"), group = "jump" },
+    { L("jn"), "<Cmd>lnext<CR>", desc = "[j]ump [n]ext location" },
+    { L("jp"), "<Cmd>lprevious<CR>", desc = "[j]ump [p]revious location" },
+    { L("m"), group = "manage" },
+    { L("mf"), "<Cmd>Telescope file_browser<CR>", desc = "[m]anage [f]ile" },
+    { L("mg"), "<Cmd>Git<CR>", desc = "[m]anage [g]it" },
+    { L("mp"), "<Cmd>!gh pr browse<CR>", desc = "[m]anage github [p]r" },
+    { L("s"), group = "search" },
+    { L("s2p"), "<Cmd>lua require('telescope.builtin').live_grep({cwd = require(\"benfleis\").get_path_ancestor(nil, 3), })<CR>", desc = "[g]rep CWD=[2p]arent" },
+    { L("s3p"), "<Cmd>lua require('telescope.builtin').live_grep({cwd = require(\"benfleis\").get_path_ancestor(nil, 4), })<CR>", desc = "[g]rep CWD=[3p]arent" },
+    { L("s4p"), "<Cmd>lua require('telescope.builtin').live_grep({cwd = require(\"benfleis\").get_path_ancestor(nil, 5), })<CR>", desc = "[g]rep CWD=[4p]arent" },
+    { L("sH"), "<Cmd>lua require('telescope.builtin').live_grep({cwd = \"~\", })<CR>", desc = "[g]rep CWD=$[H]OME" },
+    { L("sN"), "<Cmd>lua require('telescope.builtin').live_grep({cwd = \"~/.config/nvim\", })<CR>", desc = "[g]rep CWD=[N]eovim_config" },
+    { L("sc"), "<Cmd>lua require('telescope.builtin').live_grep({cwd = vim.fn.getcwd(), })<CR>", desc = "[g]rep" },
+    { L("sp"), "<Cmd>lua require('telescope.builtin').live_grep({cwd = require(\"benfleis\").get_path_ancestor(nil, 2), })<CR>", desc = "[g]rep CWD=[p]arent" },
+    { L("sr"), "<Cmd>lua require('telescope.builtin').live_grep({cwd = require(\"benfleis\").get_repo_root(), })<CR>", desc = "[g]rep CWD=$(git [r]oot)" },
+    { L("ss"), "<Cmd>lua require('telescope.builtin').live_grep({cwd = require(\"benfleis\").get_path_ancestor(nil, 1), })<CR>", desc = "[g]rep CWD=[s]ibling" },
+    { L("t"), group = "tab" },
+    { L("tn"), "<Cmd>tabnext<CR>", desc = "[t]ab [n]ext" },
+    { L("tp"), "<Cmd>tabprevious<CR>", desc = "[t]ab [p]revious" },
+    { L("tw2"), "<Cmd>setlocal ts=2 sts=2 sw=2<CR>", desc = "[t]ab [w]idth = [2]" },
+    { L("tw3"), "<Cmd>setlocal ts=3 sts=3 sw=3<CR>", desc = "[t]ab [w]idth = [3]" },
+    { L("tw4"), "<Cmd>setlocal ts=4 sts=4 sw=4<CR>", desc = "[t]ab [w]idth = [4]" },
+    { L("tw8"), "<Cmd>setlocal ts=8 sts=8 sw=8<CR>", desc = "[t]ab [w]idth = [8]" },
   },
-}, { mode = "n" })
+  { mode = "n" }
+)
 
 -- double taps for the things I use all-the-time.
-wk.register({
-  ["<Leader><Leader>"] = {
-    name = "double-tap",
-    b = { buffer_find, "!! find [b]uffer" },
-    d = { buffer_delete, "!! [d]elete buffer" },
-    f = { ff_sibling, "!! find [f]iles" },
-    m = { manage_git, "!! manage [g]it" },
-    n = { buffer_next, "!! buffer [n]ext" },
-    p = { buffer_prev, "!! buffer [p]revious" },
-    s = { grep_cwd, "!! [s]earch files" },
-    S = { cmd("source ~/.config/nvim/after/plugin/luasnip.lua"), "!! [S]ource luasnips" },
+wk.add(
+  {
+    { LL(), group = "double-tap" },
+    { LL("S"), "<Cmd>source ~/.config/nvim/after/plugin/luasnip.lua<CR>", desc = "!! [S]ource luasnips" },
+    { LL("b"), "<Cmd>Telescope buffers<CR>", desc = "!! find [b]uffer" },
+    { LL("d"), "<Cmd>Bclose<CR>", desc = "!! [d]elete buffer" },
+    { LL("f"), "<Cmd>lua require('telescope.builtin').find_files({cwd = require(\"benfleis\").get_path_ancestor(nil, 1), })<CR>", desc = "!! find [f]iles" },
+    { LL("m"), "<Cmd>Git<CR>", desc = "!! manage [g]it" },
+    { LL("n"), "<Cmd>bn<CR>", desc = "!! buffer [n]ext" },
+    { LL("p"), "<Cmd>bp<CR>", desc = "!! buffer [p]revious" },
+    { LL("s"), "<Cmd>lua require('telescope.builtin').live_grep({cwd = vim.fn.getcwd(), })<CR>", desc = "!! [s]earch files" },
   },
-}, { mode = "n" })
+  { mode = "n" }
+)
 
 --  local ls = require('luasnip')
 --  vim.keymap.set({ "i", "s" }, "C-k", function()
