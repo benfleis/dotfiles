@@ -8,11 +8,16 @@ export RSYNC_RSH=`which ssh`
 export LESS='-iFMRX'
 export EXTENDED_GLOB
 
-export XDG_CONFIG_HOME=$HOME/.config
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_BIN_HOME="$HOME/.local/bin" # non standard?
+export XDG_DATA_HOME="$HOME/.local/share"
+export XDG_STATE_HOME="$HOME/.local/state"
+export XDG_CACHE_HOME="$HOME/.cache"
 
-alias ip="ipython"
+# alias ip="ipython"
 alias zi="$HOME/bin/tmux-zoom in"
 alias zo="$HOME/bin/tmux-zoom out"
+alias radump="sudo tcpdump -vvvv -ttt -i eth1 icmp6 and 'ip6[40] = 134'"
 
 # history mgmt
 HISTFILE=~/.zsh/history
@@ -131,6 +136,15 @@ machine=$(uname -n | cut -d. -f1)
 
 ## Lang/Tool/Env setups -- eg go, python, SDKMAN, anaconda
 
+# found elsewhere, many opts to remove updates
+export HOMEBREW_NO_ANALYTICS=1
+# export HOMEBREW_NO_AUTO_UPDATE=1
+# export HOMEBREW_NO_INSTALL_UPGRADE=1
+# export HOMEBREW_NO_INSTALL_CLEANUP=1
+# export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
+command -v brew >/dev/null && \
+    export PATH="$(brew --prefix)/bin:$PATH"
+
 # python / pyenv
 # leverage pyenv if installed
 [[ -x $HOME/.pyenv/bin ]] && export PATH="$HOME/.pyenv/bin:$PATH"
@@ -160,12 +174,10 @@ if [[ -s "/opt/homebrew/opt/nvm/nvm.sh" ]]; then
     [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && source "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
 fi
 
-# found elsewhere, many opts to remove updates
-export HOMEBREW_NO_ANALYTICS=1
-# export HOMEBREW_NO_AUTO_UPDATE=1
-# export HOMEBREW_NO_INSTALL_UPGRADE=1
-# export HOMEBREW_NO_INSTALL_CLEANUP=1
-# export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
+# babashka bbin
+[[ -n "$XDG_DATA_HOME" ]] && command -v bbin >/dev/null && \
+    export BABASHKA_BBIN_FLAG_XDG=true
+    export PATH="$XDG_BIN_HOME:$PATH"
 
 # get JAVA_HOME as right as possible
 # use javac instead of java, since using java can get stuck under jre path
@@ -235,13 +247,10 @@ FZ_SRC="$HOME/src/fz.sh/fz.plugin.zsh"
 # load up all ze functions
 [[ -r $HOME/.zsh/functions ]] && . $HOME/.zsh/functions
 
-
 # always $HOME/bin atop path
-export PATH="$HOME/bin:/opt/homebrew/bin:$PATH"
-
 # -U uniqifies, keeping first entry
+export PATH="$HOME/bin:$PATH"
 typeset -U path
-
 
 ## EDITOR and related prefs, need to be after PATH setup
 prefer() {

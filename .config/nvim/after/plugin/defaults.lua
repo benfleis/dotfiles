@@ -41,6 +41,9 @@ local paths = {
   file_parent_n = function(n) return 'require("benfleis").get_path_ancestor(nil, ' .. tostring(n) .. ')' end,
   file_repo = 'require("benfleis").get_repo_root()',
   home = '"~"',
+  xdg_config = '"~/.config"',
+  xdg_local = '"~/.local"',
+  xdg_share = '"~/.share"',
   nvim_config = '"~/.config/nvim"',
 }
 
@@ -52,6 +55,7 @@ local buffer_next = cmd("bn")
 local buffer_prev = cmd("bp")
 local grep_cwd = grep({ cwd = paths.cwd })
 local ff_cwd = ff({ cwd = paths.cwd })
+local ff_sibling = ff({ cwd = paths.file_parent_n(1) })
 local manage_git = cmd("Git")
 
 -- nnoremap <Leader>ep <cmd>lua require('telescope.builtin').find_files{cwd = require('benfleis').get_path_ancestor(nil, vim.api.nvim_eval('v:count1') + 1)}<CR>
@@ -61,7 +65,8 @@ vim.api.nvim_set_keymap("c", "<Up>", "<C-p>", { noremap = true })
 vim.api.nvim_set_keymap("c", "<Down>", "<C-n>", { noremap = true })
 vim.api.nvim_set_keymap("c", "<C-p>", "<Up>", { noremap = true })
 vim.api.nvim_set_keymap("c", "<C-n>", "<Down>", { noremap = true })
-vim.api.nvim_set_keymap("n", "<Leader>y", '"*y', { noremap = true }) -- broken, debug me
+vim.api.nvim_set_keymap("", "<Leader>y", '"*y', { noremap = true }) -- broken, debug me
+-- vim.api.nvim_set_keymap("", "<Leader>y", cmd("yank *"), { noremap = true }) -- broken, debug me
 
 wk.register({
   ["<Leader>"] = {
@@ -82,14 +87,17 @@ wk.register({
     f = {
       name = "find",
       c = { ff_cwd, "[f]ind files" },
-      s = { ff({ cwd = paths.file_parent_n(1) }), "[f]ind files CWD=[s]ibling" },
+      s = { ff_sibling, "[f]ind files CWD=[s]ibling" },
       p = { ff({ cwd = paths.file_parent_n(2) }), "[f]ind files CWD=[p]arent" },
       ["2p"] = { ff({ cwd = paths.file_parent_n(3) }), "[f]ind files CWD=[2p]arent" },
       ["3p"] = { ff({ cwd = paths.file_parent_n(4) }), "[f]ind files CWD=[3p]arent" },
       ["4p"] = { ff({ cwd = paths.file_parent_n(5) }), "[f]ind files CWD=[4p]arent" },
       r = { ff({ cwd = paths.file_repo }), "[f]ind files CWD=$(git [r]oot)" },
+      C = { ff({ cwd = paths.xdg_config }), "[f]ind files CWD=XDG [C]onfig" },
       H = { ff({ cwd = paths.home }), "[f]ind files CWD=$[H]OME" },
+      L = { ff({ cwd = paths.xdg_local }), "[f]ind files CWD=XDG [L]ocal" },
       N = { ff({ cwd = paths.nvim_config }), "[f]ind files CWD=[N]eovim_config" },
+      S = { ff({ cwd = paths.xdg_share }), "[f]ind files CWD=XDG [S]hare" },
     },
 
     g = {
@@ -144,10 +152,43 @@ wk.register({
     name = "double-tap",
     b = { buffer_find, "!! find [b]uffer" },
     d = { buffer_delete, "!! [d]elete buffer" },
-    f = { ff_cwd, "!! find [f]iles" },
+    f = { ff_sibling, "!! find [f]iles" },
     m = { manage_git, "!! manage [g]it" },
     n = { buffer_next, "!! buffer [n]ext" },
     p = { buffer_prev, "!! buffer [p]revious" },
     s = { grep_cwd, "!! [s]earch files" },
+    S = { cmd("source ~/.config/nvim/after/plugin/luasnip.lua"), "!! [S]ource luasnips" },
   },
 }, { mode = "n" })
+
+--  local ls = require('luasnip')
+--  vim.keymap.set({ "i", "s" }, "C-k", function()
+--    if ls.expand_or_jumpable() then
+--      ls.expand_or_jump()
+--    end
+--  end, { silent = true })
+-- 
+--  local ls = require('luasnip')
+--  vim.keymap.set({ "i", "s" }, "C-l", function()
+--    if ls.choice_active() then
+--      ls.change_choice(1)
+--    end
+--  end, { silent = true })
+
+  -- customize completion for beancount mode, where all categories (Assets:Foo:Bar) get a cmp source
+  local cmp = require("cmp")
+  cmp.setup.filetype('beancount', {
+    sources = cmp.config.sources({
+      { name = 'buffer',
+        option = {
+          keyword_length = 2,
+          keyword_pattern = [[\k\+]]
+        }
+      },
+    }),
+    mapping = cmp.mapping.preset.insert({
+      ['<C-Space>'] = cmp.mapping.complete(),
+      ['<C-e>'] = cmp.mapping.abort(),
+      ['<CR>'] = cmp.mapping.confirm({ select = true }),
+    })
+  })

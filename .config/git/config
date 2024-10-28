@@ -36,6 +36,10 @@
     compactionHeuristic = 1
 
 [feature]
-    manyFiles = true
+    # manyFiles = true
+    # manyFiles on breaks cargo
+
 [extensions]
     worktreeConfig = true
+[protocol "file"]
+	allow = always

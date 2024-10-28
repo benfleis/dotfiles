@@ -31,17 +31,24 @@ return function(use)
     end
   })
 
+  use({
+    "Olical/conjure",
+    requires = {
+      {"tpope/vim-dispatch", opt = false},
+      {"radenling/vim-dispatch-neovim", opt = false},
+      {"clojure-vim/vim-jack-in", opt = false}}})
+
   -- look ma, no config necessary!
   local plugins = {
     "clojure-vim/clojure.vim",
-    "tpope/vim-dispatch", -- required for vim-dispatch-neovim
-    "radenling/vim-dispatch-neovim", -- required for vim-jack-in
-    "clojure-vim/vim-jack-in", -- handy for conjure
-    "Olical/conjure",
+    "nathangrigg/vim-beancount",
+    "hrsh7th/cmp-buffer",
+    "nvim-treesitter/playground",
+    "tpope/vim-surround",
+    "guns/vim-sexp",
+    "tpope/vim-sexp-mappings-for-regular-people",
+    "tpope/vim-repeat",
   }
 
-  for _, plugin in ipairs(plugins) do
-    use({ plugin })
-  end
+  for _, plugin in ipairs(plugins) do use({ plugin }) end
 end
-
