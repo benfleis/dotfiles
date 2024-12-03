@@ -60,6 +60,16 @@ require('packer').startup(function(use)
   -- Fuzzy Finder Algorithm which requires local dependencies to be built. Only load if `make` is available
   use { 'nvim-telescope/telescope-fzf-native.nvim', run = 'make', cond = vim.fn.executable 'make' == 1 }
 
+  use {
+    'GCBallesteros/NotebookNavigator.nvim',
+    requires = {
+      "echasnovski/mini.comment",
+      "hkupty/iron.nvim", -- repl provider
+      "anuvyklack/hydra.nvim",
+    },
+  }
+
+
   -- Add custom plugins to packer from ~/.config/nvim/lua/custom/plugins.lua
   local has_plugins, plugins = pcall(require, 'custom.plugins')
   if has_plugins then
@@ -232,7 +242,7 @@ vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { de
 -- See `:help nvim-treesitter`
 require('nvim-treesitter.configs').setup {
   -- Add languages to be installed here that you want installed for treesitter
-  ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'typescript', 'help', 'vim' },
+  ensure_installed = { 'c', 'cpp', 'go', 'javascript', 'lua', 'python', 'rust', 'typescript', 'help', 'vim' },
 
   highlight = { enable = true },
   indent = { enable = true, disable = { 'python' } },
@@ -291,6 +301,9 @@ require('nvim-treesitter.configs').setup {
   },
 }
 
+require('notebook-navigator').setup {
+  { activate_hydra_keys = "<leader>h" }
+}
 -- Diagnostic keymaps
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next)
@@ -328,6 +341,12 @@ local on_attach = function(_, bufnr)
   nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
   nmap('<C-k>', vim.lsp.buf.signature_help, 'Signature Documentation')
 
+  -- Repl Notebook 
+  -- nmap("]h", function() require("notebook-navigator").move_cell "d" end },
+  -- { "[h", function() require("notebook-navigator").move_cell "u" end },
+  -- { "<leader>X", "<cmd>lua require('notebook-navigator').run_cell()<cr>" },
+  -- { "<leader>x", "<cmd>lua require('notebook-navigator').run_and_move()<cr>" },
+
   -- Lesser used LSP functionality
   nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
   nmap('<leader>wa', vim.lsp.buf.add_workspace_folder, '[W]orkspace [A]dd Folder')
@@ -352,7 +371,6 @@ local servers = {
   -- gopls = {},
   pyright = {},
   -- rust_analyzer = {},
-  -- tsserver = {},
   beancount = {
     init_options = {
       journalFile = "/Users/ben/Documents/finances/ledgers/ledger.beancount",
@@ -369,6 +387,10 @@ local servers = {
       workspace = { checkThirdParty = false },
       telemetry = { enable = false },
     },
+  },
+
+  vtsls = {
+    ["js/ts.implicitProjectConfig.target"] = "ES2023",
   },
 }
 
@@ -400,7 +422,7 @@ mason_lspconfig.setup_handlers {
 }
 
 -- Turn on lsp status information
-require('fidget').setup()
+require('fidget').setup({})
 
 -- nvim-cmp setup
 local cmp = require 'cmp'
