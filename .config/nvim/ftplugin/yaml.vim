@@ -1,2 +1,0 @@
-set softtabstop
-set expandtab
