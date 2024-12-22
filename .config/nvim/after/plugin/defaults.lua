@@ -1,0 +1,32 @@
+--  local ls = require('luasnip')
+--  vim.keymap.set({ "i", "s" }, "C-k", function()
+--    if ls.expand_or_jumpable() then
+--      ls.expand_or_jump()
+--    end
+--  end, { silent = true })
+--
+--  local ls = require('luasnip')
+--  vim.keymap.set({ "i", "s" }, "C-l", function()
+--    if ls.choice_active() then
+--      ls.change_choice(1)
+--    end
+--  end, { silent = true })
+
+---- customize completion for beancount mode, where all categories (Assets:Foo:Bar) get a cmp source
+--local cmp = require("cmp")
+--cmp.setup.filetype("beancount", {
+--  sources = cmp.config.sources({
+--    {
+--      name = "buffer",
+--      option = {
+--        keyword_length = 2,
+--        keyword_pattern = [[\k\+]],
+--      },
+--    },
+--  }),
+--  mapping = cmp.mapping.preset.insert({
+--    ["<C-Space>"] = cmp.mapping.complete(),
+--    ["<C-e>"] = cmp.mapping.abort(),
+--    ["<CR>"] = cmp.mapping.confirm({ select = true }),
+--  }),
+--})

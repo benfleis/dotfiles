@@ -1,0 +1,2 @@
+set softtabstop
+set expandtab
