@@ -19,17 +19,17 @@ local grep = rhs.grep
 local grep_from_parent = rhs.grep_from_parent
 
 local function map(mode, lhs, rhs_, opts)
-  assert(opts.mode == nil)
-  assert(opts.lhs == nil)
-  assert(opts.rhs == nil)
-  local spec = {}
-  for k, v in ipairs(opts) do
-    spec[k] = v
-  end
-  spec.mode = mode
-  spec.lhs = lhs
-  spec.rhs = rhs_
-  add(spec)
+   assert(opts.mode == nil)
+   assert(opts.lhs == nil)
+   assert(opts.rhs == nil)
+   local spec = {}
+   for k, v in ipairs(opts) do
+      spec[k] = v
+   end
+   spec.mode = mode
+   spec.lhs = lhs
+   spec.rhs = rhs_
+   add(spec)
 end
 
 -- stylua: ignore start
@@ -41,6 +41,9 @@ map("c", "<C-n>", "<Down>", { noremap = true })
 
 -- ;y for yank to os clipboard
 map("", leader("y"), '"*y', { noremap = true })
+
+-- double Ctrl-[ to escape "insert" mode in Terminals
+map("t", "<C-[><C-[>", "<C-\\><C-n>", { noremap = true })
 
 map("n", leader("b"), "", { group = "buffer" })
 map("n", leader("bd"), function() require("snacks").bufdelete() end, { desc = "[b]uffer [d]elete" })
