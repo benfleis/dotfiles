@@ -1,7 +1,10 @@
 .netrwhist
 *.swp
 
+
 # local files
+.config/clojure/.cpcache/*
+.config/clojure/.rebel_readline_history
 .config/fish/fish_history
 .config/fish/fishd*
 
@@ -21,6 +24,3 @@
 .vim/bundle
 .vim/view
 .vim/undodir
-
-.config/.zsh/history
-.config/.zsh/*local

@@ -1,9 +1,11 @@
 dotfiles
 ========
 
+**WIP: Completely in disarray**
+
 To experimentally bootstrap this on an arbitrary host:
 
-  curl https://raw.githubusercontent.com/benfleis/dotfiles/master/bootstrap.bash
+  curl <https://raw.githubusercontent.com/benfleis/dotfiles/master/bootstrap.bash>
   bash bootstrap.bash
 
 This will create a --bare clone in src/dotfiles.git, and check it out in $HOME.
