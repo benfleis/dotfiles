@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/bin/sh
 
 # master list of things to install
-dots=".config .ctags .nvim .ptconfig.toml .tmux.conf .tmux .vim .vimrc .zimrc .zsh .zshenv .zshrc"
+dots=".config .ctags .ptconfig.toml .tmux.conf .tmux .vim .vimrc .zshenv"
 deprecated_dots=".emacs.d"
 
 # if first arg is '-f', it's force, save it and shift
@@ -37,12 +37,12 @@ function install {
         return 0
     fi
     if [[ -e "$tgt" || -L "$tgt" ]]; then
-	if [[ $force == 1 ]]; then
-	    rm -f "$tgt"
-	else
+        if [[ $force == 1 ]]; then
+            rm -f "$tgt"
+        else
             echo "$tgt already exists.  Please remove."
             return 1
-	fi
+        fi
     fi
     ln -vs "$src" "$tgt"
 }

@@ -117,7 +117,7 @@ done
 # zstyle ':completion:*' menu select
 
 # load up all ze functions
-[[ -r $HOME/.zsh/functions ]] && . $HOME/.zsh/functions
+[[ -r $HOME/.config/zsh/functions ]] && . $HOME/.config/zsh/functions
 
 # always $HOME/bin atop path
 # -U uniqifies, keeping first entry
@@ -145,15 +145,5 @@ echo $EDITOR | grep -q vim && alias vi="$EDITOR"
 echo $EDITOR | grep -q vim && alias view="$EDITOR -R"
 echo $EDITOR | grep -q vim && alias vimdiff="$EDITOR -d"
 
-# XXX hacky prompt update -- try starship otherwise quick go
-command -v starship >/dev/null 2>&1 && {
-  eval "$(starship init zsh)"
-} || {
-  _ps1="$PS1"
-  _rps1="$RPS1"
-  unset RPS1
-  export PROMPT_AT=${PROMPT_AT:-$(hostname -s)}
-  export PS1="[%F{white}%*·${PROMPT_AT}%f $_rps1]"$'\n'"$_ps1"
-}
-
-
+. $HOME/.config/zsh/prompts.zsh
+use_prompt_basic
