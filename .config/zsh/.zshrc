@@ -24,9 +24,15 @@ export XDG_DATA_DIRS="/opt/homebrew/share"
 
 # assert setup is good 
 [[ -z "$ZDOTDIR" ]] && {
-  echo "\$ZDOTDIR unset! zsh loading may fail." >&2
+  echo "\$ZDOTDIR unset! Using \$HOME/.zsh ; zsh loading may fail." >&2
   echo >&2
+  ZDOTDIR="$HOME/.zsh"
 }
+
+# TODO: figure this out
+fpath=( "${ZDOTDIR}/functions" "${fpath[@]}" )
+autoload -Uz "${ZDOTDIR}/functions/"**
+functions.zsh
 
 _ZSTATE="$XDG_STATE_HOME/zsh"
 mkdir -p "$_ZSTATE"
@@ -117,7 +123,7 @@ done
 # zstyle ':completion:*' menu select
 
 # load up all ze functions
-[[ -r $HOME/.config/zsh/functions ]] && . $HOME/.config/zsh/functions
+# [[ -r $ZDOTDIR/functions.zsh ]] && . $ZDOTDIR/functions.zsh
 
 # always $HOME/bin atop path
 # -U uniqifies, keeping first entry
@@ -145,5 +151,6 @@ echo $EDITOR | grep -q vim && alias vi="$EDITOR"
 echo $EDITOR | grep -q vim && alias view="$EDITOR -R"
 echo $EDITOR | grep -q vim && alias vimdiff="$EDITOR -d"
 
-. $HOME/.config/zsh/prompts.zsh
+# TODO: make these autoload functions
+. $ZDOTDIR/prompts.zsh
 use_prompt_basic

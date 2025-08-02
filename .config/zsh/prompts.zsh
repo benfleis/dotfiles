@@ -16,9 +16,10 @@ IAM=ben
 }
 
 local time="%F{#88aaff}%*%f"
-local pwd="%F{#AA5A18}%4~"
-local stat="%(!.%F{red}R#.%F{green}->)%f"
+local pwd="%F{#AA5A18}%4~%f"
+local prev="%(?.%F{green}--%f.%B%F{red}!!%f)"
+local tail="%(!.%B%F{yellow}#.%F{green}>)%f"
 
 function use_prompt_basic {
-  PS1="$time ${acct_spc}$pwd $stat "
+  PS1="$time ${acct_spc}$pwd ${prev}$tail "
 }
