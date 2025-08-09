@@ -1,8 +1,32 @@
 #!/bin/sh
 
+[ "$1" = "--remote" ] && {
+  shift
+  REMOTE_SHELL="-o default-command='ssh -t $1'"
+  #SHELL_ARGS=-c "ssh -t $1"
+}
+
+[ -n "$1" ] || {
+  echo "Missing session name. Aborting." >&2
+  exit 1
+}
+REMOTE="$1"
+shift
+
 # explicit path searching because this can be invoked by
 # ssh 'tmux_attach_or_new 1', which doesn't execute .zshrc
 TMUX=$HOME/bin/tmux
+[ -x $TMUX ] || TMUX=$HOME/.local/bin/tmux
 [ -x $TMUX ] || TMUX=/usr/local/bin/tmux
 [ -x $TMUX ] || TMUX=$(which tmux)
-$TMUX attach-session -d -t "$1" || $TMUX new-session -s "$1"
+
+[ -n "$SHELL_ARGS" ] && { set -- "$SHELL_ARGS"; }
+echo $@
+
+[ -n "$REMOTE_SHELL" ] && {
+  $TMUX new-session -Ad -s "$REMOTE" 'ssh -t photos' \; \
+    set-option -s default-command 'ssh -t photos' \; \
+    attach
+} || {
+  $TMUX new-session -Ad -s "$REMOTE"
+}
