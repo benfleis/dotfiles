@@ -1,8 +1,8 @@
 #!/bin/sh
 
 [ "$1" = "--remote" ] && {
+  REMOTE_SHELL="ssh -t $2"
   shift
-  REMOTE_SHELL="-o default-command='ssh -t $1'"
 }
 
 [ -n "$1" ] || {
@@ -19,10 +19,10 @@ TMUX=$HOME/bin/tmux
 [ -x $TMUX ] || TMUX=/usr/local/bin/tmux
 [ -x $TMUX ] || TMUX=$(which tmux)
 
-[ -n "$REMOTE_SHELL" ] && {
-  $TMUX new-session -ADd -s "$REMOTE" 'ssh -t photos' \; \
-    set-option -s default-command 'ssh -t photos' \; \
-    attach
-} || {
+[ -z "$REMOTE_SHELL" ] && {
   $TMUX new-session -AD -s "$REMOTE"
+} || {
+  $TMUX new-session -ADd -s "$REMOTE" "$REMOTE_SHELL" \; \
+    set-option -s default-command "$REMOTE_SHELL" \; \
+    attach
 }
