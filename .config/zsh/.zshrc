@@ -30,9 +30,15 @@ export XDG_DATA_DIRS="/opt/homebrew/share"
 }
 
 # TODO: figure this out
-fpath=( "${ZDOTDIR}/functions" "${fpath[@]}" )
-autoload -Uz "${ZDOTDIR}/functions/"**
-functions.zsh
+fpath=( "${ZDOTDIR}/completions" "${ZDOTDIR}/functions" "${fpath[@]}" )
+(($+commands[brew])) && {
+  fpath=( $(brew --prefix)/share/zsh-completions "${fpath[@]}" )
+}
+autoload -Uz compinit
+compinit
+# TODO check .zcompdump?
+# autoload -Uz "${ZDOTDIR}/functions/"**
+# functions.zsh
 
 _ZSTATE="$XDG_STATE_HOME/zsh"
 mkdir -p "$_ZSTATE"
@@ -63,7 +69,7 @@ zstyle ':completion:*:vi:*' ignored-patterns '*.(o|a|so|aux|dvi|log|swp|fig|bbl|
 zstyle ':completion:*:vim:*' ignored-patterns '*.(o|a|so|aux|dvi|log|swp|fig|bbl|blg|bst|idx|ind|out|toc|class|pdf|ps|pyc|pyo)'
 zstyle ':completion:*:nvim:*' ignored-patterns '*.(o|a|so|aux|dvi|log|swp|fig|bbl|blg|bst|idx|ind|out|toc|class|pdf|ps|pyc|pyo)'
 
-export _compdir=$ZDOTDIR/completion
+export _compdir=$ZDOTDIR/completions
 autoload -U compinit
 autoload zmv
 autoload edit-command-line

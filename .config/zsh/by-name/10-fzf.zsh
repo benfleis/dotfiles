@@ -1,5 +1,8 @@
-# Preview file content using bat (https://github.com/sharkdp/fd)
+# https://github.com/junegunn/fzf
+
+# Preview file content using bat (https://github.com/sharkdp/bat)
 export FZF_CTRL_T_OPTS="
+  --walker-skip .git,node_modules,target
   --preview 'bat -n --color=always {}'
   --bind 'ctrl-/:change-preview-window(down|hidden|)'"
 
@@ -16,4 +19,8 @@ export FZF_CTRL_R_OPTS="
 export FZF_ALT_C_OPTS="--preview 'tree -C -L 2 {}'"
 export FZF_COMPLETION_TRIGGER=',,'
 
-[[ -r ~/.fzf.zsh ]] && source ~/.fzf.zsh
+(($+commands[fzf])) || {
+  echo "fzf not found! https://github.com/junegunn/fzf" >&2
+  return 1
+}
+source <(fzf --zsh)
