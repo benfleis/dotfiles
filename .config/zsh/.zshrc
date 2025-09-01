@@ -72,7 +72,7 @@ zstyle ':completion:*:nvim:*' ignored-patterns '*.(o|a|so|aux|dvi|log|swp|fig|bb
 # Case-insensitive matches and "segment" matching across separators [._- ]
 zstyle ':completion:*' matcher-list \
   'm:{a-z}={A-Z}' \
-  'r:|[._- ]=** l:|[._- ]=**'
+  'l:|[._ -]=** r:|[._ -]=**'
 
 export _compdir=$ZDOTDIR/completions
 autoload -U compinit
@@ -93,8 +93,8 @@ bindkey -a "Q" push-input
 
 # load RC local to this machine from both .config (in git) and .local/state (e.g. secrets)
 machine=$(uname -n | cut -d. -f1)
-[[ -r $ZDOTDIR/by-machine/zshrc-$machine ]] && . $ZDOTDIR/by-machine/zshrc-$machine
-[[ -r $_ZSTATE/by-machine/zshrc-$machine ]] && . $_ZSTATE/by-machine/zshrc-$machine
+[[ -r $ZDOTDIR/by-machine/zshrc-$machine.zsh ]] && . $ZDOTDIR/by-machine/zshrc-$machine.zsh
+[[ -r $_ZSTATE/by-machine/zshrc-$machine.zsh ]] && . $_ZSTATE/by-machine/zshrc-$machine.zsh
 
 # and source "topics" by name; use classic '/etc/fooconf.d' style inside
 for rc in $ZDOTDIR/by-name/*; do 
