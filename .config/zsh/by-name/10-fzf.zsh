@@ -17,10 +17,17 @@ export FZF_CTRL_R_OPTS="
 
 # Print tree structure in the preview window
 export FZF_ALT_C_OPTS="--preview 'tree -C -L 2 {}'"
+
 export FZF_COMPLETION_TRIGGER=',,'
 
 (($+commands[fzf])) || {
   echo "fzf not found! https://github.com/junegunn/fzf" >&2
   return 1
 }
-source <(fzf --zsh)
+
+# NOTE: I prefer other bindings so don't direct source, but use my
+# copy in completions/fzf.zsh which will autoload on its own. Useful
+# to occasionally update this though.
+# source <(fzf --zsh)
+
+
