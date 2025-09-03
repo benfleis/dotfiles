@@ -25,9 +25,8 @@ export FZF_COMPLETION_TRIGGER=',,'
   return 1
 }
 
-# NOTE: I prefer other bindings so don't direct source, but use my
-# copy in completions/fzf.zsh which will autoload on its own. Useful
+# TODO: I prefer other bindings so prefer not to direct source, but use
+# my copy in completions/fzf.zsh which will autoload on its own. Useful
 # to occasionally update this though.
-# source <(fzf --zsh)
-
+source <(fzf --zsh)
 
