@@ -1,4 +1,4 @@
-(($+commands[ninja])) || {
+(($+commands[ninja])) && {
     export GEN=ninja
 }
 export VCPKG_TOOLCHAIN_PATH=$HOME/src/vcpkg/scripts/buildsystems/vcpkg.cmake
