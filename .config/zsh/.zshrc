@@ -157,10 +157,7 @@ export VISUAL=$EDITOR
 [[ "$EDITOR" == */nvim ]] && \
     export MANPAGER='nvim +Man!'
 
-# aliases -- vimlike editors get aliases for vi and view
-echo $EDITOR | grep -q vim && alias vi="$EDITOR"
-echo $EDITOR | grep -q vim && alias view="$EDITOR -R"
-echo $EDITOR | grep -q vim && alias vimdiff="$EDITOR -d"
+. $ZDOTDIR/aliases.zsh
 
 # TODO: make these autoload functions
 . $ZDOTDIR/prompts.zsh
