@@ -1,4 +1,12 @@
 # https://github.com/junegunn/fzf
+(($+commands[fzf])) || {
+  echo "fzf not found! https://github.com/junegunn/fzf" >&2
+}
+
+# TODO: I prefer other bindings so prefer not to direct source, but use
+# my copy in completions/fzf.zsh which will autoload on its own. Useful
+# to occasionally update this though.
+[ -f "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf.zsh ] && source "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf.zsh
 
 # Preview file content using bat (https://github.com/sharkdp/bat)
 export FZF_CTRL_T_OPTS="
@@ -19,14 +27,3 @@ export FZF_CTRL_R_OPTS="
 export FZF_ALT_C_OPTS="--preview 'tree -C -L 2 {}'"
 
 export FZF_COMPLETION_TRIGGER=',,'
-
-(($+commands[fzf])) || {
-  echo "fzf not found! https://github.com/junegunn/fzf" >&2
-  return 1
-}
-
-# TODO: I prefer other bindings so prefer not to direct source, but use
-# my copy in completions/fzf.zsh which will autoload on its own. Useful
-# to occasionally update this though.
-source <(fzf --zsh)
-

@@ -1,5 +1,5 @@
 # vimlike editors get aliases for vi and view
-echo $EDITOR | grep -q vim && {
+[[ "$EDITOR" == *vim ]] && {
   alias vi="$EDITOR"
   alias vim="$EDITOR"
   alias view="$EDITOR -R"
@@ -10,3 +10,7 @@ echo $EDITOR | grep -q vim && {
 alias rgi=rg -i
 alias rga=rg --follow --hidden --no-ignore
 alias rgai=rg --follow --hidden --no-ignore --ignore-case
+
+((! $+commands[fd])) && ((! $+commands[fdfind])) && {
+  alias fd=fdfind
+}

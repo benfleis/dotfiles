@@ -91,6 +91,11 @@ bindkey "^[^M" self-insert-unmeta
 
 bindkey -a "Q" push-input
 
+# always $HOME/bin atop path
+# -U uniqifies, keeping first entry
+export PATH="$HOME/bin:$PATH"
+typeset -U path
+
 # load RC local to this machine from both .config (in git) and .local/state (e.g. secrets)
 machine=$(uname -n | cut -d. -f1)
 [[ -r $ZDOTDIR/by-machine/zshrc-$machine.zsh ]] && . $ZDOTDIR/by-machine/zshrc-$machine.zsh
@@ -101,61 +106,25 @@ for rc in $ZDOTDIR/by-name/*; do
   source "$rc"
 done
 
-
-## Lang/Tool/Env setups -- eg go, python, SDKMAN, anaconda
-
-# python / pyenv
-
-# get JAVA_HOME as right as possible
-# use javac instead of java, since using java can get stuck under jre path
-# instead of main (for header/includes)
-# uname -a | grep -q Linux && {
-#     export JAVA_HOME=$(update-alternatives --query javac | sed -n 's#^Value: \(.*\)/bin/javac$#\1#p') ;
-# }
-#
-# #   # use zsh-z [ https://github.com/agkozak/zsh-z ]
-# #   export ZSHZ_CASE=ignore
-# #   export ZSHZ_CMD=j
-# #   export ZSHZ_NO_RESOLVE_SYMLINKS=1
-# #   ZSH_Z="$HOME/src/zsh-z/zsh-z.plugin.zsh"
-# #   [ -r "$ZSH_Z" ] && . "$ZSH_Z"
-# #   zstyle ':completion:*' menu select
-# #   alias jc="j -c"
-#
-# #   # use z [ https://github.com/agkozak/zsh-z ], to also use fz
-# #   export _Z_CASE=ignore
-# #   export _Z_CMD=_j
-# #   export _Z_NO_RESOLVE_SYMLINKS=1
-# #   Z_SRC="$HOME/src/z/z.sh"
-# #   [ -r "$Z_SRC" ] && . "$Z_SRC"
-# #   zstyle ':completion:*' menu select
-# #   # alias jc="j -c"
-#
-# zstyle ':completion:*' menu select
-
-# load up all ze functions
-# [[ -r $ZDOTDIR/functions.zsh ]] && . $ZDOTDIR/functions.zsh
-
-# always $HOME/bin atop path
-# -U uniqifies, keeping first entry
-export PATH="$HOME/bin:$PATH"
-typeset -U path
-
 ## EDITOR and related prefs, need to be after PATH setup
 prefer() {
-    PREFER=`which $1 2> /dev/null`
-    [ $? -eq 0 ] && return 0
-    [ $# -eq 2 ] && PREFER=`which $2`
-    return 1
+  while true; do
+    (($+commands[$1])) && {
+      echo "$1"
+      return 0
+    }
+    shift
+  done
+  return 1
 }
 
-prefer less more; export PAGER=$PREFER
-prefer vim vi; export EDITOR=$PREFER
-prefer nvim $EDITOR; export EDITOR=$PREFER
-export VISUAL=$EDITOR
+ export PAGER=$(prefer less more)
+ export EDITOR=$(prefer nvim vim vi)
+ export VISUAL=$EDITOR
 
-[[ "$EDITOR" == */nvim ]] && \
+[[ "$EDITOR" == */nvim ]] && {
     export MANPAGER='nvim +Man!'
+}
 
 . $ZDOTDIR/aliases.zsh
 

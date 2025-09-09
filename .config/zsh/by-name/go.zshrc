@@ -1,7 +1,5 @@
-# go, presumed to be installed via brew
-if command -v gofmt >/dev/null; then
-    export GOPATH="$HOME/go"
-    export PATH="$GOPATH/bin:$PATH"
-fi
+export GOPATH="$HOME/go"
+# NOTE: do not add to PATH, keep that clean and manually link when desired
+# export PATH="$GOPATH/bin:$PATH"
 
 
