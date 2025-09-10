@@ -14,9 +14,8 @@
 
 .config/itape/%*
 
-.config/nvim/bundles
 .config/nvim/local.vim
-.config/nvim/plugin/packer_compiled.lua
+.config/nvim/lazy-lock.json
 
 .emacs.d/auto-save-list
 .emacs.d/backups
