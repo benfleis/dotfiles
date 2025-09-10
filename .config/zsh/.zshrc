@@ -93,7 +93,7 @@ bindkey -a "Q" push-input
 
 # always $HOME/bin atop path
 # -U uniqifies, keeping first entry
-export PATH="$HOME/bin:$PATH"
+export PATH="$HOME/bin:$XDG_BIN_HOME:$PATH"
 typeset -U path
 
 # load RC local to this machine from both .config (in git) and .local/state (e.g. secrets)
