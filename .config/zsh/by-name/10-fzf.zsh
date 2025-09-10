@@ -32,5 +32,5 @@ export FZF_COMPLETION_TRIGGER=',,'
 # my copy in completions/fzf.zsh which will autoload on its own. Useful
 # to occasionally update this though.
 
-[ -f "${XDG_CONFIG_HOME:}/fzf/fzf.zsh" ] && source "${XDG_CONFIG_HOME}/fzf/fzf.zsh" || source <(fzf --zsh)
+[ -f "$XDG_CONFIG_HOME/fzf/fzf.zsh" ] && source "$XDG_CONFIG_HOME/fzf/fzf.zsh" || source <(fzf --zsh)
 
