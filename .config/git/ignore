@@ -9,3 +9,4 @@ _local/
 
 **/.tern-port
 node_modules/
+azurite.log
