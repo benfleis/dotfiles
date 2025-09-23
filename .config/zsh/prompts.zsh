@@ -5,7 +5,7 @@ IAM=ben
 
 [[ $SSH_CONNECTION ]] && {
   local user_at_host='%F{#FFC000}%n%F{#FF7F50}@%M%f'
-  local host='%F{#999999}b@%M%f'
+  local host='%F{#CCB040}@%M%f'
   [[ $USERNAME = $IAM ]] && {
     local acct="$host"
     local acct_spc="$host "
