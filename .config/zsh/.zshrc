@@ -106,6 +106,13 @@ for rc in $ZDOTDIR/by-name/*; do
   source "$rc"
 done
 
+
+# now fix paths -- put all $HOME paths atop the rest, maintain relative orders
+typeset -U path
+home_paths=$(echo $path | tr ' ' '\n' | grep "^$HOME")
+other_paths=$(echo $path | tr ' ' '\n' | grep -v "^$HOME")
+export PATH=$({ echo $home_paths; echo $other_paths } | tr '\n' ':' )
+
 ## EDITOR and related prefs, need to be after PATH setup
 prefer() {
   while true; do
