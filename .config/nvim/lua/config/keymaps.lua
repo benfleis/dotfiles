@@ -32,6 +32,10 @@ local function map(mode, lhs, rhs_, opts)
    add(spec)
 end
 
+-- unset annoying s rebind
+vim.keymap.del("n", "s")
+vim.keymap.del("v", "s")
+
 -- stylua: ignore start
 -- holy scheisse my life is complete. swap arrow / ctrl-[np] in cmdline editing.
 map("c", "<Up>", "<C-p>", { noremap = true })

@@ -14,4 +14,4 @@ alias rgai='rg --follow --hidden --no-ignore --ignore-case'
 ((! $+commands[fd])) && ((! $+commands[fdfind])) && {
   alias fd=fdfind
 }
-alias fda='fd --hidden --follow'
+alias fda='fd --hidden --follow --no-ignore'
