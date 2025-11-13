@@ -72,6 +72,7 @@ zstyle ':completion:*:nvim:*' ignored-patterns '*.(o|a|so|aux|dvi|log|swp|fig|bb
 # Case-insensitive matches and "segment" matching across separators [._- ]
 zstyle ':completion:*' matcher-list \
   'm:{a-z}={A-Z}' \
+  'm:{_-}={-_}' \
   'l:|[._ -]=** r:|[._ -]=**'
 
 export _compdir=$ZDOTDIR/completions
