@@ -1,7 +1,7 @@
 # https://github.com/junegunn/fzf
 (($+commands[fzf])) || {
   echo "fzf not found! DOING: " >&2
-  echo "  git clone --depth=1 -C \"$HOME/src\" https://github.com/junegunn/fzf.git" >&2
+  echo "  git -C \"$HOME/src\" clone --depth=1 https://github.com/junegunn/fzf.git" >&2
   echo "  \"$HOME/src/fzf/install\" --xdg --key-bindings --completion --no-update-rc --no-bash --no-fish" >&2
   echo "  ..."
   git clone --depth=1 -C "$HOME/src" https://github.com/junegunn/fzf.git
