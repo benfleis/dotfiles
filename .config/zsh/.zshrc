@@ -22,6 +22,10 @@ export XDG_STATE_HOME="$HOME/.local/state"
 export XDG_CACHE_HOME="$HOME/.cache"
 export XDG_DATA_DIRS="/opt/homebrew/share"
 
+for p in "$XDG_CONFIG_HOME" "$XDG_BIN_HOME" "$XDG_DATA_HOME" "$XDG_STATE_HOME" "$XDG_CACHE_HOME"; do
+  mkdir -p "$p"
+done
+
 # assert setup is good 
 [[ -z "$ZDOTDIR" ]] && {
   echo "\$ZDOTDIR unset! Using \$HOME/.zsh ; zsh loading may fail." >&2
@@ -106,7 +110,6 @@ machine=$(uname -n | cut -d. -f1)
 for rc in $ZDOTDIR/by-name/*; do 
   source "$rc"
 done
-
 
 # now fix paths -- put all $HOME paths atop the rest, maintain relative orders
 typeset -U path

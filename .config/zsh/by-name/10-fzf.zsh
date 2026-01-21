@@ -5,7 +5,9 @@
   echo "  \"$HOME/src/fzf/install\" --xdg --key-bindings --completion --no-update-rc --no-bash --no-fish" >&2
   echo "  ..."
   git -C "$HOME/src" clone --depth=1 https://github.com/junegunn/fzf.git
-  "$HOME/src/fzf/install" --xdg --key-bindings --completion --no-update-rc --no-bash --no-fish
+  #"$HOME/src/fzf/install" --xdg --key-bindings --completion --no-update-rc --no-bash --no-fish
+  "$HOME/src/fzf/install" --bin --xdg
+  mv "$HOME/src/fzf/bin/fzf" "$XDG_BIN_HOME"
 }
 
 # Preview file content using bat (https://github.com/sharkdp/bat)
