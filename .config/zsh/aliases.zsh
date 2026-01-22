@@ -15,3 +15,7 @@ alias rgai='rg --follow --hidden --no-ignore --ignore-case'
   alias fd=fdfind
 }
 alias fda='fd --hidden --follow --no-ignore'
+
+alias gd='git diff'
+alias gl='git log'
+alias gs='git status'
