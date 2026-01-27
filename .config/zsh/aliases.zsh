@@ -19,3 +19,6 @@ alias fda='fd --hidden --follow --no-ignore'
 alias gd='git diff'
 alias gl='git log'
 alias gs='git status'
+
+# cmake
+alias cmake-list-targets='cmake --build . --target help'
