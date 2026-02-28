@@ -1,7 +1,6 @@
 .netrwhist
 *.swp
 
-
 # local files
 .config/clojure/.cpcache/*
 .config/clojure/.rebel_readline_history
@@ -14,16 +13,17 @@
 
 .config/itape/%*
 
-.config/nvim/local.vim
-.config/nvim/lazy-lock.json
+/.config/nvim/local.vim
+/.config/nvim/lazy-lock.json
 
-.emacs.d/auto-save-list
-.emacs.d/backups
-.emacs.d/elpa
-.emacs.d/ido.last
-.emacs.d/places
-.emacs.d/var
+/.emacs.d/auto-save-list
+/.emacs.d/backups
+/.emacs.d/elpa
+/.emacs.d/ido.last
+/.emacs.d/places
+/.emacs.d/var
 
-.vim/bundle
-.vim/view
-.vim/undodir
+/.vim/bundle
+/.vim/view
+/.vim/undodir
+

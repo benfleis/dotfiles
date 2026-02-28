@@ -3,17 +3,15 @@
 
 IAM=ben
 
-[[ $SSH_CONNECTION ]] && {
-  local user_at_host='%F{#FFC000}%n%F{#FF7F50}@%M%f'
-  local host='%F{#CCB040}@%M%f'
-  #local host='%F{#999999}b@%M%f'
-  [[ $USERNAME = $IAM ]] && {
-    local acct="$host"
-    local acct_spc="$host "
-  } || {
-    local acct="$user_at_host"
-    local acct_spc="$user_at_host "
-  }
+local user_at_host='%F{#FFC000}%n%F{#FF7F50}@%m%f'
+local host='%F{#CCB040}@%m%f'
+#local host='%F{#999999}b@%m%f'
+[[ $USERNAME = $IAM ]] && {
+  local acct="$host"
+  local acct_spc="$host "
+} || {
+  local acct="$user_at_host"
+  local acct_spc="$user_at_host "
 }
 
 local time="%F{#88aaff}%*%f"
