@@ -2,7 +2,7 @@
 
 set -e
 
-since=${1:-master}
+since=${1:-main}
 current=$(git rev-parse --abbrev-ref HEAD)
 since_ref=$(git merge-base "$since" "$current")
 

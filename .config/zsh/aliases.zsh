@@ -16,9 +16,19 @@ alias rgai='rg --follow --hidden --no-ignore --ignore-case'
 }
 alias fda='fd --hidden --follow --no-ignore'
 
+# git stuff
+alias gco='git checkout'
+alias gcl='git clone'
 alias gd='git diff'
 alias gl='git log'
+alias gpf='git pull --ff-only'
+alias gpm='git pull --rebase=false'
+alias gpr='git pull --rebase=true'
 alias gs='git status'
+
+alias gP='git push'
+
+alias gr-branch=rebase-since.sh
 
 # cmake
 alias cmake-list-targets='cmake --build . --target help'
