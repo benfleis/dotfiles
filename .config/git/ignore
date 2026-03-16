@@ -1,12 +1,19 @@
+.DS_Store
+
+# Editor-ish stuff
 \#*
 .*.swp
 *.diff
 tags
-.DS_Store
-.local/
-local/
-_local/
 
-**/.tern-port
+# I treasure my local dirs
+**/.local/
+**/local/
+**/_local/
+
+# Tool-ish helper dirs
+**/.cache/
+**/.claude/
+**/compile_commands.json
 node_modules/
-azurite.log
+**/.venv/

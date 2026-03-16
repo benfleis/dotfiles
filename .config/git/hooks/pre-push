@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+# Blocks direct pushes to duckdb org repos to avoid mistakes - require
+# override/UI to push to duckdb directly.
+# Override: PUSH_TO_DUCKDB=1 git push <...>
+
+remote_url="$2"
+
+if [[ "$remote_url" =~ github\.com[:/]duckdb/ ]]; then
+  if [[ "$PUSH_TO_DUCKDB" == "1" ]]; then
+    echo "WARNING: Pushing to duckdb org repo (override active): $remote_url" >&2
+  else
+    echo "ERROR: Blocked push to duckdb org repo: $remote_url" >&2
+    echo "       To override: PUSH_TO_DUCKDB=1 git push ..." >&2
+    exit 1
+  fi
+fi
+
+exit 0

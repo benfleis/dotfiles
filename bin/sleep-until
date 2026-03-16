@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# Source - https://stackoverflow.com/a/646008
+# Posted by SpoonMeiser, modified by community. See post 'Timeline' for change history
+# Retrieved 2026-03-02, License - CC BY-SA 3.0
+
+set -eu
+
+target_until="$1"
+current_epoch=$(date +%s)
+target_epoch=$(date -d "$target_until" +%s)
+sleep_seconds=$(($target_epoch - $current_epoch))
+sleep $sleep_seconds

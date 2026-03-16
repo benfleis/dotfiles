@@ -1,48 +1,48 @@
 [user]
-    name = ben fleis
-    email = benfleis@users.noreply.github.com
+  name = ben fleis
+  email = benfleis@users.noreply.github.com
 
 [merge]
-    renameLimit = 999999
-    tool = vimdiff
+  renameLimit = 999999
+  tool = vimdiff
 
 [alias]
-    st = status
-    ci = commit
-    co = checkout
-    lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %<(60)%s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit HEAD~10..HEAD
-    llg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %<(60)%s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
-    refllg = reflog --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %<(60)%s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+  st = status
+  ci = commit
+  co = checkout
+  lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %<(60)%s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit HEAD~10..HEAD
+  llg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %<(60)%s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+  refllg = reflog --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %<(60)%s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
 
 [core]
-    excludesfile = ~/.gitignore_global
+  hooksPath = /Users/ben/.config/git/hooks
 
 [color]
-    ui = true
-    interactive = true
+  ui = true
+  interactive = true
 
 [web]
-    browser = open
+  browser = open
 
 [filter "lfs"]
-	clean = git-lfs clean -- %f
-	smudge = git-lfs smudge -- %f
-    required = true
-	process = git-lfs filter-process
+  clean = git-lfs clean -- %f
+  smudge = git-lfs smudge -- %f
+  required = true
+  process = git-lfs filter-process
 
 [push]
-    default = simple
+  default = simple
 
 [diff]
-    compactionHeuristic = 1
+  compactionHeuristic = 1
 
 [feature]
     # manyFiles = true
     # manyFiles on breaks cargo
 
 [extensions]
-    worktreeConfig = true
+  worktreeConfig = true
 [protocol "file"]
-	allow = always
+  allow = always
 [init]
-	defaultBranch = main
+  defaultBranch = main
