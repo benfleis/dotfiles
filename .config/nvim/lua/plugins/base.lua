@@ -30,8 +30,11 @@ return {
       "miikanissi/modus-themes.nvim",
       priority = 1000,
       opts = {
-         style = "modus_vivendi", -- Always use modus_operandi regardless of `vim.o.background`
-         variant = "tinted", -- Use variant
+         style = "modus_vivendi", -- Always use modus_vivendi regardless of `vim.o.background`
+         variants = {
+            modus_operandi = "tinted",
+            modus_vivdendi = "tinted",
+         },
          styles = {
             functions = { italic = true }, -- Enable italics for functions
          },
