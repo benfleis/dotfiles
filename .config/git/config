@@ -4,7 +4,7 @@
 
 [merge]
   renameLimit = 999999
-  tool = vimdiff
+  tool = nvimdiff
 
 [alias]
   st = status

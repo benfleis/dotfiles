@@ -26,11 +26,13 @@ return {
    --       end,
    --    },
    -- },
+
    {
       "miikanissi/modus-themes.nvim",
       priority = 1000,
       opts = {
-         style = "modus_vivendi", -- Always use modus_vivendi regardless of `vim.o.background`
+         -- style = "modus_vivendi", -- Always use modus_vivendi regardless of `vim.o.background`
+         dim_inactive = true, -- "non-current" windows are dimmed
          variants = {
             modus_operandi = "tinted",
             modus_vivdendi = "tinted",
