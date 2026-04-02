@@ -34,7 +34,7 @@ done
 }
 
 # TODO: figure this out
-fpath=( "${ZDOTDIR}/completions" "${ZDOTDIR}/functions" "${fpath[@]}" )
+fpath=( "$XDG_DATA_HOME/zsh/completions" "${ZDOTDIR}/completions" "${ZDOTDIR}/functions" "${fpath[@]}" )
 (($+commands[brew])) && {
   fpath=( $(brew --prefix)/share/zsh-completions "${fpath[@]}" )
 }

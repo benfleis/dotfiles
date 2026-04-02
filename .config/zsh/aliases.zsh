@@ -22,12 +22,13 @@ alias gco='git checkout'
 alias gcp='git cherry-pick'
 alias gcl='git clone'
 alias gd='git diff'
+alias gf='git fetch'
 alias gl='git log'
 alias gpf='git pull --ff-only'
 alias gpm='git pull --rebase=false'
 alias gpr='git pull --rebase=true'
 alias gs='git status'
-alias gsubup='git submodule update --init --recursive'
+alias gsub-up='git submodule update --init --recursive'
 
 alias gb='git branch'
 
@@ -46,3 +47,7 @@ alias gr-branch=rebase-since.sh
 
 # cmake
 alias cmake-list-targets='cmake --build . --target help'
+
+# XXX: uv helpers temp
+alias pydoc='uv run -m pydoc'
+
