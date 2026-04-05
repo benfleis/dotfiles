@@ -35,9 +35,6 @@ done
 
 # TODO: figure this out
 fpath=( "$XDG_DATA_HOME/zsh/completions" "${ZDOTDIR}/completions" "${ZDOTDIR}/functions" "${fpath[@]}" )
-(($+commands[brew])) && {
-  fpath=( $(brew --prefix)/share/zsh-completions "${fpath[@]}" )
-}
 autoload -Uz compinit
 compinit
 # TODO check .zcompdump?
@@ -95,6 +92,11 @@ bindkey "^N" history-beginning-search-forward
 bindkey "^[^M" self-insert-unmeta
 
 bindkey -a "Q" push-input
+
+# workaround for ghostty kitty protocol ctrl-[ encoding issue,
+# https://github.com/ghostty-org/ghostty/discussions/5071
+bindkey -M viins '^[[91;5u' vi-cmd-mode
+bindkey -M vicmd '^[[91;5u' vi-cmd-mode
 
 # always $HOME/bin atop path
 # -U uniqifies, keeping first entry

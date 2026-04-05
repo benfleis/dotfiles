@@ -15,6 +15,6 @@ _PREFIX=/opt/homebrew
   # export HOMEBREW_NO_INSTALL_CLEANUP=1
   # export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
   export PATH="$_PREFIX/bin:$_PREFIX/sbin:$PATH"
-  fpath=( "$_PREFIX/share/zsh/site-functions" $fpath )
+  fpath=( "$_PREFIX/share/zsh/site-functions" "$_PREFIX/share/zsh-completions" $fpath )
   typeset -U fpath # uniquify
 }

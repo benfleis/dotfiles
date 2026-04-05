@@ -12,7 +12,7 @@ alias rgi='rg -i'
 alias rga='rg --follow --hidden --no-ignore'
 alias rgai='rg --follow --hidden --no-ignore --ignore-case'
 
-((! $+commands[fd])) && ((! $+commands[fdfind])) && {
+((! $+commands[fd])) && (($+commands[fdfind])) && {
   alias fd=fdfind
 }
 alias fda='fd --hidden --follow --no-ignore'
