@@ -50,7 +50,11 @@ map("", leader("y"), '"*y', { noremap = true })
 map("t", "<C-[><C-[>", "<C-\\><C-n>", { noremap = true })
 
 map("n", leader("b"), "", { group = "buffer" })
-map("n", leader("bd"), function() require("snacks").bufdelete() end, { desc = "[b]uffer [d]elete" })
+map("n", leader("bd"), function()
+  local name = vim.api.nvim_buf_get_name(0)
+  local force = name ~= "" and vim.fn.filereadable(name) == 0
+  require("snacks").bufdelete({ force = force })
+end, { desc = "[b]uffer [d]elete" })
 map("n", leader("bf"), cmd("FzfLua buffers"), { desc = "[b]uffer [f]ind" })
 map("n", leader("bn"), cmd("bn"), { desc = "[b]uffer [n]ext" })
 map("n", leader("bp"), cmd("bp"), { desc = "[b]uffer [p]revious" })
