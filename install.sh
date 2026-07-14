@@ -28,7 +28,7 @@ function relpath {
     echo ${back}${path#$common_part/}
 }
 
-function install {
+function link {
     tgt="$1"
     tgt_dir=$(dirname "$tgt")
     src="$2"
@@ -50,14 +50,20 @@ function install {
 function main {
     # link all dotfiles/foo -> $HOME/foo
     for name in $dots; do
-        install "$HOME/$name" "$PWD/$name"
+        link "$HOME/$name" "$PWD/$name"
     done
-    
+
     # link dotfiles/bin/* -> $HOME/bin/*
     mkdir -p $HOME/bin
     for name in bin/*; do
-        install "$HOME/$name" "$PWD/$name"
+        link "$HOME/$name" "$PWD/$name"
     done
+
+    # link dotfiles/claude/{CLAUDE.md,skills} -> $HOME/.claude/*
+    # (only these two -- the rest of ~/.claude is per-machine state)
+    mkdir -p $HOME/.claude
+    link "$HOME/.claude/CLAUDE.md" "$PWD/claude/CLAUDE.md"
+    link "$HOME/.claude/skills" "$PWD/claude/skills"
 }
 
 main
