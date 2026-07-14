@@ -64,6 +64,8 @@ function main {
     mkdir -p $HOME/.claude
     link "$HOME/.claude/CLAUDE.md" "$PWD/claude/CLAUDE.md"
     link "$HOME/.claude/skills" "$PWD/claude/skills"
+    link "$HOME/.claude/settings.json" "$PWD/claude/settings.json"
+    link "$HOME/.claude/statusline-command.sh" "$PWD/claude/statusline-command.sh"
 }
 
 main

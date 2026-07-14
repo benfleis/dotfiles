@@ -1,0 +1,10 @@
+{
+  "syntaxHighlightingDisabled": false,
+  "tui": "fullscreen",
+  "theme": "dark",
+  "skipDangerousModePermissionPrompt": true,
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline-command.sh"
+  }
+}
