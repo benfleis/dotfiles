@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # master list of things to install
 dots=".config .ctags .ptconfig.toml .tmux.conf .tmux .vim .vimrc .zshenv"
@@ -7,66 +7,67 @@ deprecated_dots=".emacs.d"
 # if first arg is '-f', it's force, save it and shift
 force=0
 if [[ $1 == '-f' ]]; then
-    echo "Force enabled."
-    force=1
-    shift
+  echo "Force enabled."
+  force=1
+  shift
 fi
 
 # both $1 and $2 are absolute paths
 # returns $2 relative to $1
 function relpath {
-    base="$1"
-    path="$2"
+  base="$1"
+  path="$2"
 
-    common_part=$base
-    back=
-    while [ "${path#$common_part}" = "${path}" ]; do
-        common_part=$(dirname "$common_part")
-        back="../${back}"
-    done
+  common_part=$base
+  back=
+  while [ "${path#$common_part}" = "${path}" ]; do
+    common_part=$(dirname "$common_part")
+    back="../${back}"
+  done
 
-    echo ${back}${path#$common_part/}
+  echo ${back}${path#$common_part/}
 }
 
 function link {
-    tgt="$1"
-    tgt_dir=$(dirname "$tgt")
-    src="$2"
-    src=$(relpath "$tgt_dir" "$src")
-    if [[ $(readlink "$tgt") == $src ]]; then
-        return 0
+  tgt="$1"
+  tgt_dir=$(dirname "$tgt")
+  abs_src="$2"
+  src=$(relpath "$tgt_dir" "$abs_src")
+  # Already pointing at the right place (regardless of how it was written)? Silently noop.
+  if [[ -L "$tgt" && $(readlink -f "$tgt") == $(readlink -f "$abs_src") ]]; then
+    return 0
+  fi
+  if [[ -e "$tgt" || -L "$tgt" ]]; then
+    if [[ $force == 1 ]]; then
+      rm -f "$tgt"
+    else
+      echo "$tgt already exists.  Please remove."
+      return 1
     fi
-    if [[ -e "$tgt" || -L "$tgt" ]]; then
-        if [[ $force == 1 ]]; then
-            rm -f "$tgt"
-        else
-            echo "$tgt already exists.  Please remove."
-            return 1
-        fi
-    fi
-    ln -vs "$src" "$tgt"
+  fi
+  ln -vs "$src" "$tgt"
 }
 
 function main {
-    # link all dotfiles/foo -> $HOME/foo
-    for name in $dots; do
-        link "$HOME/$name" "$PWD/$name"
-    done
+  # link all dotfiles/foo -> $HOME/foo
+  for name in $dots; do
+    link "$HOME/$name" "$PWD/$name"
+  done
 
-    # link dotfiles/bin/* -> $HOME/bin/*
-    mkdir -p $HOME/bin
-    for name in bin/*; do
-        link "$HOME/$name" "$PWD/$name"
-    done
+  # link dotfiles/bin/* -> $HOME/bin/*
+  mkdir -p $HOME/bin
+  for name in bin/*; do
+    link "$HOME/$name" "$PWD/$name"
+  done
 
-    # link dotfiles/claude/* -> $CLAUDE_CONFIG_DIR/* (defaults to ~/.claude)
-    # (only these -- the rest of the config dir is per-machine state)
-    claude_dir="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
-    mkdir -p "$claude_dir"
-    link "$claude_dir/CLAUDE.md" "$PWD/claude/CLAUDE.md"
-    link "$claude_dir/skills" "$PWD/claude/skills"
-    link "$claude_dir/settings.json" "$PWD/claude/settings.json"
-    link "$claude_dir/statusline-command.sh" "$PWD/claude/statusline-command.sh"
+  # link dotfiles/claude/* -> $CLAUDE_CONFIG_DIR/* (defaults to ~/.claude)
+  # (only these -- the rest of the config dir is per-machine state)
+  claude_dir="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
+  mkdir -p "$claude_dir"
+  link "$claude_dir/CLAUDE.md" "$PWD/claude/CLAUDE.md"
+  link "$claude_dir/skills" "$PWD/claude/skills"
+  link "$claude_dir/settings.json" "$PWD/claude/settings.json"
+  link "$claude_dir/statusline-command.sh" "$PWD/claude/statusline-command.sh"
 }
 
 main
