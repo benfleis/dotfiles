@@ -59,13 +59,14 @@ function main {
         link "$HOME/$name" "$PWD/$name"
     done
 
-    # link dotfiles/claude/{CLAUDE.md,skills} -> $HOME/.claude/*
-    # (only these two -- the rest of ~/.claude is per-machine state)
-    mkdir -p $HOME/.claude
-    link "$HOME/.claude/CLAUDE.md" "$PWD/claude/CLAUDE.md"
-    link "$HOME/.claude/skills" "$PWD/claude/skills"
-    link "$HOME/.claude/settings.json" "$PWD/claude/settings.json"
-    link "$HOME/.claude/statusline-command.sh" "$PWD/claude/statusline-command.sh"
+    # link dotfiles/claude/* -> $CLAUDE_CONFIG_DIR/* (defaults to ~/.claude)
+    # (only these -- the rest of the config dir is per-machine state)
+    claude_dir="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
+    mkdir -p "$claude_dir"
+    link "$claude_dir/CLAUDE.md" "$PWD/claude/CLAUDE.md"
+    link "$claude_dir/skills" "$PWD/claude/skills"
+    link "$claude_dir/settings.json" "$PWD/claude/settings.json"
+    link "$claude_dir/statusline-command.sh" "$PWD/claude/statusline-command.sh"
 }
 
 main
