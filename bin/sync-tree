@@ -1,52 +1,76 @@
 #!/usr/bin/env python3
-"""Push a git worktree's tracked files to the same checkout on another box.
+"""Copy a git worktree's tracked files onto another checkout of the same commit.
 
-Refuses to transfer unless the remote is on the same branch + commit, and has no
-uncommitted changes to tracked files. --force skips those checks.
+SRC and DST are named rsync-style; either may be remote ([user@]host:path).
+With a single argument, it is the SRC and the sync is a pull into the current
+directory. Refuses to transfer unless DST is on the same branch + commit as SRC
+and has no uncommitted changes to tracked files. --force skips those checks.
+Extra rsync args go after --.
 
-    sync-tree builder:/opt/workspace/src/ducktest/az/duckdb
-    sync-tree --src ~/src/duckdb builder:/opt/src/duckdb -n
-    sync-tree builder:/opt/src/duckdb -- --exclude '*.parquet'
+    sync-tree builder:/opt/workspace/src/ducktest/az/duckdb     # pull into .
+    sync-tree builder:/opt/src/duckdb ~/src/duckdb -n
+    sync-tree ~/src/duckdb builder:/opt/src/duckdb -- --exclude '*.parquet'
 """
 
 import argparse
-import os
 import shlex
 import subprocess
 import sys
+
+# ssh runs the login shell, so both sides go through bash -s for one dialect.
+PROLOGUE = """
+case "$1" in "~"|"~/"*) set -- "$HOME${1#"~"}";; esac
+cd "$1" || exit 1
+"""
 
 
 def die(msg):
     sys.exit(f"sync-tree: {msg}")
 
 
-def git(repo, *args):
-    r = subprocess.run(["git", "-C", repo, *args], capture_output=True, text=True)
-    if r.returncode:
-        die(f"git {' '.join(args)} failed: {r.stderr.strip()}")
-    return r.stdout
+class Repo:
+    def __init__(self, spec):
+        remote = ":" in spec.split("/", 1)[0]
+        self.host, self.path = spec.split(":", 1) if remote else (None, spec)
 
+    def __str__(self):
+        return f"{self.host}:{self.path}" if self.host else self.path
 
-def remote_state(host, path):
-    q = shlex.quote(path)
-    script = (
-        f"git -C {q} rev-parse HEAD && "
-        f"git -C {q} rev-parse --abbrev-ref HEAD && "
-        f"git -C {q} status --porcelain --untracked-files=no"
-    )
-    r = subprocess.run(["ssh", host, script], capture_output=True, text=True)
-    if r.returncode:
-        die(f"cannot read {host}:{path}: {r.stderr.strip() or 'ssh failed'}")
-    lines = r.stdout.splitlines()
-    return lines[0], lines[1], lines[2:]
+    def run(self, script, what):
+        if self.host:
+            cmd = ["ssh", self.host, "bash", "-s", "--", shlex.quote(self.path)]
+        else:
+            cmd = ["bash", "-s", "--", self.path]
+        r = subprocess.run(cmd, input=PROLOGUE + script, capture_output=True, text=True)
+        if r.returncode:
+            die(f"cannot {what} {self}: {r.stderr.strip() or f'exit {r.returncode}'}")
+        return r.stdout
+
+    def probe(self):
+        out = self.run(
+            "git rev-parse --show-toplevel && "
+            "git rev-parse HEAD && "
+            "git rev-parse --abbrev-ref HEAD && "
+            "git status --porcelain --untracked-files=no",
+            "inspect",
+        ).splitlines()
+        self.path, self.head, self.branch, self.dirty = out[0], out[1], out[2], out[3:]
+
+    def files(self):
+        out = self.run(
+            'git ls-files -z --recurse-submodules | while IFS= read -r -d "" f; do '
+            'if [ -e "$f" ] || [ -L "$f" ]; then printf "%s\\0" "$f"; fi; done',
+            "list tracked files in",
+        )
+        return [f for f in out.split("\0") if f]
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("dest", help="[user@]host:/path/to/checkout")
-    ap.add_argument("--src", default=".", help="local worktree (default: cwd)")
+    ap.add_argument("src", help="[[user@]host:]/path/to/checkout")
+    ap.add_argument("dst", nargs="?", help="[[user@]host:]/path/to/checkout (default: cwd)")
     ap.add_argument("-n", "--dry-run", action="store_true")
-    ap.add_argument("-f", "--force", action="store_true", help="transfer even if the remote disagrees")
+    ap.add_argument("-f", "--force", action="store_true", help="transfer even if the destination disagrees")
     ap.add_argument("rsync_args", nargs="*", help="extra rsync args, after --")
 
     # Split on -- ourselves; argparse eats the separator and then reads --exclude as its own flag.
@@ -56,41 +80,39 @@ def main():
         cut = argv.index("--")
         argv, extra = argv[:cut], argv[cut + 1:]
     args = ap.parse_args(argv)
-    args.rsync_args = extra
 
-    if ":" not in args.dest:
-        die(f"dest must be host:path, got {args.dest!r}")
-    host, path = args.dest.split(":", 1)
+    src, dst = Repo(args.src), Repo(args.dst if args.dst else ".")
+    if args.dst is None and not src.host:
+        die(f"with one argument it must be remote (host:path) and is pulled into .; got {args.src!r}")
+    if src.host and dst.host:
+        die("rsync cannot go remote -> remote")
 
-    src = git(args.src, "rev-parse", "--show-toplevel").strip()
-    head = git(src, "rev-parse", "HEAD").strip()
-    branch = git(src, "rev-parse", "--abbrev-ref", "HEAD").strip()
-
-    r_head, r_branch, r_dirty = remote_state(host, path)
+    src.probe()
+    dst.probe()
     problems = []
-    if r_head != head:
-        problems.append(f"commit: local {head[:12]} ({branch}) != remote {r_head[:12]} ({r_branch})")
-    elif r_branch != branch:
-        problems.append(f"branch: local {branch} != remote {r_branch}")
-    if r_dirty:
-        problems.append(f"remote has {len(r_dirty)} uncommitted change(s): " + ", ".join(s[3:] for s in r_dirty[:5]))
+    if dst.head != src.head:
+        problems.append(f"commit: src {src.head[:12]} ({src.branch}) != dst {dst.head[:12]} ({dst.branch})")
+    elif dst.branch != src.branch:
+        problems.append(f"branch: src {src.branch} != dst {dst.branch}")
+    if dst.dirty:
+        problems.append(f"dst has {len(dst.dirty)} uncommitted change(s): " + ", ".join(s[3:] for s in dst.dirty[:5]))
     if problems and not args.force:
         for p in problems:
             print(f"sync-tree: {p}", file=sys.stderr)
-        die(f"fix it, e.g. ssh {host} 'git -C {shlex.quote(path)} fetch && git -C {shlex.quote(path)} checkout {branch}'")
+        q = shlex.quote(dst.path)
+        fix = f"git -C {q} fetch && git -C {q} checkout {src.branch}"
+        die(f"fix it, e.g. {f'ssh {dst.host} {shlex.quote(fix)}' if dst.host else fix}")
     for p in problems:
         print(f"sync-tree: WARNING (forced past) {p}", file=sys.stderr)
 
-    # Tracked files only, minus any deleted in the worktree -- rsync errors on a missing source file.
-    files = [f for f in git(src, "ls-files", "-z", "--recurse-submodules").split("\0") if f]
-    files = [f for f in files if os.path.lexists(os.path.join(src, f))]
+    files = src.files()
     if not files:
-        die("no tracked files to send")
+        die(f"no tracked files to send from {src}")
 
-    cmd = ["rsync", "-a", "-v", "--files-from=-", "--from0", *args.rsync_args, src + "/", args.dest]
+    cmd = ["rsync", "-a", "-v", "--files-from=-", "--from0", *extra, f"{src}/", str(dst)]
     if args.dry_run:
         cmd.insert(1, "-n")
-    print(f"sync-tree: {len(files)} tracked files -> {args.dest} @ {head[:12]}", flush=True)
+    print(f"sync-tree: {len(files)} tracked files {src} -> {dst} @ {src.head[:12]}", flush=True)
     sys.exit(subprocess.run(cmd, input="\0".join(files) + "\0", text=True).returncode)
 
 
