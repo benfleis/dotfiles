@@ -1,19 +1,14 @@
 # ZDOTDIR=$HOME/.config/zsh
 # . $ZDOTDIR/.zshenv
 
-# link a static SSH_AUTH_SOCK to the real thing
-if [ ! -z "$SSH_AUTH_SOCK" -a -z "$_SSH_AUTH_SOCK" ]; then
-    # make private dir to store it
-    sock="/tmp/ssh-$USER/agent"
-
-    if [[ `readlink "$sock"` = "$sock" ]]; then
-        echo "Recursive SSH_AUTH_SOCK agent link discovered!  Cleaning up." >&2
-        rm -f "$sock"
-    fi
-
-    # link it
-    mkdir -pm 0700 "$(dirname $sock)"
-    ln -sf "$SSH_AUTH_SOCK" "$sock"
-    export _SSH_AUTH_SOCK="$SSH_AUTH_SOCK"
-    export SSH_AUTH_SOCK="$sock"
+# Fixed path for SSH_AUTH_SOCK, repointed at each connection's real agent socket:
+# tmux panes and pre-sleep processes hold the fixed path, so relinking resurrects them.
+sock="$HOME/.ssh/ssh_auth_sock"
+if [[ -S "$SSH_AUTH_SOCK" && "$SSH_AUTH_SOCK" != "$sock" ]]; then
+    mkdir -pm 0700 "${sock:h}"
+    ln -sfn "$SSH_AUTH_SOCK" "$sock"
 fi
+# Unconditional, even while the link dangles: falling back to the dead per-connection
+# path pins the shell to a value no later reconnect can repair.
+export SSH_AUTH_SOCK="$sock"
+unset sock
