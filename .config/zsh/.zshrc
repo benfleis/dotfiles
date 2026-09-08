@@ -103,15 +103,15 @@ bindkey -M vicmd '^[[91;5u' vi-cmd-mode
 export PATH="$HOME/bin:$XDG_BIN_HOME:$PATH"
 typeset -U path
 
-# load RC local to this machine from both .config (in git) and .local/state (e.g. secrets)
-machine=$(uname -n | cut -d. -f1)
-[[ -r $ZDOTDIR/by-machine/zshrc-$machine.zsh ]] && . $ZDOTDIR/by-machine/zshrc-$machine.zsh
-[[ -r $_ZSTATE/by-machine/zshrc-$machine.zsh ]] && . $_ZSTATE/by-machine/zshrc-$machine.zsh
-
 # and source "topics" by name; use classic '/etc/fooconf.d' style inside
 for rc in $ZDOTDIR/by-name/*; do 
   source "$rc"
 done
+
+# load RC local to this machine from both .config (in git) and .local/state (e.g. secrets)
+machine=$(uname -n | cut -d. -f1)
+[[ -r $ZDOTDIR/by-machine/zshrc-$machine.zsh ]] && . $ZDOTDIR/by-machine/zshrc-$machine.zsh
+[[ -r $_ZSTATE/by-machine/zshrc-$machine.zsh ]] && . $_ZSTATE/by-machine/zshrc-$machine.zsh
 
 # now fix paths -- put all $HOME paths atop the rest, maintain relative orders
 typeset -U path
