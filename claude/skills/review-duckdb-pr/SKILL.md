@@ -44,6 +44,41 @@ Look for issues CI is unlikely to find. Do not report pure formatting, generated
 - Helper shape and ownership: when a new helper needs many callbacks, boolean switches, or loosely related parameters, check whether it is carrying multiple responsibilities. Consider whether a small request/context struct, policy object, or existing local abstraction would make the contract clearer.
 - Header/API exposure: review newly added declarations for visibility and grouping. Keep overrides and public APIs easy to find, move implementation helpers to private/protected scope where possible, and avoid exporting helpers only because they were convenient during implementation.
 - Test quality: whether added tests prove the risky behavior rather than only the happy path. Prefer suggesting missing targeted cases over running tests that CI already runs.
+- Comments and commit messages: review the prose the diff adds, not just the code. This is not formatting — it is the part CI cannot check at all, and it decays fastest. See the dedicated section below.
+
+## Comments, Commit Messages, and Jargon
+
+Review added prose against the repo's own comment/commit conventions (a CLAUDE.md `## Comments` / `## Commit messages` section, if present, is the authority — read it before judging). The recurring defects, roughly in order of how often they slip through:
+
+- **Unresolvable handles.** Finding IDs, ticket numbers, review-thread labels (`C2`, `H3`, `issue 4`) and in-house shorthand that names something a reader of this repo cannot look up. A comment is written for someone holding only the adjacent code.
+- **Unanchored references to outside documents.** "the report", "the reporter", "their repro", "as discussed", "per the spec" — where nothing identifies the document. Either state the substance, or cite something checked in.
+- **Traces of how the change was produced.** "add on top", "swapped from X", "keep only what we add", "now fixed", references to prior iterations or intermediate states that never landed. The reader has the final code and the diff, not the journey.
+- **Comments restating the adjacent line.** If the line beside it already says it, delete it. Reserve comments for a surprising idiom, a gotcha, or a *why*.
+- **A *what* clause welded onto an earned *why*.** The most common shape in practice, and the one the bullet above reads past: the comment opens with a genuine reason, then keeps going and paraphrases the code ("...so leave the null absent here" above an `if (!IsNull())`). Judge each sentence, not each comment — the first one earning its place says nothing about the last.
+- **The same fact stated twice.** Two call sites in different files each explaining the shared contract they implement. Keep it where the decision is made; the second copy drifts.
+- **Absence-rationale for something that never belonged** — only note an absence a reader would expect and be surprised by.
+- **Commit-message altitude.** Describe observable behavior and contract in the reader's vocabulary rather than naming internal identifiers, tuning values, or call sequences. For a squashed commit, describe the final state, not the drafts and reworks that preceded it.
+
+Apply this to **newly added prose specifically** — pre-existing comments are out of scope unless the change makes them wrong. Test files count: a `.test` description or a driver docstring is read far more often than the code under it.
+
+Cheap mechanical sweep before the judgment pass, over added lines only:
+
+    git diff <base>...HEAD | grep -E "^\+" | grep -inE "\b(C[0-9]|H[0-9]|M[0-9])\b|the report|reporter|their (repro|criterion|step)|as discussed|add on top|swapped from"
+
+Run the same audit against the commit messages (`git log <base>..HEAD --format=%B`); they leak the same handles and are harder to fix later.
+
+Two questions settle most individual cases faster than re-reading the rules:
+
+- **Could a reader derive this from the adjacent code plus this repo?** If yes, cut it. This is what catches the welded-*what* clause.
+- **Can the comment name a source outside the diff?** A spec section, an upstream library's behavior, a measured quirk of a tool. Comments that can cite something are usually the ones worth keeping; comments that cannot are often paraphrasing the line below. Not a rule — a sorting heuristic.
+
+Do not assume volume is the defect. Measure added prose against the repo's own comparable files (comment lines vs. code lines) before claiming a file is over-commented; suites vary widely, and a file at the top of the local range is not automatically wrong. The defects above are about content, and a file can hit every one of them at perfectly ordinary density.
+
+Three failure modes worth naming, because they are easy to fall into while reviewing:
+
+- These defects hide in prose you skim. A correctness- and structure-focused pass reads straight past a docstring's first line. Make the sweep an explicit step rather than trusting it to surface.
+- When the author is you, or the branch was written in the same session as the review, the jargon reads as meaningful because the context is still loaded. Re-read it as someone who has only the repo.
+- Prose defects are not reliably caught by re-reading your own work, however carefully. They are caught by a dedicated pass, run separately, after the code work is finished. Treat the sweep as a step you execute, not a standard you hold yourself to.
 
 ## Investigation Heuristics
 
@@ -54,6 +89,7 @@ Look for issues CI is unlikely to find. Do not report pure formatting, generated
 - Check behavior across the states/environments this subsystem actually distinguishes (e.g. in-memory vs. persisted, single vs. multi-connection, local vs. remote storage) — see the core-specific list below for the full storage/transaction state matrix.
 - Use targeted probes to answer a concrete question. If a probe finds a breakage, add the minimal repro (see Workflow step 9) before reporting it unless the user asks otherwise.
 - If no correctness bug is found, still report structural concerns that create maintenance risk or make future correctness bugs likely.
+- Run the added-prose sweep (see "Comments, Commit Messages, and Jargon") as its own step, not as a side effect of reading the diff for correctness.
 
 ## Final Summary
 
@@ -65,6 +101,7 @@ Include:
 - Build/test/probe commands run and outcomes, only if they were run.
 - PR feedback status, including "no PR feedback found" when applicable.
 - Any repro test added (see Workflow step 9 for where it goes).
+- Comment/commit-message findings, quoting the offending text and its file/line. Report these even when nothing else is wrong; they are not the "pure formatting" the preamble excludes, and they are the one class no CI job will ever raise.
 - Open questions or residual risk.
 - A concise overall recommendation.
 
