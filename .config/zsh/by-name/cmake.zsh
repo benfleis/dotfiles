@@ -4,3 +4,5 @@
 export VCPKG_TOOLCHAIN_PATH=$HOME/src/vcpkg/scripts/buildsystems/vcpkg.cmake
 export VCPKG_DISABLE_METRICS=1
 export CMAKE_EXPORT_COMPILE_COMMANDS=1
+export SCCACHE_DIR="$HOME/.cache/sccache"
+export VCPKG_BINARY_SOURCES="clear;files,$HOME/.cache/vcpkg-archives,readwrite"

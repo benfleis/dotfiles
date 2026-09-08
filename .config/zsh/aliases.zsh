@@ -15,7 +15,7 @@ alias rgai='rg --follow --hidden --no-ignore --ignore-case'
 ((! $+commands[fd])) && (($+commands[fdfind])) && {
   alias fd=fdfind
 }
-alias fda='fd --hidden --follow --no-ignore'
+alias fda='fd --unrestricted --follow'
 
 # --- git stuff ----------------------------------------
 alias gco='git checkout'
@@ -28,7 +28,6 @@ alias gpf='git pull --ff-only'
 alias gpm='git pull --rebase=false'
 alias gpr='git pull --rebase=true'
 alias gs='git status'
-alias gsub-up='git submodule update --init --recursive'
 
 alias gb='git branch'
 
@@ -51,3 +50,10 @@ alias cmake-list-targets='cmake --build . --target help'
 # XXX: uv helpers temp
 alias pydoc='uv run -m pydoc'
 
+alias iso-mux="ssh -t z300.int.fleis.net '\$HOME/bin/tmux-sesh'"
+
+
+# In the middle of some thing running, and wish you'd done '&& next-cmd'?
+# Instead type 'ifok next-cmd'!
+alias ifok='(( $? == 0 )) &&'
+alias iferr='(( $? == 0 )) ||'

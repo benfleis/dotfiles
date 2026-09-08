@@ -1,0 +1,4 @@
+-- Make default y (and yy) write to the system clipboard
+-- vim.keymap.set({ "n", "v" }, "y", '"+y', { remap = true })
+-- vim.keymap.set({ "n", "v" }, "Y", '"+Y', { remap = true })
+-- vim.keymap.set({ "n" }, "yy", '"+yy', { remap = true })

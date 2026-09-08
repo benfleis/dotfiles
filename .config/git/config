@@ -14,9 +14,6 @@
   llg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %<(60)%s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
   refllg = reflog --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %<(60)%s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
 
-[core]
-  hooksPath = /Users/ben/.config/git/hooks
-
 [color]
   ui = true
   interactive = true

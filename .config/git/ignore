@@ -7,9 +7,9 @@
 tags
 
 # I treasure my local dirs
-**/.local/
-**/local/
-**/_local/
+/local/
+/.local/
+/_local/
 
 # Tool-ish helper dirs
 **/.cache/
@@ -17,3 +17,10 @@ tags
 **/compile_commands.json
 node_modules/
 **/.venv/
+
+# py junks
+/__pycache__/
+/.venv/
+/venv/
+*.pyc
+.ruff_cache/
