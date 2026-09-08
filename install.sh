@@ -60,6 +60,10 @@ function main {
     link "$HOME/$name" "$PWD/$name"
   done
 
+  # link only dotfiles/.ssh/rc -- the rest of ~/.ssh is private, per-machine material
+  mkdir -pm 0700 "$HOME/.ssh"
+  link "$HOME/.ssh/rc" "$PWD/.ssh/rc"
+
   # link dotfiles/claude/* -> $CLAUDE_CONFIG_DIR/* (defaults to ~/.claude)
   # (only these -- the rest of the config dir is per-machine state)
   claude_dir="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
