@@ -1,0 +1,12 @@
+# Answers only if something speaks the agent protocol: a forwarded socket whose client
+# has gone (asleep laptop) still accepts, then never replies.
+# 0 live, 1 nothing listening, 2 accepts but mute.
+
+zmodload -F zsh/net/socket b:zsocket 2>/dev/null || return 0
+zsocket "$1" 2>/dev/null || return 1
+
+local fd=$REPLY rc=2
+print -n -u $fd '\0\0\0\1\13' 2>/dev/null &&
+    read -t 2 -k 1 -u $fd >/dev/null 2>&1 && rc=0
+exec {fd}>&-
+return $rc

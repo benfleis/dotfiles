@@ -1,0 +1,43 @@
+# Bind ~/.ssh/ssh_auth_sock to a live agent socket and leave this shell on that path.
+# tmux panes and pre-sleep processes hold the fixed path, so rebinding resurrects them.
+#   -q  startup mode: trust an existing socket link, and say nothing
+#
+# Oldest first: the longest-lived connection is likeliest to outlive this shell. Sockets
+# outlive the connection that made them (OpenSSH >=10.1 forwards to ~/.ssh/agent, which
+# nothing sweeps; older versions and `ssh-agent -T` use TMPDIR), so ask each one and drop
+# the dead as we pass. Anything younger than a minute may still be mid-setup, so it stays.
+
+local sock="$HOME/.ssh/ssh_auth_sock" agent settled skip= quiet=0 rc=1 state
+[[ "$1" == -q ]] && quiet=1
+
+if (( quiet )); then
+    [[ -S "$sock" ]] && { export SSH_AUTH_SOCK="$sock"; return 0 }
+else
+    _ssh_agent_alive "$sock"; state=$?
+    if (( state == 0 )); then
+        print "ssh agent: already live -> ${sock:A}"
+        export SSH_AUTH_SOCK="$sock"
+        return 0
+    elif (( state == 2 )); then
+        print -u2 "ssh agent: current link is stalled, rebinding"
+        skip="${sock:A}"        # don't pay its timeout a second time in the walk
+    fi
+fi
+
+mkdir -pm 0700 "${sock:h}"
+for agent in "$HOME"/.ssh/agent/*(=UOmN) ${TMPDIR:-/tmp}/ssh-*/agent.*(=UOmN); do
+    [[ "$agent" == "$skip" ]] && continue
+    _ssh_agent_alive "$agent"
+    case $? in
+        0) ln -sfn "$agent" "$sock"; rc=0
+           (( quiet )) || print "ssh agent: $sock -> $agent"
+           break ;;
+        1) settled=( "$agent"(Nmm+1) )   # [[ ]] would not glob
+           (( $#settled )) && rm -f "$agent" ;;
+        2) (( quiet )) || print -u2 "ssh agent: $agent accepts but never answers -- its client is gone" ;;
+    esac
+done
+(( rc && ! quiet )) && print -u2 "ssh agent: nothing live in ~/.ssh/agent or ${TMPDIR:-/tmp}/ssh-*/ -- reconnect with forwarding"
+
+export SSH_AUTH_SOCK="$sock"
+return $rc
