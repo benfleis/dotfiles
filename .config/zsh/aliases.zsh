@@ -50,7 +50,7 @@ alias cmake-list-targets='cmake --build . --target help'
 # XXX: uv helpers temp
 alias pydoc='uv run -m pydoc'
 
-alias iso-mux="ssh -t z300.int.fleis.net '\$HOME/bin/tmux-sesh'"
+alias iso-mux="ssh -t faber '\$HOME/bin/tmux-sesh'"
 
 
 # In the middle of some thing running, and wish you'd done '&& next-cmd'?
