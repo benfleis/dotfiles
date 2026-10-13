@@ -2,7 +2,6 @@
 
 # master list of things to install
 dots=".ctags .ptconfig.toml .tmux.conf .tmux .vim .vimrc .zshenv"
-deprecated_dots=".emacs.d"
 
 # if first arg is '-f', it's force, save it and shift
 force=0

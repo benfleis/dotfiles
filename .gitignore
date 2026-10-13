@@ -16,13 +16,6 @@ config/itape/%*
 /config/nvim/local.vim
 /config/nvim/lazy-lock.json
 
-/.emacs.d/auto-save-list
-/.emacs.d/backups
-/.emacs.d/elpa
-/.emacs.d/ido.last
-/.emacs.d/places
-/.emacs.d/var
-
 /.vim/bundle
 /.vim/view
 /.vim/undodir
