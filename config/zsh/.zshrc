@@ -120,6 +120,8 @@ path=( "$XDG_BIN_HOME" "$HOME/bin" $path )
 home_paths=$(echo $path | tr ' ' '\n' | grep "^$HOME")
 other_paths=$(echo $path | tr ' ' '\n' | grep -v "^$HOME")
 export PATH=$({ echo $home_paths; echo $other_paths } | tr '\n' ':' )
+# tr leaves a trailing ":" -- an empty entry, i.e. cwd in PATH
+PATH=${PATH%:}
 
 ## EDITOR and related prefs, need to be after PATH setup
 prefer() {

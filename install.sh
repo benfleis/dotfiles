@@ -93,7 +93,9 @@ function main {
     echo "mise not found, skipping tool install."
     return 1
   fi
-  mise install --yes
+  # run from / -- mise finds itself by PATH lookup and accepts a *directory* named
+  # mise, so a ./mise dir plus an empty (cwd) PATH entry gives shims pointing at it
+  (cd / && mise install --yes && mise reshim -f)
 }
 
 main
