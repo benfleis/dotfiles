@@ -60,9 +60,12 @@ function main {
   [[ -L "$HOME/.config" ]] && rm -v "$HOME/.config"
   mkdir -p "$HOME/.config"
   for name in config/*; do
+    [[ $name == config/herdr ]] && continue
     link "$HOME/.$name" "$PWD/$name"
   done
-  link "$HOME/.config/mise" "$PWD/mise"
+  # link only config/herdr/config.toml -- herdr keeps logs, sockets, session state beside it
+  mkdir -p "$HOME/.config/herdr"
+  link "$HOME/.config/herdr/config.toml" "$PWD/config/herdr/config.toml"
 
   # link dotfiles/bin/* -> $HOME/bin/*
   mkdir -p $HOME/bin
@@ -83,20 +86,14 @@ function main {
   link "$claude_dir/settings.json" "$PWD/claude/settings.json"
   link "$claude_dir/statusline-command.sh" "$PWD/claude/statusline-command.sh"
 
-  # install everything in the mise spec (dotfiles/mise), then link mise's shims
-  # into ~/.local/bin -- mise itself only ever puts them in its own shims dir
+  # install everything in the mise spec (dotfiles/config/mise); its shims_dir
+  # setting puts the shims in ~/.local/bin
   export PATH="$HOME/.local/bin:$PATH"
   if ! command -v mise >/dev/null; then
     echo "mise not found, skipping tool install."
     return 1
   fi
   mise install --yes
-  mise reshim
-  mkdir -p "$HOME/.local/bin"
-  for shim in "${MISE_DATA_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/mise}"/shims/*; do
-    [[ -e "$shim" ]] || continue
-    link "$HOME/.local/bin/$(basename "$shim")" "$shim"
-  done
 }
 
 main

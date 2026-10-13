@@ -4,12 +4,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository structure
 
-This is a dotfiles repo. Dotfiles here correspond 1:1 to paths under `$HOME`, except `config/`, which maps to `~/.config/` — `config/zsh/.zshrc` here lives at `~/.config/zsh/.zshrc` on disk — and `mise/` (global mise tool spec), which maps to `~/.config/mise/`.
+This is a dotfiles repo. Dotfiles here correspond 1:1 to paths under `$HOME`, except `config/`, which maps to `~/.config/` — `config/zsh/.zshrc` here lives at `~/.config/zsh/.zshrc` on disk.
 
 Two deployment mechanisms exist:
 
 - **Bare clone** (`bootstrap.bash`): clones to `~/src/dotfiles.git` as a bare repo with `--work-tree=$HOME`. This is the primary method for bootstrapping a new machine.
-- **Symlink installer** (`install.sh`): creates relative symlinks from `$HOME/foo` → `dotfiles/foo` for the dotfiles listed at the top of `install.sh`, plus `$HOME/.config/foo` → `dotfiles/config/foo` per entry (never `~/.config` itself). It then runs `mise install` and links mise's shims into `~/.local/bin`. Run with `-f` to force-overwrite existing files.
+- **Symlink installer** (`install.sh`): creates relative symlinks from `$HOME/foo` → `dotfiles/foo` for the dotfiles listed at the top of `install.sh`, plus `$HOME/.config/foo` → `dotfiles/config/foo` per entry (never `~/.config` itself). It then runs `mise install` for the global tool spec in `config/mise/` (shims go to `~/.local/bin` via its `shims_dir`). Run with `-f` to force-overwrite existing files.
 
 There are no build steps, tests, or linting commands.
 
