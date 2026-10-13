@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # master list of things to install
-dots=".config .ctags .ptconfig.toml .tmux.conf .tmux .vim .vimrc .zshenv"
+dots=".ctags .ptconfig.toml .tmux.conf .tmux .vim .vimrc .zshenv"
 deprecated_dots=".emacs.d"
 
 # if first arg is '-f', it's force, save it and shift
@@ -38,7 +38,8 @@ function link {
     return 0
   fi
   if [[ -e "$tgt" || -L "$tgt" ]]; then
-    if [[ $force == 1 ]]; then
+    # dangling symlinks are always safe to replace
+    if [[ $force == 1 || ! -e "$tgt" ]]; then
       rm -f "$tgt"
     else
       echo "$tgt already exists.  Please remove."
@@ -53,6 +54,16 @@ function main {
   for name in $dots; do
     link "$HOME/$name" "$PWD/$name"
   done
+
+  # link dotfiles/config/* -> $HOME/.config/*
+  # (only these -- the rest of ~/.config belongs to whatever else writes there)
+  # an old install linked ~/.config itself into the repo; drop that link first
+  [[ -L "$HOME/.config" ]] && rm -v "$HOME/.config"
+  mkdir -p "$HOME/.config"
+  for name in config/*; do
+    link "$HOME/.$name" "$PWD/$name"
+  done
+  link "$HOME/.config/mise" "$PWD/mise"
 
   # link dotfiles/bin/* -> $HOME/bin/*
   mkdir -p $HOME/bin
@@ -72,6 +83,21 @@ function main {
   link "$claude_dir/skills" "$PWD/claude/skills"
   link "$claude_dir/settings.json" "$PWD/claude/settings.json"
   link "$claude_dir/statusline-command.sh" "$PWD/claude/statusline-command.sh"
+
+  # install everything in the mise spec (dotfiles/mise), then link mise's shims
+  # into ~/.local/bin -- mise itself only ever puts them in its own shims dir
+  export PATH="$HOME/.local/bin:$PATH"
+  if ! command -v mise >/dev/null; then
+    echo "mise not found, skipping tool install."
+    return 1
+  fi
+  mise install --yes
+  mise reshim
+  mkdir -p "$HOME/.local/bin"
+  for shim in "${MISE_DATA_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/mise}"/shims/*; do
+    [[ -e "$shim" ]] || continue
+    link "$HOME/.local/bin/$(basename "$shim")" "$shim"
+  done
 }
 
 main

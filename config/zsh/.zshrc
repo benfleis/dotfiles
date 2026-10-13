@@ -98,9 +98,9 @@ bindkey -a "Q" push-input
 bindkey -M viins '^[[91;5u' vi-cmd-mode
 bindkey -M vicmd '^[[91;5u' vi-cmd-mode
 
-# always $HOME/bin atop path
+# always $XDG_BIN_HOME (mise-installed tools), then $HOME/bin atop path
 # -U uniqifies, keeping first entry
-export PATH="$HOME/bin:$XDG_BIN_HOME:$PATH"
+export PATH="$XDG_BIN_HOME:$HOME/bin:$PATH"
 typeset -U path
 
 # and source "topics" by name; use classic '/etc/fooconf.d' style inside
@@ -114,7 +114,9 @@ machine=$(uname -n | cut -d. -f1)
 [[ -r $_ZSTATE/by-machine/zshrc-$machine.zsh ]] && . $_ZSTATE/by-machine/zshrc-$machine.zsh
 
 # now fix paths -- put all $HOME paths atop the rest, maintain relative orders
+# (re-assert $XDG_BIN_HOME + $HOME/bin first, topics/machine rc may have prepended)
 typeset -U path
+path=( "$XDG_BIN_HOME" "$HOME/bin" $path )
 home_paths=$(echo $path | tr ' ' '\n' | grep "^$HOME")
 other_paths=$(echo $path | tr ' ' '\n' | grep -v "^$HOME")
 export PATH=$({ echo $home_paths; echo $other_paths } | tr '\n' ':' )
