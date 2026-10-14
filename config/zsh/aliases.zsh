@@ -47,11 +47,10 @@ alias gr-branch=rebase-since.sh
 # cmake
 alias cmake-list-targets='cmake --build . --target help'
 
-# XXX: uv helpers temp
 alias pydoc='uv run -m pydoc'
+alias wormhole='uvx --from=magic-wormhole wormhole'
 
 alias iso-mux="ssh -t faber '\$HOME/bin/tmux-sesh'"
-
 
 # In the middle of some thing running, and wish you'd done '&& next-cmd'?
 # Instead type 'ifok next-cmd'!

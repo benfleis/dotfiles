@@ -130,7 +130,7 @@ resize_pane_left = "prefix+comma"
 resize_pane_down = "prefix+="
 resize_pane_up = "prefix+minus"
 resize_pane_right = "prefix+."
-toggle_sidebar = "prefix+shift+b"   # prefix+b is copy_mode
+toggle_sidebar = "prefix+ctrl+b"   # prefix+b is copy_mode
 
 # Navigate-mode movement. These local shortcuts win while navigate mode is open.
 # They are independent from focus_pane_*. Do not include prefix+, esc, enter, tab, or 1..9 here.

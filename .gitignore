@@ -21,3 +21,4 @@ config/itape/%*
 /.vim/undodir
 
 __pycache__/
+config/zsh/env-local.zsh
