@@ -4,7 +4,9 @@ export DUCKDB_LINKER=mold
 
 # match iso-claude
 export VCPKG_TOOLCHAIN_PATH=/opt/workspace/src/vcpkg/scripts/buildsystems/vcpkg.cmake
+export RUSTC_WRAPPER=sccache
 export SCCACHE_DIR=/opt/workspace/.cache/sccache
+export SCCACHE_BASEDIRS=/opt/workspace/src
 
 # dbuild shuold already be loaded, first check that then replace
 dbuild() {

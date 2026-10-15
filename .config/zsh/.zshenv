@@ -1,6 +1,9 @@
 # ZDOTDIR=$HOME/.config/zsh
 # . $ZDOTDIR/.zshenv
 
+# root for src/, state/, cache/ -- same on every box
+export WORKSPACE="${WORKSPACE:-/opt/workspace}"
+
 # Fixed path for SSH_AUTH_SOCK, rebound to a live agent socket on every zsh. fpath and
 # the call live here, not .zshrc: `ssh host cmd` and `ssh -t tmux attach` read only this.
 # NOTE: If this doesn't suffice, next step: https://github.com/jmmv/ssh-agent-switcher

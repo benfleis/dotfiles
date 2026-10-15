@@ -7,7 +7,7 @@
 # nothing sweeps; older versions and `ssh-agent -T` use TMPDIR), so ask each one and drop
 # the dead as we pass. Anything younger than a minute may still be mid-setup, so it stays.
 
-local sock="$HOME/.ssh/ssh_auth_sock" agent settled skip= quiet=0 rc=1 state
+local sock="$HOME/.ssh/ssh_auth_sock" agent settled skip= slow= quiet=0 rc=1 state
 [[ "$1" == -q ]] && quiet=1
 
 if (( quiet )); then
@@ -19,8 +19,9 @@ else
         export SSH_AUTH_SOCK="$sock"
         return 0
     elif (( state == 2 )); then
-        print -u2 "ssh agent: current link is stalled, rebinding"
+        print -u2 "ssh agent: current link accepted but did not answer; looking for a better one"
         skip="${sock:A}"        # don't pay its timeout a second time in the walk
+        slow="$skip"            # ... but keep it as the fallback if nothing else answers
     fi
 fi
 
@@ -34,9 +35,17 @@ for agent in "$HOME"/.ssh/agent/*(=UOmN) ${TMPDIR:-/tmp}/ssh-*/agent.*(=UOmN); d
            break ;;
         1) settled=( "$agent"(Nmm+1) )   # [[ ]] would not glob
            (( $#settled )) && rm -f "$agent" ;;
-        2) (( quiet )) || print -u2 "ssh agent: $agent accepts but never answers -- its client is gone" ;;
+        2) [[ -z "$slow" ]] && slow="$agent"
+           (( quiet )) || print -u2 "ssh agent: $agent accepts but has not answered in 2s" ;;
     esac
 done
+
+# Nothing answered, but something accepted: a live agent behind a slow link looks exactly
+# like a stalled one, so bind it rather than leave the shell with nothing.
+if (( rc )) && [[ -n "$slow" ]]; then
+    ln -sfn "$slow" "$sock"; rc=0
+    (( quiet )) || print "ssh agent: $sock -> $slow (unverified: it accepted but did not answer)"
+fi
 (( rc && ! quiet )) && print -u2 "ssh agent: nothing live in ~/.ssh/agent or ${TMPDIR:-/tmp}/ssh-*/ -- reconnect with forwarding"
 
 export SSH_AUTH_SOCK="$sock"
