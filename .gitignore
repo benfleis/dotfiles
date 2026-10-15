@@ -2,29 +2,23 @@
 *.swp
 
 # local files
-.config/clojure/.cpcache/*
-.config/clojure/.rebel_readline_history
-.config/fish/fish_history
-.config/fish/fishd*
+config/clojure/.cpcache/*
+config/clojure/.rebel_readline_history
+config/fish/fish_history
+config/fish/fishd*
 
-.config/zsh/.zcompdump
-.config/zsh/.zsh_history
-.config/zsh/.zsh_sessions
+config/zsh/.zcompdump
+config/zsh/.zsh_history
+config/zsh/.zsh_sessions
 
-.config/itape/%*
+config/itape/%*
 
-/.config/nvim/local.vim
-/.config/nvim/lazy-lock.json
-
-/.emacs.d/auto-save-list
-/.emacs.d/backups
-/.emacs.d/elpa
-/.emacs.d/ido.last
-/.emacs.d/places
-/.emacs.d/var
+/config/nvim/local.vim
+/config/nvim/lazy-lock.json
 
 /.vim/bundle
 /.vim/view
 /.vim/undodir
 
 __pycache__/
+config/zsh/env-local.zsh

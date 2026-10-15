@@ -1,15 +1,14 @@
 #!/bin/bash
 
 # master list of things to install
-dots=".config .ctags .ptconfig.toml .tmux.conf .tmux .vim .vimrc .zshenv"
-deprecated_dots=".emacs.d"
+dots=".ctags .ptconfig.toml .tmux.conf .tmux .vim .vimrc .zshenv"
 
 # if first arg is '-f', it's force, save it and shift
 force=0
 if [[ $1 == '-f' ]]; then
-  echo "Force enabled."
-  force=1
-  shift
+    echo "Force enabled."
+    force=1
+    shift
 fi
 
 # root for src/, state/, cache/ -- same on every box
@@ -18,95 +17,120 @@ WORKSPACE="${WORKSPACE:-/opt/workspace}"
 # both $1 and $2 are absolute paths
 # returns $2 relative to $1
 function relpath {
-  base="$1"
-  path="$2"
+    base="$1"
+    path="$2"
 
-  common_part=$base
-  back=
-  while [ "${path#$common_part}" = "${path}" ]; do
-    common_part=$(dirname "$common_part")
-    back="../${back}"
-  done
+    common_part=$base
+    back=
+    while [ "${path#$common_part}" = "${path}" ]; do
+        common_part=$(dirname "$common_part")
+        back="../${back}"
+    done
 
-  echo ${back}${path#$common_part/}
+    echo ${back}${path#$common_part/}
 }
 
 function link {
-  tgt="$1"
-  tgt_dir=$(dirname "$tgt")
-  abs_src="$2"
-  src=$(relpath "$tgt_dir" "$abs_src")
-  # Already pointing at the right place (regardless of how it was written)? Silently noop.
-  if [[ -L "$tgt" && $(readlink -f "$tgt") == $(readlink -f "$abs_src") ]]; then
-    return 0
-  fi
-  if [[ -e "$tgt" || -L "$tgt" ]]; then
-    if [[ $force == 1 ]]; then
-      rm -f "$tgt"
-    else
-      echo "$tgt already exists.  Please remove."
-      return 1
+    tgt="$1"
+    tgt_dir=$(dirname "$tgt")
+    abs_src="$2"
+    src=$(relpath "$tgt_dir" "$abs_src")
+    # Already pointing at the right place (regardless of how it was written)? Silently noop.
+    if [[ -L "$tgt" && $(readlink -f "$tgt") == $(readlink -f "$abs_src") ]]; then
+        return 0
     fi
-  fi
-  ln -vs "$src" "$tgt"
+    if [[ -e "$tgt" || -L "$tgt" ]]; then
+        # dangling symlinks are always safe to replace
+        if [[ $force == 1 || ! -e "$tgt" ]]; then
+            rm -f "$tgt"
+        else
+            echo "$tgt already exists.  Please remove."
+            return 1
+        fi
+    fi
+    ln -vs "$src" "$tgt"
 }
 
 function main {
-  # link all dotfiles/foo -> $HOME/foo
-  for name in $dots; do
-    link "$HOME/$name" "$PWD/$name"
-  done
+    # link all dotfiles/foo -> $HOME/foo
+    for name in $dots; do
+        link "$HOME/$name" "$PWD/$name"
+    done
 
-  # link dotfiles/bin/* -> $HOME/bin/*
-  mkdir -p $HOME/bin
-  for name in bin/*; do
-    link "$HOME/$name" "$PWD/$name"
-  done
+    # link dotfiles/config/* -> $HOME/.config/*
+    # (only these -- the rest of ~/.config belongs to whatever else writes there)
+    # an old install linked ~/.config itself into the repo; drop that link first
+    [[ -L "$HOME/.config" ]] && rm -v "$HOME/.config"
+    mkdir -p "$HOME/.config"
+    for name in config/*; do
+        [[ $name == config/herdr ]] && continue
+        link "$HOME/.$name" "$PWD/$name"
+    done
+    # link only config/herdr/config.toml -- herdr keeps logs, sockets, session state beside it
+    mkdir -p "$HOME/.config/herdr"
+    link "$HOME/.config/herdr/config.toml" "$PWD/config/herdr/config.toml"
 
-  # link only dotfiles/.ssh/rc -- the rest of ~/.ssh is private, per-machine material
-  mkdir -pm 0700 "$HOME/.ssh"
-  link "$HOME/.ssh/rc" "$PWD/.ssh/rc"
+    # link dotfiles/bin/* -> $HOME/bin/*
+    mkdir -p $HOME/bin
+    for name in bin/*; do
+        link "$HOME/$name" "$PWD/$name"
+    done
 
-  # link dotfiles/claude/* -> $CLAUDE_CONFIG_DIR/* (defaults to ~/.claude)
-  # (only these -- the rest of the config dir is per-machine state)
-  claude_dir="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
-  mkdir -p "$claude_dir"
-  link "$claude_dir/CLAUDE.md" "$PWD/claude/CLAUDE.md"
-  link "$claude_dir/settings.json" "$PWD/claude/settings.json"
-  link "$claude_dir/statusline-command.sh" "$PWD/claude/statusline-command.sh"
-  link "$claude_dir/keybindings.json" "$PWD/claude/keybindings.json"
+    # link only dotfiles/.ssh/rc -- the rest of ~/.ssh is private, per-machine material
+    mkdir -pm 0700 "$HOME/.ssh"
+    link "$HOME/.ssh/rc" "$PWD/.ssh/rc"
 
-  # link each skill -> $claude_dir/skills/<name>; the dir itself stays real, because
-  # Claude and skill installers write their own entries into it
-  if [[ -L "$claude_dir/skills" ]]; then
-    rm "$claude_dir/skills"
-  fi
-  mkdir -p "$claude_dir/skills"
-  for skill in claude/skills/*/; do
-    skill="${skill%/}"
-    if [[ -f "$skill/SKILL.md" ]]; then
-      link "$claude_dir/skills/$(basename "$skill")" "$PWD/$skill"
+    # link dotfiles/claude/* -> $CLAUDE_CONFIG_DIR/* (defaults to ~/.claude)
+    # (only these -- the rest of the config dir is per-machine state)
+    claude_dir="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
+    mkdir -p "$claude_dir"
+    link "$claude_dir/CLAUDE.md" "$PWD/claude/CLAUDE.md"
+    link "$claude_dir/settings.json" "$PWD/claude/settings.json"
+    link "$claude_dir/statusline-command.sh" "$PWD/claude/statusline-command.sh"
+    link "$claude_dir/keybindings.json" "$PWD/claude/keybindings.json"
+
+    # link each skill -> $claude_dir/skills/<name>; the dir itself stays real, because
+    # Claude and skill installers write their own entries into it
+    if [[ -L "$claude_dir/skills" ]]; then
+        rm "$claude_dir/skills"
     fi
-  done
+    mkdir -p "$claude_dir/skills"
+    for skill in claude/skills/*/; do
+        skill="${skill%/}"
+        if [[ -f "$skill/SKILL.md" ]]; then
+            link "$claude_dir/skills/$(basename "$skill")" "$PWD/$skill"
+        fi
+    done
 
-  # herdr skill is generated by the installed herdr (via mise), so it tracks its version
-  herdr_skill="$WORKSPACE/cache/herdr/skills/herdr.md"
-  if ! command -v herdr >/dev/null; then
-    echo "WARNING: herdr not on PATH (has mise run?); skipping herdr skill."
-  else
-    if [[ -e "$herdr_skill" && $force != 1 ]]; then
-      echo "WARNING: $herdr_skill already exists; not regenerating (use -f)."
+    # herdr skill is generated by the installed herdr (via mise), so it tracks its version
+    herdr_skill="$WORKSPACE/cache/herdr/skills/herdr.md"
+    if ! command -v herdr >/dev/null; then
+        echo "WARNING: herdr not on PATH (has mise run?); skipping herdr skill."
     else
-      mkdir -p "$(dirname "$herdr_skill")"
-      herdr --skill > "$herdr_skill.tmp" && mv "$herdr_skill.tmp" "$herdr_skill"
+        if [[ -e "$herdr_skill" && $force != 1 ]]; then
+            echo "WARNING: $herdr_skill already exists; not regenerating (use -f)."
+        else
+            mkdir -p "$(dirname "$herdr_skill")"
+            herdr --skill >"$herdr_skill.tmp" && mv "$herdr_skill.tmp" "$herdr_skill"
+        fi
+        # skills must be <name>/SKILL.md; drop any old whole-dir symlink first
+        if [[ -L "$claude_dir/skills/herdr" ]]; then
+            rm "$claude_dir/skills/herdr"
+        fi
+        mkdir -p "$claude_dir/skills/herdr"
+        link "$claude_dir/skills/herdr/SKILL.md" "$herdr_skill"
     fi
-    # skills must be <name>/SKILL.md; drop any old whole-dir symlink first
-    if [[ -L "$claude_dir/skills/herdr" ]]; then
-      rm "$claude_dir/skills/herdr"
+
+    # install everything in the mise spec (dotfiles/config/mise); its shims_dir
+    # setting puts the shims in ~/.local/bin
+    export PATH="$HOME/.local/bin:$PATH"
+    if ! command -v mise >/dev/null; then
+        echo "mise not found, skipping tool install."
+        return 1
     fi
-    mkdir -p "$claude_dir/skills/herdr"
-    link "$claude_dir/skills/herdr/SKILL.md" "$herdr_skill"
-  fi
+    # run from / -- mise finds itself by PATH lookup and accepts a *directory* named
+    # mise, so a ./mise dir plus an empty (cwd) PATH entry gives shims pointing at it
+    (cd / && mise install --yes && mise reshim -f)
 }
 
 main

@@ -10,4 +10,6 @@ export WORKSPACE="${WORKSPACE:-/opt/workspace}"
 typeset -U fpath
 fpath=( "${ZDOTDIR:-$HOME/.config/zsh}/functions" $fpath )
 autoload -Uz fix-ssh-agent _ssh_agent_alive
-fix-ssh-agent -q
+# fix-ssh-agent -q
+
+[[ -f "$ZDOTDIR/env-local.zsh" ]] && . "$ZDOTDIR/env-local.zsh"

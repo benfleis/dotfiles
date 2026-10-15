@@ -1,0 +1,18 @@
+[settings]
+shims_dir = "~/.local/bin"
+
+[tools]
+"aqua:neovim/neovim" = "0.12.5"
+claude = "2.1.296"
+fd = "10.5.0"
+fzf = "0.74.4"
+gh = "2.102.0"
+go = "1.27.1"
+herdr = "0.9.3"
+lua = "5.5.1"
+node = "22.23.3"
+rclone = "1.75.1"
+ripgrep = "15.2.0"
+rust = "1.99.0"
+tmux = "3.7c"
+uv = "0.12.13"
