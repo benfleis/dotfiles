@@ -89,6 +89,16 @@ function main {
     link "$claude_dir/statusline-command.sh" "$PWD/claude/statusline-command.sh"
     link "$claude_dir/keybindings.json" "$PWD/claude/keybindings.json"
 
+    # per-box settings layers, passed via --settings by the claude() wrapper and iso-claude;
+    # seeded, never linked, since their content is machine-local
+    for local_settings in claude-local/settings.json iso-claude/settings.json; do
+        local_settings="${XDG_CONFIG_HOME:-$HOME/.config}/$local_settings"
+        if [[ ! -e "$local_settings" ]]; then
+            mkdir -p "$(dirname "$local_settings")"
+            echo '{"comment": "this file exists for your extended settings."}' >"$local_settings"
+        fi
+    done
+
     # link each skill -> $claude_dir/skills/<name>; the dir itself stays real, because
     # Claude and skill installers write their own entries into it
     if [[ -L "$claude_dir/skills" ]]; then
