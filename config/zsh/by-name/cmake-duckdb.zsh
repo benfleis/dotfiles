@@ -1,4 +1,4 @@
-export SCCACHE_BASEDIRS="$HOME/src/d"
+export SCCACHE_BASEDIRS="${SCCACHE_BASEDIRS:-$HOME/src/d}"
 export USE_MERGED_VCPKG_MANIFEST=1
 
 # Build the auto-detected DuckDB build dir and run a target (default: unittest).

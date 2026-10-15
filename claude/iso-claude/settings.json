@@ -1,0 +1,15 @@
+{
+  "env": {
+    "TZ": "Europe/Amsterdam",
+    "CLAUDE_CODE_USE_BEDROCK": "1",
+    "AWS_CONFIG_FILE": "/opt/workspace/state/iso-claude/aws/config",
+    "AWS_REGION": "eu-west-1",
+    "AWS_PROFILE": "agent-bedrock",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "eu.anthropic.claude-sonnet-4-5-20250929-v1:0[1m]",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "eu.anthropic.claude-opus-5-5[1m]",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "eu.anthropic.claude-haiku-4-5-20251001-v1:0",
+    "ANTHROPIC_DEFAULT_FABLE_MODEL": "global.anthropic.claude-fable-5-1[1m]"
+  },
+  "model": "opus",
+  "theme": "dark"
+}
