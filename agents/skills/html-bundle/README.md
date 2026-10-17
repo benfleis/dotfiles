@@ -39,6 +39,7 @@ test = "sqllogictest"
 path = "examples/httpfs/ducktest_conf.py"
 label = "today"  # default: the file name
 lang = "python"  # default: from the extension
+render = false   # Markdown files (.md) are rendered by default; false shows the source (CLI: --md-source)
 note = """Markdown shown above the code."""
 
 [[file]]         # a diff tab

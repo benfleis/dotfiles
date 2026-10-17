@@ -75,7 +75,7 @@ def hl_lines(src: str, lexer) -> list[str]:
     return out.removesuffix("\n").split("\n") if src else []
 
 
-def md(text: str | None) -> str:
+def md(text: str | None, cls: str = "note") -> str:
     if not text:
         return ""
     body = markdown.markdown(
@@ -83,7 +83,7 @@ def md(text: str | None) -> str:
         extensions=["fenced_code", "tables", "sane_lists", "codehilite"],
         extension_configs={"codehilite": {"css_class": "hl", "guess_lang": False}},
     )
-    return f'<div class="note">{body}</div>'
+    return f'<div class="{cls}">{body}</div>'
 
 
 def ln(n) -> str:
@@ -171,7 +171,10 @@ def build(title: str, note: str | None, entries: list[dict], root: Path, ext_lan
         else:
             p = e["path"]
             src = (root / p).read_text(encoding="utf-8")
-            body = render_file(hl_lines(src, lexer_for(p, e.get("lang"), ext_langs)))
+            if Path(p).suffix in (".md", ".markdown") and e.get("render", True) and not e.get("lang"):
+                body = md(src, "note doc scroll")
+            else:
+                body = render_file(hl_lines(src, lexer_for(p, e.get("lang"), ext_langs)))
             label, path, head = e.get("label") or Path(p).name, html.escape(p), ""
         tid = slug(label, seen)
         tabs.append(f"<button>{html.escape(label)}</button>")
@@ -205,6 +208,7 @@ body {{ margin:0; padding:16px; background:var(--bg); color:var(--fg); font:14px
 header {{ display:flex; align-items:baseline; gap:12px; }}
 h1 {{ font-size:18px; margin:0 0 4px; flex:1; }}
 .note {{ max-width:100ch; }} .note p {{ margin:6px 0; }} .note code {{ font:12.5px ui-monospace, Menlo, monospace; }}
+.doc {{ padding:4px 16px; }} .doc table {{ margin:8px 0; }} .doc th, .doc td {{ border:1px solid var(--border); padding:2px 8px; }}
 a {{ color:var(--on); }}
 p.path {{ color:var(--muted); font:12px ui-monospace, monospace; margin:6px 0; word-break:break-all; }}
 nav {{ display:flex; flex-wrap:wrap; gap:6px; margin:12px 0; }}
@@ -282,6 +286,7 @@ def main() -> None:
     ap.add_argument("--diff", nargs=2, action="append", default=[], metavar=("OLD", "NEW"), help="add a diff tab")
     ap.add_argument("--lang", action="append", default=[], metavar="EXT=LANG", help="e.g. test=sql (Pygments name)")
     ap.add_argument("-o", "--output", help="output .html (default: the manifest's `output`, else <manifest>.html)")
+    ap.add_argument("--md-source", action="store_true", help="show Markdown files as source, not rendered")
     args = ap.parse_args()
 
     ext_langs = {"." + k.lstrip("."): v for k, v in (x.split("=", 1) for x in args.lang)}
@@ -295,7 +300,8 @@ def main() -> None:
         out = Path(args.output) if args.output else mpath.parent / m.get("output", mpath.with_suffix(".html").name)
     else:
         root = Path.cwd()
-        entries = [{"path": p} for p in args.inputs] + [{"old": o, "new": n} for o, n in args.diff]
+        entries = [{"path": p, "render": not args.md_source} for p in args.inputs]
+        entries += [{"old": o, "new": n} for o, n in args.diff]
         title, note = args.title, args.note
         if not args.output:
             ap.error("-o/--output is required without a manifest")
