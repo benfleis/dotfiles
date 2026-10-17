@@ -1,0 +1,313 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.11"
+# dependencies = ["pygments>=2.17", "markdown>=3.5"]
+# ///
+"""Bundle files, diffs and Markdown commentary into one self-contained HTML page.
+
+    uv run bundle.py -t "Title" --note "top comment" a.py b.py --diff a.py b.py -o out.html
+    uv run bundle.py manifest.toml [-o out.html]
+
+See README.md for the manifest format.
+"""
+
+from __future__ import annotations
+
+import argparse
+import difflib
+import html
+import re
+import sys
+import textwrap
+import tomllib
+from pathlib import Path
+
+import markdown
+from pygments import highlight
+from pygments.formatters import HtmlFormatter
+from pygments.lexer import RegexLexer, bygroups, using
+from pygments.lexers import TextLexer, get_lexer_by_name, get_lexer_for_filename
+from pygments.lexers.sql import SqlLexer
+from pygments.token import Comment, Keyword, Punctuation, String, Text
+from pygments.util import ClassNotFound
+
+
+class SqlLogicTestLexer(RegexLexer):
+    """DuckDB sqllogictest: runner directives between records, SQL bodies, and the results after `----`."""
+
+    name = "sqllogictest"
+    aliases = ["sqllogictest", "slt"]
+    DIRECTIVES = (
+        "require-env require load mode loop endloop foreach concurrentloop concurrentforeach restart reconnect "
+        "halt skipif onlyif hash-threshold unzip test-env tags sleep"
+    ).split()
+
+    tokens = {
+        "root": [
+            (r"[ \t]*\n", Text),
+            (r"#.*\n", Comment.Single),
+            (r"(statement|query)\b(.*\n)", bygroups(Keyword, Keyword.Type), "sql"),
+            (r"(%s)(?=\s)(.*\n)" % "|".join(map(re.escape, DIRECTIVES)), bygroups(Keyword, Keyword.Type)),
+            (r".*\n", using(SqlLexer)),
+        ],
+        "sql": [(r"[ \t]*\n", Text, "#pop"), (r"----\n", Punctuation, ("#pop", "result")), (r".*\n", using(SqlLexer))],
+        "result": [(r"[ \t]*\n", Text, "#pop"), (r".*\n", String)],
+    }
+
+
+EXT_LANG = {".test": "sqllogictest", ".test_slow": "sqllogictest", ".test_coverage": "sqllogictest"}
+CUSTOM = {"sqllogictest": SqlLogicTestLexer, "slt": SqlLogicTestLexer}
+
+
+def lexer_for(path: str, lang: str | None, ext_langs: dict[str, str]):
+    lang = lang or ext_langs.get(Path(path).suffix) or EXT_LANG.get(Path(path).suffix)
+    try:
+        if lang:
+            return CUSTOM[lang]() if lang in CUSTOM else get_lexer_by_name(lang)
+        return get_lexer_for_filename(path)
+    except ClassNotFound:
+        return TextLexer()
+
+
+def hl_lines(src: str, lexer) -> list[str]:
+    """Highlighted HTML, one entry per source line (Pygments closes its spans at each newline)."""
+    out = highlight(src, lexer, HtmlFormatter(nowrap=True))
+    return out.removesuffix("\n").split("\n") if src else []
+
+
+def md(text: str | None) -> str:
+    if not text:
+        return ""
+    body = markdown.markdown(
+        textwrap.dedent(text).strip(),
+        extensions=["fenced_code", "tables", "sane_lists", "codehilite"],
+        extension_configs={"codehilite": {"css_class": "hl", "guess_lang": False}},
+    )
+    return f'<div class="note">{body}</div>'
+
+
+def ln(n) -> str:
+    # The number is CSS-generated content, so copying code never picks it up.
+    return f'<td class="ln" data-n="{n}"></td>' if n else '<td class="ln"></td>'
+
+
+def render_file(lines: list[str]) -> str:
+    rows = "".join(f"<tr>{ln(i)}<td class=code>{h}</td></tr>" for i, h in enumerate(lines, 1))
+    return f'<div class="hl scroll"><table class="src">{rows}</table></div>'
+
+
+def render_diff(old: list[str], new: list[str], a: list[str], b: list[str], context: int) -> tuple[str, int, int]:
+    """Unified and side-by-side tables of one diff; the page shows one of them. `a`/`b` are the lines compared."""
+    sm = difflib.SequenceMatcher(None, a, b, autojunk=False)
+    groups = [sm.get_opcodes()] if context < 0 else list(sm.get_grouped_opcodes(context))
+    uni, split, adds, dels, shown = [], [], 0, 0, 0
+
+    def gap(upto: int):
+        if upto > shown:
+            msg = f"⋯ {upto - shown} unchanged line{'s' * (upto - shown != 1)}"
+            uni.append(f'<tr class="gap"><td colspan=3>{msg}</td></tr>')
+            split.append(f'<tr class="gap"><td colspan=4>{msg}</td></tr>')
+
+    for group in groups:
+        gap(group[0][1])
+        for tag, i1, i2, j1, j2 in group:
+            if tag == "equal":
+                for i, j in zip(range(i1, i2), range(j1, j2)):
+                    uni.append(f"<tr>{ln(i + 1)}{ln(j + 1)}<td class=code>{new[j]}</td></tr>")
+                    split.append(
+                        f"<tr>{ln(i + 1)}<td class=code>{old[i]}</td>{ln(j + 1)}<td class=code>{new[j]}</td></tr>"
+                    )
+                continue
+            dels, adds = dels + i2 - i1, adds + j2 - j1
+            uni += [f'<tr class="del">{ln(i + 1)}{ln(0)}<td class=code>{old[i]}</td></tr>' for i in range(i1, i2)]
+            uni += [f'<tr class="add">{ln(0)}{ln(j + 1)}<td class=code>{new[j]}</td></tr>' for j in range(j1, j2)]
+            for k in range(max(i2 - i1, j2 - j1)):
+                i, j = i1 + k, j1 + k
+                left = (
+                    f'{ln(i + 1)}<td class="code del">{old[i]}</td>'
+                    if i < i2
+                    else '<td class="ln"></td><td class="code none"></td>'
+                )
+                right = (
+                    f'{ln(j + 1)}<td class="code add">{new[j]}</td>'
+                    if j < j2
+                    else '<td class="ln"></td><td class="code none"></td>'
+                )
+                split.append(f"<tr>{left}{right}</tr>")
+        shown = group[-1][2]
+    gap(len(a))
+    if not groups:
+        uni.append('<tr class="gap"><td colspan=3>no differences</td></tr>')
+        split.append('<tr class="gap"><td colspan=4>no differences</td></tr>')
+    body = (
+        f'<div class="hl scroll"><table class="diff unified">{"".join(uni)}</table>'
+        f'<table class="diff split">{"".join(split)}</table></div>'
+    )
+    return body, adds, dels
+
+
+def slug(text: str, seen: set[str]) -> str:
+    s = re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-") or "tab"
+    base, n = s, 2
+    while s in seen:
+        s, n = f"{base}-{n}", n + 1
+    seen.add(s)
+    return s
+
+
+def build(title: str, note: str | None, entries: list[dict], root: Path, ext_langs: dict[str, str]) -> str:
+    seen: set[str] = set()
+    tabs, panels = [], []
+    for e in entries:
+        if "old" in e:
+            o, n = e["old"], e["new"]
+            a, b = ((root / p).read_text(encoding="utf-8") for p in (o, n))
+            lexer = lexer_for(n, e.get("lang"), ext_langs)
+            key = (lambda t: [" ".join(x.split()) for x in t.splitlines()]) if e.get("ignore_space") else str.splitlines
+            body, adds, dels = render_diff(hl_lines(a, lexer), hl_lines(b, lexer), key(a), key(b), e.get("context", 3))
+            label = e.get("label") or f"{Path(o).name} → {Path(n).name}"
+            path = f'{html.escape(o)} → {html.escape(n)} <span class="stat"><span class="plus">+{adds}</span> <span class="minus">−{dels}</span></span>'
+            head = '<span class="mode"><button data-mode="unified">unified</button><button data-mode="split">side by side</button></span>'
+        else:
+            p = e["path"]
+            src = (root / p).read_text(encoding="utf-8")
+            body = render_file(hl_lines(src, lexer_for(p, e.get("lang"), ext_langs)))
+            label, path, head = e.get("label") or Path(p).name, html.escape(p), ""
+        tid = slug(label, seen)
+        tabs.append(f"<button>{html.escape(label)}</button>")
+        panels.append(
+            f'<section class="panel" id="{tid}"><p class="path">{head}{path}</p>{md(e.get("note"))}{body}</section>'
+        )
+    return PAGE.format(
+        title=html.escape(title), note=md(note), tabs="".join(tabs), panels="".join(panels), light=LIGHT, dark=DARK
+    )
+
+
+LIGHT = (
+    "--bg:#fbfbfa; --fg:#1f2328; --muted:#6a737d; --border:#d0d7de; --tab:#eef1f4; --on:#0b5cad; --kw:#a626a4; "
+    "--str:#2f7d32; --com:#8a8f98; --num:#b35c00; --dec:#0b6e99; --fn:#3d5fc4; --add:#e6ffec; --del:#ffebe9; "
+    "--addfg:#1a7f37; --delfg:#cf222e; --gap:#f0f3f6; --none:#f3f4f6;"
+)
+DARK = (
+    "--bg:#16181c; --fg:#e6e6e6; --muted:#9aa3ad; --border:#30363d; --tab:#22262c; --on:#6cb6ff; --kw:#d29ff2; "
+    "--str:#8fd18f; --com:#7d8590; --num:#f0a35c; --dec:#7cc7e8; --fn:#9db7ff; --add:#1b3326; --del:#3d1f22; "
+    "--addfg:#56d364; --delfg:#f47067; --gap:#1d2127; --none:#1b1e23;"
+)
+
+PAGE = """<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{title}</title>
+<style>
+:root {{ {light} color-scheme:light; }}
+@media (prefers-color-scheme: dark) {{ :root:not([data-theme="light"]) {{ {dark} color-scheme:dark; }} }}
+:root[data-theme="dark"] {{ {dark} color-scheme:dark; }}
+body {{ margin:0; padding:16px; background:var(--bg); color:var(--fg); font:14px/1.45 system-ui, sans-serif; }}
+header {{ display:flex; align-items:baseline; gap:12px; }}
+h1 {{ font-size:18px; margin:0 0 4px; flex:1; }}
+.note {{ max-width:100ch; }} .note p {{ margin:6px 0; }} .note code {{ font:12.5px ui-monospace, Menlo, monospace; }}
+a {{ color:var(--on); }}
+p.path {{ color:var(--muted); font:12px ui-monospace, monospace; margin:6px 0; word-break:break-all; }}
+nav {{ display:flex; flex-wrap:wrap; gap:6px; margin:12px 0; }}
+button {{ border:1px solid var(--border); background:var(--tab); color:var(--fg); padding:6px 10px; border-radius:6px; cursor:pointer; font:inherit; }}
+button.on {{ border-color:var(--on); color:var(--on); font-weight:600; }}
+.mode {{ float:right; display:flex; gap:4px; }} .mode button {{ padding:2px 8px; font:12px system-ui, sans-serif; }}
+.stat {{ margin-left:8px; }} .plus {{ color:var(--addfg); }} .minus {{ color:var(--delfg); }}
+.scroll {{ border:1px solid var(--border); border-radius:6px; overflow-x:auto; }}
+.hl pre, .hl table {{ font:13px/1.5 ui-monospace, Menlo, monospace; tab-size:4; }}
+.note .hl pre {{ margin:6px 0; padding:8px 12px; border:1px solid var(--border); border-radius:6px; overflow-x:auto; }}
+table {{ border-collapse:collapse; }} .hl table {{ min-width:100%; }}
+td {{ padding:0 12px 0 0; vertical-align:top; }}
+td.code {{ white-space:pre; }}
+td.ln {{ color:var(--muted); text-align:right; padding:0 10px; min-width:3ch; user-select:none; opacity:.7; }}
+td.ln::before {{ content:attr(data-n); }}
+table.src tr:first-child td, .diff tr:first-child td {{ padding-top:8px; }}
+table.src tr:last-child td, .diff tr:last-child td {{ padding-bottom:8px; }}
+tr.add td, td.add {{ background:var(--add); }} tr.del td, td.del {{ background:var(--del); }} td.none {{ background:var(--none); }}
+tr.add td.code::before, td.add::before {{ content:"+ "; color:var(--addfg); user-select:none; }}
+tr.del td.code::before, td.del::before {{ content:"− "; color:var(--delfg); user-select:none; }}
+tr.gap td {{ background:var(--gap); color:var(--muted); font-style:italic; padding:2px 10px; }}
+.split {{ table-layout:fixed; width:100%; }} .split td.code {{ white-space:pre-wrap; overflow-wrap:anywhere; width:50%; }}
+:root[data-diff="split"] .unified, :root:not([data-diff="split"]) .split {{ display:none; }}
+.hl .k,.hl .kc,.hl .kd,.hl .kn,.hl .kp,.hl .kr,.hl .ow,.hl .cp,.hl .cpf {{ color:var(--kw); }}
+.hl .s,.hl .sa,.hl .sb,.hl .sc,.hl .dl,.hl .sd,.hl .s2,.hl .se,.hl .sh,.hl .si,.hl .sx,.hl .sr,.hl .s1,.hl .ss {{ color:var(--str); }}
+.hl .c,.hl .ch,.hl .cm,.hl .c1,.hl .cs {{ color:var(--com); font-style:italic; }}
+.hl .m,.hl .mb,.hl .mf,.hl .mh,.hl .mi,.hl .il,.hl .mo {{ color:var(--num); }}
+.hl .nd,.hl .kt,.hl .nb,.hl .bp,.hl .nv {{ color:var(--dec); }}
+.hl .nf,.hl .fm,.hl .nc,.hl .nt,.hl .na {{ color:var(--fn); }}
+.hl .gh,.hl .gu {{ color:var(--on); font-weight:600; }} .hl .ge {{ font-style:italic; }} .hl .gs {{ font-weight:600; }}
+</style></head><body>
+<header><h1>{title}</h1><button id="theme" title="theme: auto, light, dark"></button></header>
+{note}<nav id="tabs">{tabs}</nav>
+{panels}
+<script>
+const root = document.documentElement;
+// Reading localStorage itself throws where the origin is opaque (some file:// setups).
+const get = k => {{ try {{ return localStorage.getItem(k); }} catch (e) {{ return null; }} }};
+const put = (k, v) => {{ try {{ localStorage.setItem(k, v); }} catch (e) {{}} }};
+const tabs = [...document.querySelectorAll("#tabs button")], panels = [...document.querySelectorAll("section.panel")];
+function show(i) {{
+  tabs.forEach((b, j) => b.classList.toggle("on", i === j));
+  panels.forEach((p, j) => p.hidden = i !== j);
+  try {{ history.replaceState(null, "", "#" + panels[i].id); }} catch (e) {{}}
+}}
+tabs.forEach((b, i) => b.onclick = () => show(i));
+document.addEventListener("keydown", e => {{
+  if (e.target.closest?.("input, textarea") || e.altKey || e.ctrlKey || e.metaKey) return;
+  const i = tabs.findIndex(b => b.classList.contains("on"));
+  if (e.key === "ArrowRight" || e.key === "ArrowLeft") show((i + (e.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length);
+}});
+const THEMES = ["auto", "light", "dark"], themeBtn = document.getElementById("theme");
+function theme(t) {{
+  if (t === "auto") delete root.dataset.theme; else root.dataset.theme = t;
+  themeBtn.textContent = "◐ " + t; put("bundle-theme", t);
+}}
+themeBtn.onclick = () => theme(THEMES[(THEMES.indexOf(themeBtn.textContent.slice(2)) + 1) % 3]);
+theme(THEMES.includes(get("bundle-theme")) ? get("bundle-theme") : "auto");
+function mode(m) {{
+  root.dataset.diff = m; put("bundle-diff", m);
+  document.querySelectorAll(".mode button").forEach(b => b.classList.toggle("on", b.dataset.mode === m));
+}}
+document.querySelectorAll(".mode button").forEach(b => b.onclick = () => mode(b.dataset.mode));
+mode(get("bundle-diff") || (innerWidth >= 1200 ? "split" : "unified"));
+show(Math.max(0, panels.findIndex(p => "#" + p.id === location.hash)));
+</script></body></html>
+"""
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+    ap.add_argument("inputs", nargs="*", help="files to show, or one .toml manifest")
+    ap.add_argument("-t", "--title", help="page title (default: the manifest's, else the first file's name)")
+    ap.add_argument("--note", help="top comment, Markdown; @FILE reads it from FILE")
+    ap.add_argument("--diff", nargs=2, action="append", default=[], metavar=("OLD", "NEW"), help="add a diff tab")
+    ap.add_argument("--lang", action="append", default=[], metavar="EXT=LANG", help="e.g. test=sql (Pygments name)")
+    ap.add_argument("-o", "--output", help="output .html (default: the manifest's `output`, else <manifest>.html)")
+    args = ap.parse_args()
+
+    ext_langs = {"." + k.lstrip("."): v for k, v in (x.split("=", 1) for x in args.lang)}
+    if len(args.inputs) == 1 and args.inputs[0].endswith(".toml"):
+        mpath = Path(args.inputs[0])
+        m = tomllib.loads(mpath.read_text(encoding="utf-8"))
+        root = (mpath.parent / m.get("root", ".")).resolve()
+        entries = m.get("file", [])
+        ext_langs = {"." + k.lstrip("."): v for k, v in m.get("lang", {}).items()} | ext_langs
+        title, note = args.title or m.get("title"), args.note or m.get("note")
+        out = Path(args.output) if args.output else mpath.parent / m.get("output", mpath.with_suffix(".html").name)
+    else:
+        root = Path.cwd()
+        entries = [{"path": p} for p in args.inputs] + [{"old": o, "new": n} for o, n in args.diff]
+        title, note = args.title, args.note
+        if not args.output:
+            ap.error("-o/--output is required without a manifest")
+        out = Path(args.output)
+    if not entries:
+        ap.error("nothing to bundle")
+    if note and note.startswith("@"):
+        note = Path(note[1:]).read_text(encoding="utf-8")
+    first = entries[0].get("path") or entries[0]["new"]
+    out.write_text(build(title or Path(first).name, note, entries, root, ext_langs), encoding="utf-8")
+    print(out, file=sys.stderr)
+
+
+if __name__ == "__main__":
+    main()
