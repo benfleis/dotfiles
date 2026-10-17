@@ -42,5 +42,3 @@ dbuild() {
   cmake --build "$repo/build/$build_type" --config "$config" --target shell --target unittest "$@" 2>&1 \
     | tee "$repo/local/build-test.log"
 }
-
-

@@ -148,3 +148,7 @@ prefer() {
 # TODO: make these autoload functions
 . $ZDOTDIR/prompts.zsh
 use_prompt_basic
+
+# machine-local rc, last so it can override all of the above
+[[ -r $ZDOTDIR/rc-local.zsh ]] && . $ZDOTDIR/rc-local.zsh
+[[ -r $_ZSTATE/rc-local.zsh ]] && . $_ZSTATE/rc-local.zsh

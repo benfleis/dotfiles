@@ -12,4 +12,6 @@ fpath=( "${ZDOTDIR:-$HOME/.config/zsh}/functions" $fpath )
 autoload -Uz fix-ssh-agent _ssh_agent_alive
 # fix-ssh-agent -q
 
+# machine-local env: $ZDOTDIR (host config) then $XDG_STATE_HOME (secrets, never in git)
 [[ -f "$ZDOTDIR/env-local.zsh" ]] && . "$ZDOTDIR/env-local.zsh"
+[[ -f "${XDG_STATE_HOME:-$HOME/.local/state}/zsh/env-local.zsh" ]] && . "${XDG_STATE_HOME:-$HOME/.local/state}/zsh/env-local.zsh"

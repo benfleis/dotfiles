@@ -22,3 +22,5 @@ config/itape/%*
 
 __pycache__/
 config/zsh/env-local.zsh
+config/zsh/rc-local.zsh
+config/zsh/*-local.zsh

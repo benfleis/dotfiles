@@ -2330,6 +2330,49 @@ url = "https://nodejs.org/dist/v22.23.3/node-v22.23.3-darwin-x64.tar.gz"
 checksum = "sha256:2b0ff57b049cda1bbcea2240eec20467018713c1efe1f7360c2681859b90ed71"
 url = "https://nodejs.org/dist/v22.23.3/node-v22.23.3-win-x64.zip"
 
+[[tools.pi]]
+version = "1.2.0"
+backend = "aqua:earendil-works/pi"
+specifiers = [
+    "1.2.0",
+    "latest",
+]
+
+[tools.pi."platforms.linux-arm64"]
+checksum = "sha256:d8597ee3a2050592d38e67f6b609ab55139deed7e820020d910d84f17bb7abd6"
+url = "https://github.com/earendil-works/pi/releases/download/v1.2.0/pi-linux-arm64.tar.gz"
+url_api = "https://api.github.com/repos/earendil-works/pi/releases/assets/635209983"
+
+[tools.pi."platforms.linux-arm64-musl"]
+checksum = "sha256:d8597ee3a2050592d38e67f6b609ab55139deed7e820020d910d84f17bb7abd6"
+url = "https://github.com/earendil-works/pi/releases/download/v1.2.0/pi-linux-arm64.tar.gz"
+url_api = "https://api.github.com/repos/earendil-works/pi/releases/assets/635209983"
+
+[tools.pi."platforms.linux-x64"]
+checksum = "sha256:00fc36cffdebceea5a48230da62cf3fb463178f8fe185766652f96002a246847"
+url = "https://github.com/earendil-works/pi/releases/download/v1.2.0/pi-linux-x64.tar.gz"
+url_api = "https://api.github.com/repos/earendil-works/pi/releases/assets/635209977"
+
+[tools.pi."platforms.linux-x64-musl"]
+checksum = "sha256:00fc36cffdebceea5a48230da62cf3fb463178f8fe185766652f96002a246847"
+url = "https://github.com/earendil-works/pi/releases/download/v1.2.0/pi-linux-x64.tar.gz"
+url_api = "https://api.github.com/repos/earendil-works/pi/releases/assets/635209977"
+
+[tools.pi."platforms.macos-arm64"]
+checksum = "sha256:abddf7688b4b6781d9113f63cd578e3c01dcdb87e71f66e7ec1c9ec6c76178d1"
+url = "https://github.com/earendil-works/pi/releases/download/v1.2.0/pi-darwin-arm64.tar.gz"
+url_api = "https://api.github.com/repos/earendil-works/pi/releases/assets/635209981"
+
+[tools.pi."platforms.macos-x64"]
+checksum = "sha256:e079ff016ae78279cfbd6c1b4fffe072162f4a7bb879ad61b04e2e43bcc53455"
+url = "https://github.com/earendil-works/pi/releases/download/v1.2.0/pi-darwin-x64.tar.gz"
+url_api = "https://api.github.com/repos/earendil-works/pi/releases/assets/635209980"
+
+[tools.pi."platforms.windows-x64"]
+checksum = "sha256:bd272b508657ad8d0ac6176e7751913c848a89cfb8cbe21ff319941e6ca140be"
+url = "https://github.com/earendil-works/pi/releases/download/v1.2.0/pi-windows-x64.zip"
+url_api = "https://api.github.com/repos/earendil-works/pi/releases/assets/635210044"
+
 [[tools.rclone]]
 version = "1.75.1"
 backend = "aqua:rclone/rclone"

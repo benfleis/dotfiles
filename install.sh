@@ -105,7 +105,7 @@ function main {
         rm "$claude_dir/skills"
     fi
     mkdir -p "$claude_dir/skills"
-    for skill in claude/skills/*/; do
+    for skill in agents/skills/*/; do
         skill="${skill%/}"
         if [[ -f "$skill/SKILL.md" ]]; then
             link "$claude_dir/skills/$(basename "$skill")" "$PWD/$skill"
