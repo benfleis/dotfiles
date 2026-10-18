@@ -121,4 +121,4 @@ the SQL, and what SQL cannot do (servers, clocks, concurrency).
 
 ## Workspace rules
 
-@/opt/workspace/config/agents/CLAUDE.md
+@/opt/workspace/config/agents/AGENTS.md
