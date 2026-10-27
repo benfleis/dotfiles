@@ -1,12 +1,7 @@
 {
-  "defaultProvider": "amazon-bedrock",
-  "defaultModel": "eu.anthropic.claude-opus-5-5",
   "hideThinkingBlock": true,
   "enableInstallTelemetry": false,
   "tuiMode": "fullscreen",
-  "packages": [
-    "npm:pi-vimmode"
-  ],
   "piVimMode": {
     "keymap": {
       "escape": [

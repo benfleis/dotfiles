@@ -1,0 +1,3 @@
+# First-run keys for the sandbox's codex config.toml: applied only when missing,
+# so a /model change survives (see config.toml next to this file).
+model = "openai.gpt-6.1-sol"
