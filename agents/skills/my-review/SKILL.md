@@ -1,9 +1,93 @@
 ---
 name: review-duckdb-pr
-description: Review DuckDB-related pull requests or PR-like diffs — duckdb/duckdb core, out-of-tree extensions (azure, delta, unity_catalog, etc.), or client drivers. Use when asked to inspect a PR, check out a PR branch, read PR descriptions/comments/reviews, verify reviewer feedback, find correctness issues not already covered by CI, identify structural/API/design risks and maintainability issues CI cannot catch, add targeted repros for found breakages, collaborate before finalizing, and produce a reviewer-ready summary without posting through GitHub. Also applies to a pre-PR local diff (a branch/working tree not yet opened as a PR).
+description: Review DuckDB-related pull requests or PR-like diffs — duckdb/duckdb core, out-of-tree extensions (azure, delta, unity_catalog, etc.), or client drivers. Use when asked to inspect a PR, check out a PR branch, read PR descriptions/comments/reviews, verify reviewer feedback, find correctness issues not already covered by CI, identify structural/API/design risks and maintainability issues CI cannot catch, add targeted repros for found breakages, collaborate before finalizing, and produce a reviewer-ready summary without posting through GitHub. Also applies to a pre-PR local diff (a branch/working tree not yet opened as a PR). Every review runs as two blind reviews, one by a Claude model and one by a GPT (Codex) model, merged into one consolidated report.
 ---
 
 # Review DuckDB PR
+
+## Two Blind Reviews, One Report
+
+Every review is done twice, independently: once by a Claude model and once by a GPT model (Codex or pi). The session that was asked for the review is the **consolidator**: it starts the reviews, waits for both reports, and writes the consolidated report. Everything below this section (Workflow, Review Focus, prose rules, Final Summary) is what each reviewer does.
+
+### Roles
+
+- **Consolidator** (the invoking session, by default). Sets up the target and output paths, forks the reviews, writes the consolidated report, and talks to the user.
+- **Reviewer.** Runs the Workflow below on the target and writes one report file. A forked reviewer is told it is a reviewer: it does not fork further, does not consolidate, and does not ask the user anything (Workflow step 10 becomes a "Questions for the owner" section at the end of its report).
+- If the consolidator is itself a Claude or a GPT model, it may also be that side's reviewer and fork only the other side. Otherwise (or if its own context already holds an opinion on the change, e.g. it wrote the branch) it forks both.
+
+### Setup (consolidator)
+
+1. Confirm the target as in Workflow step 1 (PR number and repo, or local diff and base). Record the head SHA; both reviewers review that same SHA.
+2. Pick the output paths. In `/opt/workspace`: `state/tasks/reviews/<YYYY-MM-DD>/review-<pr>-<tag>/report.md` per reviewer, where `<tag>` is the short model name (`fable`, `sol`, `astra`, ...), and `state/tasks/reviews/<YYYY-MM-DD>/review-<pr>-summary.md` for the consolidated report. For a local diff use the branch or topic name in place of `<pr>`. Elsewhere, ask the user for a directory, or use `./review-<pr>/<tag>/report.md` and `./review-<pr>/summary.md`.
+3. Give each reviewer its own checkout so the two do not move each other's HEAD: a detached worktree per reviewer, e.g. `git fetch upstream pull/<pr>/head && git worktree add --detach <repo>/local/review-<pr>-<tag> FETCH_HEAD`. For a local diff, both may read the same tree, but neither edits it; a reproducer goes in the reviewer's own worktree.
+4. Write one prompt and give it, unchanged except for the role's paths, to both reviewers:
+
+       You are a reviewer, not the consolidator. Read <absolute path to this SKILL.md> and follow
+       it in the reviewer role. Target: <repo> PR #<pr> (head <sha>) | local diff <base>...<branch>
+       in <path>. Your worktree: <worktree>. Write your report to <report path>. Do not read
+       <the other reviewer's directory> or any other review of this change. Do not fork other
+       reviews and do not post anything to GitHub. Put questions for the owner at the end of
+       the report. <Any focus the user asked for.>
+
+   Pass the skill by absolute path: a headless run may not have the skill installed.
+
+### Starting the reviews
+
+Detect what is available, in this order, and use the first that works for each side. A command that is on `PATH` but fails at once (no auth, unknown model) counts as missing: smoke-test it first with a one-line prompt (`timeout 120 codex exec --skip-git-repo-check -s read-only 'Reply with: ok'`, same for `claude -p` / `pi -p`). On this box's host, `codex` is installed but may not be logged in (401 from api.openai.com); then use pi.
+
+| side | first choice | fallback |
+| --- | --- | --- |
+| GPT | `codex exec` (`command -v codex`) | `pi -p --model amazon-bedrock/global.openai.gpt-6.1-sol` |
+| Claude | from Claude Code: a subagent (Task tool) with the prompt above; otherwise `claude -p` (`command -v claude`) | `pi -p --model amazon-bedrock/global.anthropic.claude-fable-5-1` |
+
+If a pinned model name is gone, pick the newest model of that family from `pi --list-models gpt` / `pi --list-models claude`. Name the model in the report header.
+
+Command shapes (run each in the background, log beside its report, and wait for the report file and the process exit):
+
+    # GPT via Codex: needs network for gh; -o keeps its last message as a fallback report
+    codex exec [-m <model>] -s workspace-write -c sandbox_workspace_write.network_access=true \
+        -C <worktree> --add-dir <report dir> -o <report dir>/last-message.md "<prompt>" \
+        > <report dir>/run.log 2>&1 &
+
+    # GPT or Claude via pi
+    pi -p --no-session --model amazon-bedrock/<model> "<prompt>" > <report dir>/run.log 2>&1 &
+
+    # Claude via Claude Code headless. --allowedTools and --add-dir take lists, so the prompt goes
+    # on stdin. Add build/test commands if the review needs probes; inside iso-claude,
+    # --dangerously-skip-permissions is fine (the container is the boundary), never on the host.
+    printf '%s\n' "<prompt>" | claude -p --model <model> --permission-mode acceptEdits \
+        --add-dir <worktree> <report dir> \
+        --allowedTools "Bash(git diff:*)" "Bash(git log:*)" "Bash(git show:*)" "Bash(git status:*)" \
+            "Bash(gh pr view:*)" "Bash(gh pr diff:*)" \
+            "Bash(gh api --method GET:*)" "Bash(grep:*)" "Bash(rg:*)" "Bash(ls:*)" \
+        > <report dir>/run.log 2>&1 &
+
+Per environment:
+
+- **Claude Code (host or iso-claude sandbox).** The session is the Claude reviewer, or forks a subagent for it. GPT: `codex exec` if installed, otherwise pi with the GPT model.
+- **pi.** Check `$PI_MODEL`: a Claude model is the Claude reviewer, a GPT model the GPT reviewer. The other side: `pi -p --model ...` with the other family (works everywhere pi has Bedrock), or `codex exec` / `claude -p`.
+- **Codex.** The session is the GPT reviewer. Claude: `claude -p` if installed, otherwise pi with the Claude model.
+- **Sandbox (iso-claude).** `config/` is read-only, but the skill only needs to read it; reports go under `state/`. Codex may not be installed there yet: use pi with the GPT model. If Codex's own sandbox cannot start inside the container, run it with `-s danger-full-access`; the container is the boundary.
+
+**If one side cannot run** (neither tool works, or it fails part-way and does not write a report): do not wait for it and do not invent its view. Run the one review, write the consolidated report from it, and say at the top, in the verdict line: "Single review (<model>); the <Claude|GPT> review did not run: <reason>." Tell the user the same, with the command that would run the missing side.
+
+### Blindness
+
+- Neither reviewer sees the other's report, notes, worktree or log until both reports are written.
+- If the consolidator is also a reviewer, it forks the other side first, then does and writes its own review, and only then reads the other report.
+- The prompt carries the target and any user focus, never findings or a draft opinion.
+
+### Consolidated report
+
+Write it after both reports exist, next to them (`review-<pr>-summary.md`). Name both source reports, and the model of each, at the top. Then, short:
+
+1. **Verdict.** One line each if they differ, one line if they agree ("Both: mergeable after small fixes").
+2. **Agreed findings.** Found by both, by severity, with file/line, crediting each ("both reviewers", or `Fable M1 / sol P3`).
+3. **Found by one reviewer only**, grouped per reviewer. For each, say whether you checked it and whether it holds; a finding the other reviewer contradicts is listed with both views, not dropped.
+4. **Behaviour changes** the change brings that a user or caller will notice, even when both call them correct.
+5. **Decisions for the owner.** The open questions from both reports, merged, each with the reviewers' recommendations.
+
+Keep the detail in the reviewer reports and link them; the consolidated report is the one the owner reads first. The prose rules below apply to it too. Do not post it.
 
 ## Workflow
 
