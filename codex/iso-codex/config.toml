@@ -1,0 +1,22 @@
+# Seed for the sandbox's CODEX_HOME (state/iso-codex/config.toml), copied by
+# src/iso-claude/bin/iso-agent when that file is missing. Never the host ~/.codex.
+# Bedrock through Codex's built-in amazon-bedrock provider (bedrock-mantle,
+# SigV4 from the AWS profile the sandbox's AWS_CONFIG_FILE defines).
+model_provider = "amazon-bedrock"
+model = "openai.gpt-6.1-sol"
+
+# Codex's own command sandbox (bubblewrap) cannot start in the container (no user
+# namespaces under cap_drop ALL / no-new-privileges), so every shell command
+# fails. The container is the sandbox, as for iso-claude: no inner sandbox, and
+# the model asks before risky commands ("untrusted" is gone in 0.163).
+sandbox_mode = "danger-full-access"
+approval_policy = "on-request"
+
+[model_providers.amazon-bedrock.aws]
+profile = "agent-bedrock"
+# us-east-1: the gpt-6 models 404 on bedrock-mantle in eu-west-1, eu-central-1,
+# eu-north-1 and us-west-2 (2026-10-27). allowlist.conf has the matching host.
+region = "us-east-1"
+
+[tui]
+screen_reader_detection_done = true
