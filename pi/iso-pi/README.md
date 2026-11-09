@@ -1,6 +1,6 @@
 # pi in the iso sandbox
 
-`src/iso-claude/bin/iso-pi` merges these into the sandbox's `state/iso-pi/settings.json` on every launch
+`atc-box/docker/bin/iso-pi` (`/opt/workspace/config/atc-box`) merges these into the sandbox's `state/iso-pi/settings.json` on every launch
 (`iso-merge-config`, in the image):
 
 - `settings.json`: wins on its keys every launch (objects merge key by key, other values are replaced).

@@ -1,5 +1,5 @@
 # Merged over the sandbox's CODEX_HOME/config.toml (state/iso-codex) on every
-# launch by iso-merge-config (src/iso-claude/bin/iso-agent): these keys win,
+# launch by iso-merge-config (config/atc-box/docker/bin/iso-agent): these keys win,
 # tables merge key by key, every other key in that file is kept. Keys that only
 # fill a first run (the model, so /model survives) are in defaults.toml.
 # Never the host ~/.codex.
@@ -14,7 +14,7 @@ check_for_update_on_startup = false
 
 # Codex's own command sandbox (bubblewrap) cannot start in the container (no user
 # namespaces under cap_drop ALL / no-new-privileges), so every shell command
-# fails. The container is the sandbox, as for iso-claude's
+# fails. The container is the sandbox, as for the iso container's
 # --dangerously-skip-permissions (owner, 2026-10-27).
 sandbox_mode = "danger-full-access"
 approval_policy = "on-request"
