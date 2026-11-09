@@ -43,8 +43,12 @@ map("c", "<Down>", "<C-n>", { noremap = true })
 map("c", "<C-p>", "<Up>", { noremap = true })
 map("c", "<C-n>", "<Down>", { noremap = true })
 
--- ;y for yank to os clipboard
-map("", leader("y"), '"*y', { noremap = true })
+-- system clipboard, explicit only: ;y{motion} ;yy, ;D{motion} ;DD (cut), ;p ;P
+vim.keymap.set({ "n", "x" }, leader("y"), '"+y', { desc = "yank to clipboard" })
+vim.keymap.set({ "n", "x" }, leader("D"), '"+d', { desc = "cut to clipboard" })
+vim.keymap.set("n", leader("DD"), '"+dd', { desc = "cut line to clipboard" })
+vim.keymap.set({ "n", "x" }, leader("p"), '"+p', { desc = "paste clipboard after" })
+vim.keymap.set({ "n", "x" }, leader("P"), '"+P', { desc = "paste clipboard before" })
 
 -- double Ctrl-[ to escape "insert" mode in Terminals
 map("t", "<C-[><C-[>", "<C-\\><C-n>", { noremap = true })
@@ -156,3 +160,32 @@ map("n", leader_2x("p"), cmd("bp"), { desc = "!! buffer [p]revious" })
 --    ["<CR>"] = cmp.mapping.confirm({ select = true }),
 --  }),
 --})
+
+
+-- ;uy: toggle a "clean copy" view for the current window (saves + restores per window)
+local clean_opts = { "number", "relativenumber", "signcolumn", "foldcolumn", "statuscolumn", "list" }
+local clean_off = { number = false, relativenumber = false, signcolumn = "no", foldcolumn = "0", statuscolumn = "", list = false }
+Snacks.toggle.new({
+   id = "clean_copy",
+   name = "Clean Copy (no gutter)",
+   get = function() return vim.w.clean_copy_saved ~= nil end,
+   set = function(state)
+      local buf = vim.api.nvim_get_current_buf()
+      if state then
+         local saved = { diag = vim.diagnostic.is_enabled({ bufnr = buf }), indent = Snacks.indent.enabled }
+         for _, o in ipairs(clean_opts) do
+            saved[o] = vim.wo[o]
+            vim.wo[o] = clean_off[o]
+         end
+         vim.w.clean_copy_saved = saved
+         vim.diagnostic.enable(false, { bufnr = buf }) -- signs + virtual text
+         if saved.indent then Snacks.indent.disable() end -- indent guides are drawn as text
+      else
+         local saved = vim.w.clean_copy_saved
+         for _, o in ipairs(clean_opts) do vim.wo[o] = saved[o] end
+         vim.diagnostic.enable(saved.diag, { bufnr = buf })
+         if saved.indent then Snacks.indent.enable() end
+         vim.w.clean_copy_saved = nil
+      end
+   end,
+}):map("<leader>uy")
