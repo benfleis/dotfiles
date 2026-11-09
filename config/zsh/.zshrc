@@ -36,7 +36,8 @@ done
 # TODO: figure this out
 fpath=( "$XDG_DATA_HOME/zsh/completions" "${ZDOTDIR}/completions" "${ZDOTDIR}/functions" "${fpath[@]}" )
 autoload -Uz compinit
-compinit
+# atc-box: config/ belongs to bfleis and is read-only for atc, so compaudit flags it; trust it there
+[[ $USERNAME = atc ]] && compinit -u || compinit
 # TODO check .zcompdump?
 # autoload -Uz "${ZDOTDIR}/functions/"**
 # functions.zsh
@@ -80,10 +81,13 @@ export _compdir=$ZDOTDIR/completions
 autoload -U compinit
 autoload zmv
 autoload edit-command-line
+zle -N edit-command-line
 
 # special key bindings
 bindkey -v
-bindkey -M vicmd V edit-command-line
+# bindkey -M vicmd V edit-command-line
+bindkey -M vicmd '^G' edit-command-line
+bindkey -M viins '^G' edit-command-line
 bindkey "\M-b" vi-backward-word
 bindkey "\M-f" vi-forward-word
 bindkey "\M-d" kill-word

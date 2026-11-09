@@ -48,12 +48,12 @@ detach = "prefix+d"
 new_tab = ["prefix+ctrl+c", "prefix+c"]
 # rename_tab = "prefix+shift+t"
 previous_tab = ["prefix+p", "prefix+ctrl+p"]
-next_tab = ["prefix+n", "prefix+ctrl+n", "prefix+space"]
+next_tab = ["prefix+n", "prefix+ctrl+n", "prefix+space", "prefix+ctrl+space"]
 move_tab_previous = "prefix+ctrl+h"                      # optional, e.g. "alt+shift+left" moves the tab toward the front
 move_tab_next = "prefix+ctrl+l"                          # optional, e.g. "alt+shift+right" moves the tab toward the back
 # switch_tab = "prefix+1..9"
 # switch_workspace = ""   # optional indexed binding, e.g. "prefix+shift+1..9"
-# close_tab = "prefix+shift+x"
+close_tab = '' # "prefix+shift+x"
 # rename_pane = "prefix+shift+p"
 edit_scrollback = ["prefix+e", "prefix+>"]
 copy_mode = "prefix+b"                     # default prefix+[
@@ -64,22 +64,22 @@ copy_mode = "prefix+b"                     # default prefix+[
 # focus_pane_right = "prefix+l"
 # cycle_pane_next = "prefix+tab"
 # cycle_pane_previous = "prefix+shift+tab"
-# last_pane = "prefix+ctrl+z"                    # optional, unset by default; bind e.g. "prefix+tab" for global back-and-forth
+last_pane = "prefix+,"                    # optional, unset by default; bind e.g. "prefix+tab" for global back-and-forth
 split_vertical = ["prefix+ctrl+v", "prefix+v"]
 split_horizontal = "prefix+ctrl+s"
 # close_pane = "prefix+x"
 # zoom = "prefix+z"       # legacy alias: fullscreen
 # resize_mode = "prefix+r"
-resize_pane_left = "prefix+comma"
-resize_pane_down = "prefix+="
-resize_pane_up = "prefix+minus"
-resize_pane_right = "prefix+."
+# resize_pane_left = "prefix+comma"
+# resize_pane_down = "prefix+="
+# resize_pane_up = "prefix+minus"
+# resize_pane_right = "prefix+."
 toggle_sidebar = "prefix+ctrl+b"  # prefix+b is copy_mode
 
 # Navigate-mode movement. These local shortcuts win while navigate mode is open.
 # They are independent from focus_pane_*. Do not include prefix+, esc, enter, tab, or 1..9 here.
-# navigate_workspace_up = "up"
-# navigate_workspace_down = "down"
+navigate_workspace_up = ["up", "k"]
+navigate_workspace_down = ["down", "j"]
 # navigate_pane_left = "h"      # left arrow always focuses the pane to the left
 # navigate_pane_down = "j"
 # navigate_pane_up = "k"

@@ -50,6 +50,7 @@ alias cmake-list-targets='cmake --build . --target help'
 alias pydoc='uv run -m pydoc'
 alias wormhole='uvx --from=magic-wormhole wormhole'
 
+alias pi-atc='/opt/workspace/config/pi-atc/bin/pi-atc'
 alias iso-mux="ssh -t faber '\$HOME/bin/tmux-sesh'"
 
 # In the middle of some thing running, and wish you'd done '&& next-cmd'?
