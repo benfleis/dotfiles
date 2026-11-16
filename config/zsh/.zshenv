@@ -9,7 +9,7 @@ export WORKSPACE="${WORKSPACE:-/opt/workspace}"
 # NOTE: If this doesn't suffice, next step: https://github.com/jmmv/ssh-agent-switcher
 typeset -U fpath
 fpath=( "${ZDOTDIR:-$HOME/.config/zsh}/functions" $fpath )
-autoload -Uz fix-ssh-agent _ssh_agent_alive
+autoload -Uz fix-ssh-agent _ssh_agent_alive pbcopy
 # fix-ssh-agent -q
 
 # machine-local env: $ZDOTDIR (host config) then $XDG_STATE_HOME (secrets, never in git)

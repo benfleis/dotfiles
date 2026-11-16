@@ -67,7 +67,7 @@ copy_mode = "prefix+b"                     # default prefix+[
 last_pane = "prefix+,"                    # optional, unset by default; bind e.g. "prefix+tab" for global back-and-forth
 split_vertical = ["prefix+ctrl+v", "prefix+v"]
 split_horizontal = "prefix+ctrl+s"
-# close_pane = "prefix+x"
+close_pane = "" # def: "prefix+x", redefined to y/N below
 # zoom = "prefix+z"       # legacy alias: fullscreen
 # resize_mode = "prefix+r"
 # resize_pane_left = "prefix+comma"
@@ -91,6 +91,15 @@ navigate_workspace_down = ["down", "j"]
 # type = "popup" opens a session-modal terminal without changing the tab layout.
 # Popup width and height accept terminal cells or percentages such as "80%".
 # On Windows, command strings run through cmd.exe /d /c.
+#      [keys]
+
+[[keys.command]]
+key = "prefix+x"
+type = "popup"
+width = 44
+height = 5
+command = '''printf 'Close this pane? [y/N] '; read -r -n1 a; [ "$a" = y ] && "$HERDR_BIN_PATH" pane close "$HERDR_ACTIVE_PANE_ID"
+>/dev/null'''
 # [[keys.command]]
 # key = "prefix+alt+g"
 # type = "popup"

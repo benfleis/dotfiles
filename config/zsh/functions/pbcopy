@@ -1,0 +1,13 @@
+pbcopy() {
+  local real
+  real=$(whence -p pbcopy 2>/dev/null || type -P pbcopy 2>/dev/null)
+  if [[ -n $real ]]; then
+    "$real" "$@"                                   # macOS: the real one
+  elif [[ -z $SSH_TTY && -n $WAYLAND_DISPLAY ]] && command -v wl-copy >/dev/null; then
+    wl-copy                                        # local Linux, Wayland
+  elif [[ -z $SSH_TTY && -n $DISPLAY ]] && command -v xclip >/dev/null; then
+    xclip -selection clipboard                     # local Linux, X11
+  else
+    printf '\033]52;c;%s\a' "$(base64 | tr -d '\n')" > /dev/tty   # remote: OSC 52
+  fi
+}

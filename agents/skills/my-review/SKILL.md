@@ -1,24 +1,26 @@
 ---
-name: review-duckdb-pr
-description: Review DuckDB-related pull requests or PR-like diffs — duckdb/duckdb core, out-of-tree extensions (azure, delta, unity_catalog, etc.), or client drivers. Use when asked to inspect a PR, check out a PR branch, read PR descriptions/comments/reviews, verify reviewer feedback, find correctness issues not already covered by CI, identify structural/API/design risks and maintainability issues CI cannot catch, add targeted repros for found breakages, collaborate before finalizing, and produce a reviewer-ready summary without posting through GitHub. Also applies to a pre-PR local diff (a branch/working tree not yet opened as a PR). Every review runs as two blind reviews, one by a Claude model and one by a GPT (Codex) model, merged into one consolidated report.
+name: my-review
+description: The default skill for any bare "review" request ("review 413", "review delta#357", "review this PR/branch/diff") on DuckDB-related code - duckdb/duckdb core, extensions (delta, unity_catalog, azure, iceberg, ...), client drivers - including pre-PR local diffs. A review is always dual and blind - one by the best Claude model, one by the best GPT (Codex) model - merged into one consolidated report, unless the user asks for a single review. Reads the PR description first and reviews it with the code (does it sketch what and how, does it match the diff; suggests a better one). For delta and unity_catalog PRs, compares syntax, features and use cases with duckdb-iceberg. Checks PR feedback, finds correctness, design and API risks CI cannot catch, adds repros for breakages, and writes a local report; never posts to GitHub.
 ---
 
 # Review DuckDB PR
 
+"Review" means this whole skill: two blind reviews and one consolidated report. Run a single review only when the user asks for one ("single review", "just you", or one named model), or when the one starting it picks one for a trivial PR (see "Effort: when to go all-in").
+
 ## Two Blind Reviews, One Report
 
-Every review is done twice, independently: once by a Claude model and once by a GPT model (Codex or pi). The session that was asked for the review is the **consolidator**: it starts the reviews, waits for both reports, and writes the consolidated report. Everything below this section (Workflow, Review Focus, prose rules, Final Summary) is what each reviewer does.
+Every review is done twice, independently: once by the best Claude model and once by the best GPT model. The session that was asked for the review is the **consolidator**: it starts the reviews, waits for both reports, and writes the consolidated report. Everything below this section (Workflow, PR Description, Iceberg Comparison, Review Focus, prose rules, Final Summary) is what each reviewer does.
 
 ### Roles
 
 - **Consolidator** (the invoking session, by default). Sets up the target and output paths, forks the reviews, writes the consolidated report, and talks to the user.
 - **Reviewer.** Runs the Workflow below on the target and writes one report file. A forked reviewer is told it is a reviewer: it does not fork further, does not consolidate, and does not ask the user anything (Workflow step 10 becomes a "Questions for the owner" section at the end of its report).
-- If the consolidator is itself a Claude or a GPT model, it may also be that side's reviewer and fork only the other side. Otherwise (or if its own context already holds an opinion on the change, e.g. it wrote the branch) it forks both.
+- If the consolidator runs the chosen model of one side (below), it may be that side's reviewer and fork only the other side. Otherwise (another model, or its context already holds an opinion on the change, e.g. it wrote the branch) it forks both.
 
 ### Setup (consolidator)
 
 1. Confirm the target as in Workflow step 1 (PR number and repo, or local diff and base). Record the head SHA; both reviewers review that same SHA.
-2. Pick the output paths. In `/opt/workspace`: `state/tasks/reviews/<YYYY-MM-DD>/review-<pr>-<tag>/report.md` per reviewer, where `<tag>` is the short model name (`fable`, `sol`, `astra`, ...), and `state/tasks/reviews/<YYYY-MM-DD>/review-<pr>-summary.md` for the consolidated report. For a local diff use the branch or topic name in place of `<pr>`. Elsewhere, ask the user for a directory, or use `./review-<pr>/<tag>/report.md` and `./review-<pr>/summary.md`.
+2. Pick the output paths. In `/opt/workspace`: `state/tasks/reviews/<YYYY-MM-DD>/review-<pr>-<tag>/report.md` per reviewer, where `<tag>` is the short model name (`fable`, `astra`, ...), and `state/tasks/reviews/<YYYY-MM-DD>/review-<pr>-summary.md` for the consolidated report. For a local diff use the branch or topic name in place of `<pr>`. Elsewhere, ask the user for a directory, or use `./review-<pr>/<tag>/report.md` and `./review-<pr>/summary.md`.
 3. Give each reviewer its own checkout so the two do not move each other's HEAD: a detached worktree per reviewer, e.g. `git fetch upstream pull/<pr>/head && git worktree add --detach <repo>/local/review-<pr>-<tag> FETCH_HEAD`. For a local diff, both may read the same tree, but neither edits it; a reproducer goes in the reviewer's own worktree.
 4. Write one prompt and give it, unchanged except for the role's paths, to both reviewers:
 
@@ -31,30 +33,80 @@ Every review is done twice, independently: once by a Claude model and once by a 
 
    Pass the skill by absolute path: a headless run may not have the skill installed.
 
-### Starting the reviews
+### Models and where they run
 
-Detect what is available, in this order, and use the first that works for each side. A command that is on `PATH` but fails at once (no auth, unknown model) counts as missing: smoke-test it first with a one-line prompt (`timeout 120 codex exec --skip-git-repo-check -s read-only 'Reply with: ok'`, same for `claude -p` / `pi -p`). On this box's host, `codex` is installed but may not be logged in (401 from api.openai.com); then use pi.
+The strongest reviewer on each side, as of 2026-11-04 (top Bedrock price tier of each family; both smoke-tested in pi and Codex on the host), with the default level of each:
 
-| side | first choice | fallback |
+| side | model | default level | tag |
+| --- | --- | --- | --- |
+| Claude | `global.anthropic.claude-fable-5-1` (pi: `amazon-bedrock/...`) | `max` | `fable` |
+| GPT | `openai.gpt-6-astra` (Codex) / `global.openai.gpt-6-astra` (pi) | `xhigh` | `astra` |
+
+If a name is gone, take the top tier of the newest family from `pi --list-models claude` / `pi --list-models openai` (Claude: Fable above Opus above Sonnet; GPT: Astra above Sol above Terra/Luna) and name the model in the report header. Always pass the level: without `-c model_reasoning_effort`, Codex logs `reasoning effort: none` and the model runs at its own default (`medium`).
+
+### Effort: when to go all-in
+
+Depth costs wall time and money. On the first run Fable `max` took about 18 minutes and Astra
+`xhigh` about 4, and Fable found more lower-severity issues. Depth pays off only where more
+verification can find something. The one who starts the review (ATC, or the consolidator) picks
+the shape from the **risk** of the change, not only its size. It writes the shape, the levels and
+one line of why at the top of the consolidated report.
+
+Take the first row that applies:
+
+| the change | shape | levels |
 | --- | --- | --- |
-| GPT | `codex exec` (`command -v codex`) | `pi -p --model amazon-bedrock/global.openai.gpt-6.1-sol` |
-| Claude | from Claude Code: a subagent (Task tool) with the prompt above; otherwise `claude -p` (`command -v claude`) | `pi -p --model amazon-bedrock/global.anthropic.claude-fable-5-1` |
+| **High risk.** Touches storage, transactions, concurrency, serialization or wire format, caching or invalidation, credentials or secrets. Or adds or changes public syntax, options, functions, defaults or errors. Or changes behaviour that its tests barely cover. Or is a design or architecture change. | all-in: both sides, full Workflow, probes and repros; iceberg comparison for delta/uc | Fable `max` + Astra `xhigh` (Astra `max` for design work) |
+| **Normal.** Bug fix or feature whose behaviour change the added tests cover | both sides, full Workflow | Fable `max` + Astra `xhigh` (the default) |
+| **Low risk.** Mechanical (bump, rename, generated code), docs or test-only, or a small change with no behaviour change | one side, Astra (fast; runs probes cheaply); skip probes unless something looks off | Astra `high` |
+| **Re-review.** Fix-ups after an earlier review of the same PR | one side, the one that found the most; scope: the diff since the reviewed head, and whether each earlier finding is resolved | that side's level from the first review |
 
-If a pinned model name is gone, pick the newest model of that family from `pi --list-models gpt` / `pi --list-models claude`. Name the model in the report header.
+- **Raise the shape** for any of these:
+  - a first PR from an outside author in that area;
+  - a fix for a reported correctness bug;
+  - a change the owner calls important;
+  - a re-review whose fix-up touches a high-risk area or is larger than the original findings
+    called for.
+- **Escalate mid-review.** If a one-side review finds a correctness issue or anything that looks
+  off, run the other side blind at the default level before writing the consolidated report. Say
+  so in its header.
+- **Design work: add to the prompt.** Ask the reviewers to weigh at least one alternative design
+  and to write an explicit "Design" section (ownership, layering, API shape, migration). Set a
+  time budget. At `max`, tell Fable not to draft the report twice in thinking.
+- **The user's word wins.** "Full review", "single review", "just you" or a named model overrides
+  this table.
+- **Re-tune from data.** Every consolidated report logs level, wall time, cost and findings per
+  side (below). After about 10 runs, compare findings per side and level against cost. If the
+  table should change, file a `Kind: question` for the owner with the numbers. Do not drift from
+  this table silently.
+
+Log the cost of every run: Codex prints `tokens used` at the end of `run.log`; pi with `--mode json` writes `usage.cost` per message (`jq -s '[.[] | select(.type=="message_end" and .message.role=="assistant") | .message.usage.cost.total] | add' run.jsonl`). Put both in the consolidated report header.
+
+Smoke-test each side before forking (`Reply with: ok`, `timeout 180`). A command that is on `PATH` but fails at once (auth, unknown model, region) counts as missing.
+
+| where | Claude side | GPT side |
+| --- | --- | --- |
+| host pi (default) | `pi -p` with Fable | `codex exec` on Bedrock (flags below; host `~/.codex` has no provider, and its OpenAI login gives 401); fallback `pi -p` with Astra |
+| iso pi (sandbox) | `pi -p` with Fable | `codex exec` (iso config sets Bedrock, us-east-1, `danger-full-access`); fallback `pi -p` with Astra |
+| Claude Code | Task subagent or `claude -p --model <claude id>`; fallback `pi -p` | `codex exec`, fallback `pi -p` |
+| Codex | `claude -p` or `pi -p` with Fable | itself, if on Astra |
 
 Command shapes (run each in the background, log beside its report, and wait for the report file and the process exit):
 
-    # GPT via Codex: needs network for gh; -o keeps its last message as a fallback report
-    codex exec [-m <model>] -s workspace-write -c sandbox_workspace_write.network_access=true \
-        -C <worktree> --add-dir <report dir> -o <report dir>/last-message.md "<prompt>" \
-        > <report dir>/run.log 2>&1 &
+    # GPT via Codex. On the host add: -c model_provider=amazon-bedrock
+    #   -c model_providers.amazon-bedrock.aws.region=us-east-1 (gpt-6 404s in other regions)
+    #   -s workspace-write -c sandbox_workspace_write.network_access=true (network for gh).
+    # In iso, the config already sets the provider and danger-full-access (bubblewrap cannot start there).
+    codex exec -m openai.gpt-6-astra -c model_reasoning_effort=xhigh \
+        -C <worktree> --add-dir <report dir> \
+        -o <report dir>/last-message.md "<prompt>" > <report dir>/run.log 2>&1 &
 
-    # GPT or Claude via pi
-    pi -p --no-session --model amazon-bedrock/<model> "<prompt>" > <report dir>/run.log 2>&1 &
+    # Claude via pi (GPT fallback: amazon-bedrock/global.openai.gpt-6-astra --thinking xhigh)
+    pi -p --no-session --mode json --model amazon-bedrock/global.anthropic.claude-fable-5-1 \
+        --thinking max "<prompt>" > <report dir>/run.jsonl 2>&1 &
 
-    # Claude via Claude Code headless. --allowedTools and --add-dir take lists, so the prompt goes
-    # on stdin. Add build/test commands if the review needs probes; inside iso-claude,
-    # --dangerously-skip-permissions is fine (the container is the boundary), never on the host.
+    # Claude via Claude Code headless: prompt on stdin (--allowedTools/--add-dir take lists);
+    # --dangerously-skip-permissions only inside iso-claude, never on the host.
     printf '%s\n' "<prompt>" | claude -p --model <model> --permission-mode acceptEdits \
         --add-dir <worktree> <report dir> \
         --allowedTools "Bash(git diff:*)" "Bash(git log:*)" "Bash(git show:*)" "Bash(git status:*)" \
@@ -62,14 +114,9 @@ Command shapes (run each in the background, log beside its report, and wait for 
             "Bash(gh api --method GET:*)" "Bash(grep:*)" "Bash(rg:*)" "Bash(ls:*)" \
         > <report dir>/run.log 2>&1 &
 
-Per environment:
+If Codex stops part-way (e.g. OpenAI's "high-risk cyber activity" flag) and writes no report, re-run that side with pi on the same model from a clean worktree.
 
-- **Claude Code (host or iso-claude sandbox).** The session is the Claude reviewer, or forks a subagent for it. GPT: `codex exec` if installed, otherwise pi with the GPT model.
-- **pi.** Check `$PI_MODEL`: a Claude model is the Claude reviewer, a GPT model the GPT reviewer. The other side: `pi -p --model ...` with the other family (works everywhere pi has Bedrock), or `codex exec` / `claude -p`.
-- **Codex.** The session is the GPT reviewer. Claude: `claude -p` if installed, otherwise pi with the Claude model.
-- **Sandbox (iso-claude).** `config/` is read-only, but the skill only needs to read it; reports go under `state/`. Codex may not be installed there yet: use pi with the GPT model. If Codex's own sandbox cannot start inside the container, run it with `-s danger-full-access`; the container is the boundary.
-
-**If one side cannot run** (neither tool works, or it fails part-way and does not write a report): do not wait for it and do not invent its view. Run the one review, write the consolidated report from it, and say at the top, in the verdict line: "Single review (<model>); the <Claude|GPT> review did not run: <reason>." Tell the user the same, with the command that would run the missing side.
+**If one side cannot run** (no tool works, or it fails part-way and writes no report after the retry): do not wait for it and do not invent its view. Run the one review, write the consolidated report from it, and say at the top, in the verdict line: "Single review (<model>); the <Claude|GPT> review did not run: <reason>." Tell the user the same, with the command that would run the missing side.
 
 ### Blindness
 
@@ -79,13 +126,15 @@ Per environment:
 
 ### Consolidated report
 
-Write it after both reports exist, next to them (`review-<pr>-summary.md`). Name both source reports, and the model of each, at the top. Then, short:
+Write it after both reports exist, next to them (`review-<pr>-summary.md`). Name both source reports, and the model, level, wall time and cost of each, at the top. Then, short:
 
 1. **Verdict.** One line each if they differ, one line if they agree ("Both: mergeable after small fixes").
-2. **Agreed findings.** Found by both, by severity, with file/line, crediting each ("both reviewers", or `Fable M1 / sol P3`).
+2. **Agreed findings.** Found by both, by severity, with file/line, crediting each ("both reviewers", or `Fable M1 / Astra P3`).
 3. **Found by one reviewer only**, grouped per reviewer. For each, say whether you checked it and whether it holds; a finding the other reviewer contradicts is listed with both views, not dropped.
-4. **Behaviour changes** the change brings that a user or caller will notice, even when both call them correct.
-5. **Decisions for the owner.** The open questions from both reports, merged, each with the reviewers' recommendations.
+4. **PR description.** The merged verdict on it, and one suggested description if either reviewer found it short (pick or merge theirs; do not write a third).
+5. **Iceberg comparison** (delta/uc only): merged, keeping each gap once.
+6. **Behaviour changes** the change brings that a user or caller will notice, even when both call them correct.
+7. **Decisions for the owner.** The open questions from both reports, merged, each with the reviewers' recommendations. **Each one is also filed** as a `Kind: question` entry in the topic TODO (`atc note`, then `Kind:` and `Parent:` on their own lines, `- [n]` options, the recommendation marked), whose first body line is `Blocks: <what cannot proceed until it is answered>` (e.g. `Blocks: merge uc#159-uc-ctas`, or `Blocks: nothing (follow-up)`). A decision that is only in the summary is invisible to the owner's view.
 
 Keep the detail in the reviewer reports and link them; the consolidated report is the one the owner reads first. The prose rules below apply to it too. Do not post it.
 
@@ -93,7 +142,7 @@ Keep the detail in the reviewer reports and link them; the consolidated report i
 
 1. Confirm the target PR number and URL. If the URL and requested checkout number disagree, inspect both PR headers and ask or infer conservatively before changing the worktree.
    - Pre-PR / local-diff case: if there is no PR number (a not-yet-pushed branch or working-tree change), skip the `gh` checkout steps and review the local diff directly with `git diff` / `git diff <base>...HEAD`. All Review Focus, Investigation, and Final Summary sections still apply.
-2. Read the PR description, commits, changed files, top-level comments, submitted reviews, and inline review comments. Use `gh pr view` for supported fields and `gh api repos/<owner>/<repo>/pulls/<pr>/comments` plus `gh api repos/<owner>/<repo>/issues/<pr>/comments` for comments not exposed by `gh pr view` — use the PR's actual owner/repo (`gh repo view --json nameWithOwner`), don't assume `duckdb/duckdb`.
+2. Read the PR description first, before the diff, and write down what it claims (see "PR Description" below). Then read the commits, changed files, top-level comments, submitted reviews, and inline review comments. Use `gh pr view` for supported fields and `gh api repos/<owner>/<repo>/pulls/<pr>/comments` plus `gh api repos/<owner>/<repo>/issues/<pr>/comments` for comments not exposed by `gh pr view` — use the PR's actual owner/repo (`gh repo view --json nameWithOwner`), don't assume `duckdb/duckdb`. For a local diff, the branch's commit messages (or the user's summary) stand in for the description.
 3. Treat later PR feedback as more important than earlier feedback because author changes or reviewer decisions may supersede older comments. Explicitly note when there is no feedback to verify.
 4. Check `git status --short` before checkout or edits. Never discard unrelated local changes. Checkout the requested PR with `gh pr checkout <pr>` unless the worktree is already on the exact PR head.
 5. Run builds/tests only when the user asks, when local inspection requires a built artifact, or when a targeted probe is needed to confirm a suspected issue. Do not spend review time proving that the existing test suite or formatter passes; CI already checks that.
@@ -104,6 +153,35 @@ Keep the detail in the reviewer reports and link them; the consolidated report i
 9. If a breakage is found, add a minimal reproducer before reporting it, unless the user asks for a different location. In duckdb/duckdb core the convention is `test/temp.test`; for extensions/drivers, use an equivalent scratch/temp test location if the repo has one, or ask the user where to put it. Keep the reproducer concise and runnable.
 10. Collaborate before finalizing: ask the user for their opinion on one or two specific uncertain code points, especially where judgment rather than proof drives the review.
 11. Do not post a PR review, comments, or summary via the GitHub API. Produce a local summary only.
+
+## PR Description
+
+The description is an input and a review target. A good one sketches the feature at a high level: **what** it does for a user or caller (new syntax, behaviour, fixed bug) and, when the change is not obvious from the diff, **how** (approach, the layer it touches, notable trade-offs or limits). It does not walk the code line by line.
+
+Judge, and report under its own heading:
+
+- **Sketch.** Does it say what, and how where that is needed? Is it short enough to read in a minute?
+- **Match.** Does it match the diff: claimed behaviour that the code does not do, code that changes behaviour the description does not mention (new options, defaults, errors, removed paths), stale text from an earlier revision.
+- **Feedback.** Point out what is missing or wrong. If it falls short, write a suggested description (a few lines, the author's voice, no review jargon) the author can paste.
+
+For our own PRs, the author runs one Codex tightening pass on the description after the last code change and before hand-off (`config/agents/AGENTS.md`, "PR descriptions"); this review's feedback is input to that pass, not a replacement for it.
+
+A mismatch between description and diff is a finding, ranked like any other: it is often the first sign that the code does something the author did not intend.
+
+## Iceberg Comparison (delta and unity_catalog)
+
+For a duckdb-delta or unity_catalog PR that adds or changes user-facing syntax, options, functions, catalog/secret behaviour, or a scan/write feature, compare it with duckdb-iceberg. Skip it (say "not applicable" in one line) for internal fixes with no user-visible surface.
+
+Checkout (read-only, shared): use `/opt/workspace/src/d/iceberg` or, if that is absent, `/opt/workspace/src/d/ice`; if neither exists, `git clone https://github.com/duckdb/duckdb-iceberg /opt/workspace/src/d/iceberg` (no submodules). Run `git -C <dir> fetch origin` at the start of each review, then read `origin/main` with `git grep origin/main -- src test` and `git show origin/main:<path>`. Never check out, build or edit there: other agents read the same tree.
+
+Report, in a short table or list:
+
+- **Name and syntax.** What iceberg calls the same thing (function, `ATTACH`/`TYPE` option, secret field, setting, pragma), and how the spelling, defaults and argument shapes differ.
+- **Behaviour.** Semantics in edge cases: errors, time travel, snapshot pinning, credential refresh, pushdown, partitioning, write and commit rules.
+- **Gaps either way.** What iceberg has that delta/uc lacks, and the reverse, with the iceberg file/test that shows it.
+- **Use case.** Whether a user moving between the two formats would be surprised, and whether the PR should align its name or behaviour with iceberg (a recommendation, not a blocker unless the mismatch is a correctness or API-consistency issue).
+
+Cite iceberg at its `origin/main` short SHA.
 
 ## GitHub Read-Only Access
 
@@ -182,6 +260,8 @@ Lead with findings, ordered by severity, using file/line references. If no issue
 Include:
 
 - PR number/title and branch/head checked (or "local diff, no PR" for the pre-PR case).
+- PR description verdict (sketch, match), with a suggested description if it falls short.
+- Iceberg comparison for delta/uc PRs, or "not applicable".
 - Build/test/probe commands run and outcomes, only if they were run.
 - PR feedback status, including "no PR feedback found" when applicable.
 - Any repro test added (see Workflow step 9 for where it goes).
