@@ -19,7 +19,7 @@ local host='%F{#CCB040}@%m%f'
 
 local time="%F{#88aaff}%*%f"
 local pwd="%F{#AA5A18}%4~%f"
-local prev="%(?.%F{green}--%f.%B%F{red}!!%b%f)"
+local prev="%(?.%F{green}--%f.❌)"
 local tail="%(!.%B%F{yellow}#.%F{green}>)%f"
 
 function use_prompt_basic {
